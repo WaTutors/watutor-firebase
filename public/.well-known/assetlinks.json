@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.wavisits.watutors",
+    "sha256_cert_fingerprints":
+    ["AE:B5:4C:14:85:CB:68:16:BA:2F:64:A7:E7:81:24:F4:99:8D:09:31:9D:D0:7E:95:B6:64:A4:6E:31:02:A5:6B"]
+  }
+}]
