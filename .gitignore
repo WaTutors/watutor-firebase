@@ -46,9 +46,6 @@ build/Release
 # Dependency directories
 node_modules/
 
-# Optional npm cache directory
-.npm
-
 # Optional eslint cache
 .eslintcache
 
@@ -72,3 +69,12 @@ yarn.lock
 
 # Key files
 wa-tutors-firebase-adminsdk-is74d-c2724a7480.json
+
+# venv
+venv
+
+# Python cache
+__pycache__
+
+# VSCode files
+.vscode
