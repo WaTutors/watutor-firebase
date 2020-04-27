@@ -3,16 +3,18 @@ from time import time
 import jwt
 from hyper import HTTPConnection
 import json
+from google.cloud import secretmanager
 
 # Android
 import requests
 import firebase_admin
-from os import environ
 
 app = firebase_admin.initialize_app()
+secret_client = secretmanager.SecretManagerServiceClient()
 
-# TODO - Make this more secure: https://www.sethvargo.com/secrets-in-serverless/
-apns_key = environ["APNS_KEY"]
+apns_key = secret_client.access_secret_version(
+    f"projects/wa-tutors/secrets/apns-key/versions/latest"
+).payload.data.decode()
 
 
 def dispatch_ios(notification_id, notif):
