@@ -1,4 +1,5 @@
 # Repo for Wa-Tutor Cloud Functions
+![Node.js CI](https://github.com/lucapaler/wa-tutors/workflows/Node.js%20CI/badge.svg)
 
 ### file structure
 
