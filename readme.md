@@ -16,7 +16,12 @@
 - public
 - - *bumper pages and whatnot*
 
-
 ## to deploy:
 `todo put deploy code here`
+
+## to setup project
+
+### set up linter
+//TODO
+
 

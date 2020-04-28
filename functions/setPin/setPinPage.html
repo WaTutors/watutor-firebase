@@ -17,43 +17,48 @@
   <title>Lorem Ipsum Sucka</title>
 </head>
 
-<body>
-  <h1>Hello, world!</h1>
-  <div>
-    <div class='min-vw-'>
-      <span>console.log :)</span>
+<body class='bg-secondary'>
+
+  <div class="row justify-content-center align-items-center">
+    <div class="col col-sm-12 col-md-6 col-lg-4 col-xl-3 m-4 bg-light rounded">
 
       <!-- Default form login -->
-      <form class="text-center border border-light p-5" onSubmit="return false;">
+      <form class="text-center border border-light p-4" onSubmit="return false;" id='mainform'>
 
-        <p class="h4 mb-4">Submit Account</p>
+        <h1 class="h4 mb-4">Submit WaTutors Account</h1>
 
-        <!-- Email -->
-        <input type="number" id="defaultLoginFormEmail" class="form-control mb-4" placeholder="E-mail">
+        <a href="#" class="mx-2" role="button"><i class="fab fa-apple light-blue-text"></i></a>
 
-        <!-- Password -->
-        <input type="password" id="defaultLoginFormPassword" class="form-control mb-4" placeholder="Password">
-
-        <!-- Sign in button -->
-        <button class="btn btn-info btn-block my-4" type="submit">Sign in</button>
-
-        <!-- Register -->
-        <p>Not a member?
-          <a href="">Register</a>
+        <p>
+          Please confirm your email address and set a pin.
+          <br><br>
+          This pin will be used to lock access to scheduling and payments
         </p>
 
-        <!-- Social login -->
-        <p>or sign in with:</p>
+        <!-- Name (preset) -->
+        <span id='nameinfo' class="text-danger"></span>
+        <input type="name" name="name" id="formfirstname" class="form-control mb-1" placeholder="Your First Name">
+        <input type="name" name="name" id="formlastname" class="form-control mb-2" placeholder="Your Last Name">
 
-        <a href="#" class="mx-2" role="button"><i class="fab fa-facebook-f light-blue-text"></i></a>
-        <a href="#" class="mx-2" role="button"><i class="fab fa-twitter light-blue-text"></i></a>
-        <a href="#" class="mx-2" role="button"><i class="fab fa-linkedin-in light-blue-text"></i></a>
-        <a href="#" class="mx-2" role="button"><i class="fab fa-github light-blue-text"></i></a>
+        <!-- Pin -->
+        <span id='pininfo' class="text-danger"></span>
+        <input type="number" id="formpin" class="form-control mb-4" placeholder="4 Digit Pin">
+
+        <!-- Sign in button -->
+        <button class="btn btn-info btn-block my-4" type="submit">Submit</button>
+        <span id='statustext'></span>
+
+        <!-- Register -->
+        <p>By submitting, you agree to our
+          <a href="http://watutors.com/privacy-policy-2/">privacy policy</a>
+        </p>
 
       </form>
       <!-- Default form login -->
     </div>
+
   </div>
+  <span>console.log :)</span>
 
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -70,14 +75,40 @@
   <script language='JavaScript'>
     $(document).ready(function () {
 
-      $('form').submit(function () {
-        console.log('asdfksaldfkj')
-        //do stuff
-        var text = $("#defaultLoginFormEmail").val() || ' default :/'
-        $("span").text(text).show();
-      });
-    });
+      $('#mainform').submit(function () {
+        var newpin = $("#formpin").val() || 'f bro'
+        var newfirstname = $('#formfirstname').val() || 'gg bro'
+        var newlastname = $('#formlastname').val() || 'gg bro'
 
+        var pinValid = newpin.length === 4
+        var nameValid = newlastname.length > 2 && newfirstname.length > 2;
+
+        $('#statustext').attr('class', 'text-success')
+        $('#statustext').text('Account Confirmed!').show()
+
+        if (pinValid && nameValid) {
+          // TODO send request
+          /*
+          var body = {
+            key: '', // TODO pass from url query
+            emailName: newfirstname + ' ' + newlastname,
+            pin: newpin, 
+          }
+          // https://api.jquery.com/jquery.post/
+          $.post( "test.php", body, function( data ) { // parse json from response 
+  console.log( data.name ); // John
+  console.log( data.time ); // 2pm
+}, "json");
+*/
+        }
+        if (!pinValid)
+          $('#pininfo').text('Pin Must be 4 digits').show();
+        if (!nameValid)
+          $('#pininfo').text("Invalid names").show();
+
+      });
+
+    });
   </script>
 </body>
 
