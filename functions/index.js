@@ -1,14 +1,17 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const stripe = require('stripe')(functions.config().stripe.key);
 
 admin.initializeApp();
 
-import { createCharge, captureCharge } from './Stripe'
-import { setPinPage } from './setPin'
+const { createCharge, captureCharge } = require('./Stripe')
+const { setPinPage } = require('./setPin')
 
 
 exports.setPin = functions.https.onCall(setPinPage);
+
+//================================================================================
+// One-Off Pages
+//================================================================================
 
 
 //================================================================================
