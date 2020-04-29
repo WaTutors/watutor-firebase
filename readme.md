@@ -22,6 +22,10 @@
 ## to setup project
 
 ### set up linter
-//TODO
 
+If having issues, try copying .eslintrc.json into home directory
+Then run `npm i -D eslint eslint-config-standard eslint-plugin-import eslint-plugin-node eslint-plugin-promise eslint-plugin-standard`
 
+Tutorial if all else goes wrong: https://travishorn.com/setting-up-eslint-on-vs-code-with-javascript-standard-style-aa3ab75bcc1c
+
+If still having issues, try resetting VS lint extension settings (especially `Node Path` `Package Manager` (set to npm) `Eslint: Debug`)

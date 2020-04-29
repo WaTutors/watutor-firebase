@@ -7,16 +7,27 @@ const { createCharge, captureCharge } = require('./Stripe')
 const { setPinPage } = require('./setPin')
 
 
-exports.setPin = functions.https.onCall(setPinPage);
 
 //================================================================================
 // One-Off Pages
 //================================================================================
 
+/**
+ * Sends pin page
+ *
+ * This should be linked from the student verification email
+ * Publically available
+ *
+ * @since 0.0.5
+ *
+ * @link https://firebase.google.com/docs/functions/http-events#trigger_a_function_with_an_http_request
+ * @link https://nodejs.org/en/knowledge/HTTP/clients/how-to-access-query-string-parameters/
+ */
+exports.setPin = functions.https.onRequest(setPinPage);
 
-//================================================================================
+// ================================================================================
 // Stripe
-//================================================================================
+// ================================================================================
 
 
 /**
@@ -35,7 +46,7 @@ exports.setPin = functions.https.onCall(setPinPage);
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
  */
-exports.captureCharge = functions.https.onCall(captureCharge);
+//exports.captureCharge = functions.https.onCall(captureCharge);
 
 /**
  * Creates Stripe charge.
@@ -46,7 +57,7 @@ exports.captureCharge = functions.https.onCall(captureCharge);
  *
  * @since 0.0.1
  */
-exports.createCharge = functions.https.onCall(createCharge);
+//exports.createCharge = functions.https.onCall(createCharge);
 
 
 
