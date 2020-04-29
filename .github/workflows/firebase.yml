@@ -17,8 +17,11 @@ jobs:
         run: npm install
         working-directory: ./functions
       - name: Build
-        run: npm run shell
-        working-directory: ./functions
+        uses: w9jds/firebase-action@master
+        with:
+          args: functions:shell
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
   deploy:
     name: Deploy
     needs: build
