@@ -46,7 +46,7 @@ exports.setPin = functions.https.onRequest(setPinPage);
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
  */
-//exports.captureCharge = functions.https.onCall(captureCharge);
+exports.captureCharge = functions.https.onCall(captureCharge);
 
 /**
  * Creates Stripe charge.
@@ -57,7 +57,7 @@ exports.setPin = functions.https.onRequest(setPinPage);
  *
  * @since 0.0.1
  */
-//exports.createCharge = functions.https.onCall(createCharge);
+exports.createCharge = functions.https.onCall(createCharge);
 
 // ================================================================================
 // Email
