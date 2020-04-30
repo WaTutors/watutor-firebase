@@ -3,20 +3,31 @@ const admin = require('firebase-admin');
 
 admin.initializeApp();
 
-const { createCharge, captureCharge } = require('./Stripe')
+const { createCharge, captureCharge } = require('./stripe')
 const { setPinPage } = require('./setPin')
+const {testMail} = require('./sendEmail')
 
-
-exports.setPin = functions.https.onCall(setPinPage);
 
 //================================================================================
 // One-Off Pages
 //================================================================================
 
+/**
+ * Sends pin page
+ *
+ * This should be linked from the student verification email
+ * Publically available
+ *
+ * @since 0.0.5
+ *
+ * @link https://firebase.google.com/docs/functions/http-events#trigger_a_function_with_an_http_request
+ * @link https://nodejs.org/en/knowledge/HTTP/clients/how-to-access-query-string-parameters/
+ */
+exports.setPin = functions.https.onRequest(setPinPage);
 
-//================================================================================
+// ================================================================================
 // Stripe
-//================================================================================
+// ================================================================================
 
 
 /**
@@ -48,5 +59,19 @@ exports.captureCharge = functions.https.onCall(captureCharge);
  */
 exports.createCharge = functions.https.onCall(createCharge);
 
+// ================================================================================
+// Email
+// ================================================================================
 
-
+/**
+ * Sends an email
+ * from the watutors.auto@gmail.com email
+ *
+ * @since 0.0.5
+ *
+ * @link https://dev.to/akshay090/sending-personalized-email-from-cloud-function-50al
+ *
+ * @returns {string}                     "Success" if successfully captured charge.
+ * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
+ */
+exports.testEmail = functions.https.onRequest(testMail);
