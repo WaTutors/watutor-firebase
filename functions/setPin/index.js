@@ -17,8 +17,7 @@ const {htmlTemplate} = require("./setPinPage")
  * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
  */ 
 exports.setPinPage = (req, res) => {
-  const code = req.query.code;
-  const email = req.query.email;
+  const {code, email} = req.query;
 
   if (!code || !email) // TODO regex verify
     return res.status(403).send('Not authorized.')

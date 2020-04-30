@@ -151,7 +151,7 @@ exports.htmlTemplate = `
         };
 
         // second attempt
-        var url = "http://localhost:3001/users/parent/pin" // TODO change url root after deployment
+        var url = "https://wa-tutors.appspot.com/users/parent/pin" // TODO change url root after deployment
 
         function onAjaxSuccess(resp) {
           $('#statustext').attr('class', 'text-success')
