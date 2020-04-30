@@ -6,8 +6,8 @@ const gmailPassword = functions.config().gmail.password;
 const mailTransport = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: gmailEmail,
-    pass: gmailPassword
+    user: gmailEmail || 'watutors.auto@gmail.com',
+    pass: gmailPassword || 'Watutors0)'
   }
 });
 
@@ -30,17 +30,20 @@ const {welcome} = require('./templates/welcome')
 //exports.testMail = ({ source, subject = null }) => {
 exports.testMail = (req, res)  => { // for testing use https
 console.log(gmailEmail,gmailPassword, functions.config())
-    const {toAddress, name} = req.query;
+    const {toAddress, displayName} = req.query;
     const subject = 'Welcome to Watutors! (test)';
+
+    if (!toAddress || !displayName)
+      return res.status(400).send('Missing url query params')
 
     // parse email from template
     var html = welcome // init template
-    html = data.toString();
-    html = data.replace(/###NAME###/g, displayName); 
-    html = data.replace(/###MAINLINK###/g, `"https://us-central1-wa-tutors.cloudfunctions.net/setPin?code=539d2b9bf9f2ec1d1002837a9c258f08&email=${toAddress}"`)
+    html = html.toString();
+    html = html.replace(/###NAME###/g, displayName); 
+    html = html.replace(/###MAINLINK###/g, `"https://us-central1-wa-tutors.cloudfunctions.net/setPin?code=539d2b9bf9f2ec1d1002837a9c258f08&email=${toAddress}"`)
   
     // send email
-    return sendEmail({toAddress, name, subject, html, res});
+    return sendEmail({toAddress, displayName, subject, html, res});
   };
 
     //http://www.google.com/accounts/DisplayUnlockCaptcha
@@ -71,7 +74,7 @@ function sendEmail({toAddress, html, displayName, subject, res}) {
     from: '"Watutors" <noreply@firebase.com>', // sender address TODO beautify
     to: toAddress, // list of receivers 
     subject: subject, // Subject line 
-    html: data // html body
+    html: html // html body
   };
   try {
     mailTransport.sendMail(mailOptions);
