@@ -7,24 +7,20 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
-    name: Build
+  eslint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
         uses: actions/checkout@master
-      - name: Install Dependencies
-        run: npm install
-        working-directory: ./functions
-      - name: Build
-        uses: w9jds/firebase-action@master
+      - name: Run ESLint
+        uses: stefanoeb/eslint-action@1.0.2
         with:
-          args: functions:shell
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          files: functions/
   deploy:
+    if: github.event == 'push'
     name: Deploy
-    needs: build
+    needs: eslint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
