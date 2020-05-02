@@ -64,8 +64,9 @@ node_modules/
 # macOS files
 .DS_Store
 
-# Yarn lock file
+# Lock files
 yarn.lock
+package-lock.json
 
 # Key files
 wa-tutors-firebase-adminsdk-is74d-c2724a7480.json
@@ -78,3 +79,6 @@ __pycache__
 
 # VSCode files
 .vscode
+
+# Runtime config
+.runtimeconfig.json

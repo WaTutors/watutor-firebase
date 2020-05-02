@@ -192,4 +192,4 @@ exports.htmlTemplate = `
 </script>
 
 </html>
-`
+`;
