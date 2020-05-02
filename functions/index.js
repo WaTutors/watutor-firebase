@@ -3,14 +3,13 @@ const admin = require('firebase-admin');
 
 admin.initializeApp();
 
-const { createCharge, captureCharge } = require('./stripe')
-const { setPinPage } = require('./setPin')
-const {testMail} = require('./sendEmail')
+const { createCharge, captureCharge } = require('./stripe');
+const setPinPage = require('./setPin');
+const testMail = require('./sendEmail');
+const { triggerIncomingCall } = require('./notifications');
 
 
-//================================================================================
-// One-Off Pages
-//================================================================================
+// SECTION - One-Off Pages
 
 /**
  * Sends pin page
@@ -25,10 +24,31 @@ const {testMail} = require('./sendEmail')
  */
 exports.setPin = functions.https.onRequest(setPinPage);
 
-// ================================================================================
-// Stripe
-// ================================================================================
+// !SECTION
 
+// SECTION - Stripe
+
+/**
+ * Creates Stripe charge.
+ *
+ * Intakes a Stripe payment source (token generated through credit card or native pay) and charges
+ * the payment information that generated the token $15.00 for a tutoring session, which is labeled
+ * with an optional subject field.
+ *
+ * @since 0.0.1
+ *
+ * @link https://firebase.google.com/docs/functions/callable
+ * @link https://stripe.com/docs/payments/accept-a-payment-charges#web-create-charge
+ * @link https://stripe.com/docs/charges/placing-a-hold#authorize-a-payment
+ *
+ * @param {Object} param0         Object containing source and subject.
+ * @param {string} param0.source  Token generated through credit card or native pay.
+ * @param {string} [subject=null] Optional subject to display in charge description.
+ *
+ * @returns {string}           "Success" if successfully created charge.
+ * @throws  {https.HttpsError} Any error that occurred in Stripe charge creation.
+ */
+exports.createCharge = functions.https.onCall(createCharge);
 
 /**
  * Captures a charge.
@@ -43,29 +63,19 @@ exports.setPin = functions.https.onRequest(setPinPage);
  * @link https://firebase.google.com/docs/functions/callable
  * @link https://stripe.com/docs/charges/placing-a-hold#capture-the-funds
  *
- * @returns {string}                     "Success" if successfully captured charge.
- * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
+ * @returns {string}           "Success" if successfully captured charge.
+ * @throws  {https.HttpsError} Any error that occurs during capturing.
  */
 exports.captureCharge = functions.https.onCall(captureCharge);
 
-/**
- * Creates Stripe charge.
- *
- * Intakes a Stripe payment source (token generated through credit card or native pay) and charges
- * the payment information that generated the token $15.00 for a tutoring session, which is labeled
- * with an optional subject field.
- *
- * @since 0.0.1
- */
-exports.createCharge = functions.https.onCall(createCharge);
+// !SECTION
 
-// ================================================================================
-// Email
-// ================================================================================
+// SECTION - Email
 
 /**
- * Sends an email
- * from the watutors.auto@gmail.com email
+ * Sends an email.
+ *
+ * Sends an email from the watutors.auto@gmail.com email.
  *
  * @since 0.0.5
  *
@@ -75,3 +85,31 @@ exports.createCharge = functions.https.onCall(createCharge);
  * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
  */
 exports.testEmail = functions.https.onRequest(testMail);
+
+// !SECTION
+
+// SECTION - Call notifications
+
+/**
+ * Sends incoming call notification.
+ *
+ * Checks for required slot ID in function call body. Finds target slot from provided ID, creates
+ * notification payload and dispatches iOS or Android notification depending on the notification
+ * ID content.
+ *
+ * @since 0.0.5
+ *
+ * @see  dispatchIOS
+ * @see  dispatchAndroid
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Database#ref
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Reference#once
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.database.DataSnapshot#val
+ *
+ * @param {Object} param0        Object containing target slot ID.
+ * @param {Object} param0.slotId ID of slot to send incoming call notification for.
+ *
+ * @returns {string} "Success" if notification was properly dispatched.
+ * @throws {https.HttpsError} Any error that occurs during sending of notifications or if the
+ *                            function call body is invalid.
+ */
+exports.triggerIncomingCall = functions.https.onCall(triggerIncomingCall);
