@@ -1,8 +1,5 @@
 // Dependencies
-const admin = require('firebase-admin')
 const { CloudTasksClient } = require('@google-cloud/tasks')
-
-admin.initializeApp();
 
 /**
  * Queues the reservation_Callback function to run 5 minutes later via Google Cloud Tasks.
