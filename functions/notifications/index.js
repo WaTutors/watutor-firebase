@@ -81,7 +81,7 @@ const getToken = async () => {
 */
 const dispatchIOS = async (notificationId, json) => {
   const headers = {
-    authorization: `bearer ${getToken()}`,
+    authorization: `bearer ${await getToken()}`,
     'apns-push-type': 'voip',
     'apns-topic': 'com.wavisits.watutors.voip',
     'apns-expiration': 0,
