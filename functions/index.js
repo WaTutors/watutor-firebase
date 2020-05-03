@@ -4,8 +4,8 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 
 const { createCharge, captureCharge } = require('./stripe');
-const setPinPage = require('./setPin');
-const testMail = require('./sendEmail');
+const { setPinPage } = require('./setPin');
+const { testMail } = require('./sendEmail');
 const { triggerIncomingCall } = require('./notifications');
 
 
@@ -84,7 +84,7 @@ exports.captureCharge = functions.https.onCall(captureCharge);
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
  */
-exports.testEmail = functions.https.onRequest(testMail);
+exports.testEmail = functions.https.onRequest(testMail); // TODO - Make this callable
 
 // !SECTION
 

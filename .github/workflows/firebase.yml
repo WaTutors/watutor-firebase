@@ -1,4 +1,4 @@
-name: Build and Deploy Functions
+name: Lint and Deploy Functions
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@master
       - name: Run ESLint
-        uses: stefanoeb/eslint-action@1.0.2
+        uses: stefanoeb/eslint-action@1.0.2 # FIXME
         with:
           files: functions/
   deploy:
