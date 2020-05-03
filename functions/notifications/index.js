@@ -1,12 +1,62 @@
 const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
-const { sign } = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const { fetch: fetch2 } = require('fetch-h2');
 const admin = require('firebase-admin');
 const { https } = require('firebase-functions');
 
 const secretClient = new SecretManagerServiceClient();
 
-const db = admin.database();
+const db = admin.firestore();
+
+let apnsKey = '';
+
+/**
+ * Refreshes APNs JWT token.
+ *
+ * Checks to see if the APNs private key is loaded, and if not, accesses it from Google Secret
+ * Manager. Accesses the most recent JWT token also through the Secret Manager and checks if it has
+ * expired. If it has, generates a new JWT token and stores it. Returns the new or most recent
+ * token.
+ *
+ * @since 0.0.6
+ *
+ * @link https://cloud.google.com/secret-manager/docs/quickstart#create_and_access_a_secret_version
+ * @link https://dev.to/googlecloud/using-secrets-in-google-cloud-functions-5aem
+ *
+ * @returns {string} JWT token to use with APNs.
+ */
+const getToken = async () => {
+  if (!apnsKey) {
+    apnsKey = await secretClient.accessSecretVersion({
+      name: 'projects/wa-tutors/secrets/apns-key/versions/latest',
+    }).then(([{ payload }]) => payload.data.toString().replace(/\\n/g, '\n'));
+  }
+
+  const token = await secretClient.accessSecretVersion({
+    name: 'projects/wa-tutors/secrets/apns-token/versions/latest',
+  }).then(([{ payload }]) => payload.data.toString());
+
+  if (jwt.decode(token).exp * 1000 < Date.now()) {
+    const newToken = jwt.sign({
+      iss: 'BRZ56NM6F3',
+    }, apnsKey, {
+      algorithm: 'ES256',
+      keyid: 'UAWJ8M274W',
+      expiresIn: '40 mins',
+    });
+
+    await secretClient.addSecretVersion({
+      parent: 'projects/wa-tutors/secrets/apns-token',
+      payload: {
+        data: Buffer.from(newToken, 'utf8'),
+      },
+    });
+
+    return newToken;
+  }
+
+  return token;
+};
 
 /**
  * Dispatches VoIP push notification for iOS.
@@ -17,6 +67,7 @@ const db = admin.database();
  *
  * @since 0.0.5
  *
+ * @see  getToken
  * @link https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/establishing_a_token-based_connection_to_apns?language=objc
  * @link https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns?language=objc
  * @link https://developer.apple.com/documentation/pushkit/responding_to_voip_notifications_from_pushkit?language=objc
@@ -25,29 +76,18 @@ const db = admin.database();
  * @param {string} notificationId Notification ID to send VoIP notification to.
  * @param {Object} json           Notification payload.
  *
- * @returns {string} Response text from APNs request.
- * @returns {number} Response status from APNs request. // TODO - update this
+ * @returns {string} "Success" if notification was properly dispatched.
+ * @throws  {Error}  Response text if status code is not 200.
 */
 const dispatchIOS = async (notificationId, json) => {
-  const apnsKey = await secretClient.accessSecretVersion({
-    name: 'projects/wa-tutors/secrets/apns-key/versions/latest',
-  }).then(([{ payload }]) => payload.data.toString().replace(/\\n/g, '\n'));
-
-  const token = sign({
-    iss: 'BRZ56NM6F3',
-  }, apnsKey, {
-    algorithm: 'ES256',
-    keyid: 'UAWJ8M274W',
-  });
-
   const headers = {
-    authorization: `bearer ${token}`,
+    authorization: `bearer ${getToken()}`,
     'apns-push-type': 'voip',
     'apns-topic': 'com.wavisits.watutors.voip',
     'apns-expiration': 0,
   };
 
-  await fetch2(`https://api.sandbox.push.apple.com:443${notificationId}`, { // TODO - Remove "sandbox" for production
+  return fetch2(`https://api.sandbox.push.apple.com:443${notificationId}`, { // TODO - Remove "sandbox" for production
     method: 'POST',
     headers,
     json,
@@ -96,7 +136,7 @@ const dispatchAndroid = async (token, data) => {
     },
   };
 
-  await fetch('https://fcm.googleapis.com/v1/projects/wa-tutors/messages:send', {
+  return fetch('https://fcm.googleapis.com/v1/projects/wa-tutors/messages:send', {
     method: 'POST',
     headers,
     body,
@@ -128,14 +168,14 @@ const dispatchAndroid = async (token, data) => {
  * @param {Object} param0        Object containing target slot ID.
  * @param {Object} param0.slotId ID of slot to send incoming call notification for.
  *
- * @returns {string} "Success" if notification was properly dispatched.
- * @throws {https.HttpsError} Any error that occurs during sending of notifications or if the
- *                            function call body is invalid.
+ * @returns {string}           "Success" if notification was properly dispatched.
+ * @throws  {https.HttpsError} Any error that occurs during sending of notifications or if the
+ *                             function call body is invalid.
  */
 exports.triggerIncomingCall = async ({ slotId }) => {
   if (slotId) {
-    return db.ref(`Schedule/${slotId}`).once('value')
-      .then((dataSnapshot) => dataSnapshot.val())
+    return db.doc(`Schedule/${slotId}`).get()
+      .then((doc) => doc.data())
       .then(({ providerName, consumerNotifId }) => {
         const notif = {
           handle: 'Tutor Video Call',
