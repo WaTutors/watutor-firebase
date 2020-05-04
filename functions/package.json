@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@google-cloud/secret-manager": "^3.0.0",
+    "@google-cloud/tasks": "^2.0.0",
     "eslint-config-airbnb-base": "^14.1.0",
     "fetch-h2": "^2.4.5",
     "firebase-admin": "^8.9.0",
