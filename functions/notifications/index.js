@@ -36,7 +36,9 @@ const getToken = async () => {
     name: 'projects/wa-tutors/secrets/apns-token/versions/latest',
   }).then(([{ payload }]) => payload.data.toString());
 
-  if (jwt.decode(token).exp * 1000 < Date.now()) {
+  const payload = jwt.decode(token);
+
+  if (!payload.exp || payload.exp * 1000 < Date.now()) {
     const newToken = jwt.sign({
       iss: 'BRZ56NM6F3',
     }, apnsKey, {
