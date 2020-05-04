@@ -144,7 +144,7 @@ exports.reserveSlots = functions.firestore.document(`Schedule/${slotId}`).onUpda
  *
  * @param {Object} req Object containing the document ID to be used.
  */
-exports.reservation_Callback = functions.https.onRequest((req, res) => {
+exports.reservationCallback = functions.https.onRequest((req, res) => {
   reservationCallback(req, res, admin);
 });
 
