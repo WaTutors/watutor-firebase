@@ -53,5 +53,5 @@ exports.createCharge = ({ source, subject = null }) => stripe.charges.create({
 exports.captureCharge = (chargeId) => stripe.charges.capture(chargeId)
   .then(() => 'Success')
   .catch((error) => {
-    throw new https.HttpsError('capture-charge-error', error.message, error);
+    throw new https.HttpsError('unknown', error.message, error);
   });
