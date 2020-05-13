@@ -1,12 +1,13 @@
 const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
 const jwt = require('jsonwebtoken');
-const { fetch: fetch2 } = require('fetch-h2');
+const { fetch } = require('fetch-h2');
 const admin = require('firebase-admin');
 const { https } = require('firebase-functions');
 
 const secretClient = new SecretManagerServiceClient();
 
 const db = admin.firestore();
+const messaging = admin.messaging();
 
 let apnsKey = '';
 
@@ -89,7 +90,7 @@ const dispatchIOS = async (notificationId, json) => {
     'apns-expiration': 0,
   };
 
-  return fetch2(`https://api.sandbox.push.apple.com:443${notificationId}`, { // TODO - Remove "sandbox" for production
+  return fetch(`https://api.push.apple.com:443${notificationId}`, {
     method: 'POST',
     headers,
     json,
@@ -106,51 +107,27 @@ const dispatchIOS = async (notificationId, json) => {
 /**
  * Dispatches background push notification for Android.
  *
- * Creates headers object using OAuth 2.0 JWT token generated from Google's Application Default
- * Credentials. Creates Android background notification object using passed data and FCM token.
- * Makes fetch POST request to the wa-tutors Firebase project's messaging endpoint.
+ * Sends FCM background push notification to specificed Android device token using Firebase Admin
+ * Messaging.
  *
  * @since 0.0.5
  *
- * @link https://firebase.google.com/docs/reference/admin/node/admin.credential#applicationdefault
- * @link https://firebase.google.com/docs/reference/admin/node/admin.credential.Credential#getaccesstoken
- * @link https://firebase.google.com/docs/cloud-messaging/migrate-v1
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.messaging.Messaging
  *
  * @param {string} token FCM token to send background notification to.
  * @param {Object} data  Notification payload.
  *
  * @returns {string} "Success" if notification was properly dispatched.
- * @throws  {Error}  Response text if status code is not 200.
  */
-const dispatchAndroid = async (token, data) => {
-  const headers = {
-    authorization: `Bearer ${admin.credential.applicationDefault().getAccessToken()}`,
-  };
-
-  const body = {
-    message: {
-      data,
-      android: {
-        priority: 'high',
-        restricted_package_name: 'com.wavisits.watutors',
-      },
-      token,
-    },
-  };
-
-  return fetch('https://fcm.googleapis.com/v1/projects/wa-tutors/messages:send', {
-    method: 'POST',
-    headers,
-    body,
-  })
-    .then(async (response) => {
-      if (response.status !== '200') {
-        throw new Error(await response.text());
-      } else {
-        return 'Success';
-      }
-    });
-};
+const dispatchAndroid = async (token, data) => messaging.send({
+  data,
+  android: {
+    priority: 'high',
+    restrictedPackageName: 'com.wavisits.watutors',
+  },
+  token,
+})
+  .then(() => 'Success');
 
 /**
  * Sends incoming call notification.
@@ -174,14 +151,23 @@ const dispatchAndroid = async (token, data) => {
  * @throws  {https.HttpsError} Any error that occurs during sending of notifications or if the
  *                             function call body is invalid.
  */
-exports.triggerIncomingCall = async ({ slotId }) => {
+exports.triggerIncomingCall = ({ slotId }) => {
   if (slotId) {
     return db.doc(`Schedule/${slotId}`).get()
       .then((doc) => doc.data())
-      .then(({ providerName, consumerNotifId }) => {
+      .then(({ property, consumerNotifId }) => {
+        let callerName = '';
+
+        const parts = property.split('_');
+        if (parts.length > 1) {
+          callerName = `${parts[0].slice(0, 1).toUpperCase()}${parts[0].slice(1)} Tutor`;
+        } else {
+          callerName = 'Tutor';
+        }
+
         const notif = {
-          handle: 'Tutor Video Call',
-          callerName: providerName,
+          handle: 'WaTutors',
+          callerName,
         };
 
         if (consumerNotifId.includes('/3/device')) return dispatchIOS(consumerNotifId, notif);
