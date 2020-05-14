@@ -1,4 +1,4 @@
-exports.welcome = `
+exports.student_confirm_template = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -229,6 +229,34 @@ exports.welcome = `
         padding: 5px 0 !important
       }
     }
+    
+    /* let's style hyperlinks */
+       
+       a:link {
+           color: #3478F6; 
+       }
+       
+       a:visited {
+           color: #9B9B9B;
+       }
+       
+    /* crop circualar photo */
+    .image-cropper {
+    width: 150px;
+    height: 150px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 50%;
+    }
+    .profile-pic {
+      display: inline;
+      margin: 0 auto;
+      margin-left: -25%; //centers the image
+      height: 100%;
+      width: auto;
+    }
+
+   
   </style>
   <!--[if mso]>
     <style type="text/css">
@@ -239,8 +267,9 @@ exports.welcome = `
     <![endif]-->
   <!--[if gte mso 9]><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
 </head>
+    
 <body style="width: 100% !important; margin: 0; padding: 0; mso-line-height-rule: exactly; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; background-color: #f4f4f4" class="" data-gr-c-s-loaded="true">
-  <span style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;">This is some preview text.</span>
+  <span style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;">###PREVIEW_TEXT###</span>
   <table class="pc-email-body" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="table-layout: fixed;">
     <tbody>
       <tr>
@@ -262,16 +291,17 @@ exports.welcome = `
                       </tr>
                     </tbody>
                   </table>
-                  <!-- BEGIN MODULE: Menu 1 -->
+                    
+                  <!-- BEGIN MODULE: Logo -->
                   <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
                     <tbody>
                       <tr>
-                        <td class="pc-sm-p-20 pc-xs-p-10" bgcolor="#ffffff" valign="top" style="padding: 25px 30px; background-color: #ffffff; border-radius: 8px">
+                        <td class="pc-sm-p-20 pc-xs-p-10" bgcolor="#ffffff" valign="top" style="padding: 0px 0px; background-color: #ffffff; border-radius: 8px">
                           <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
                             <tbody>
                               <tr>
                                 <td align="center" valign="top" style="padding: 10px;">
-                                  <a href="http://watutors.com" style="text-decoration: none;"><img src="https://i1.wp.com/box2127.temp.domains/~watutors/wp-content/uploads/2020/04/cropped-WaTutors-Logo.png" width="130" height="" alt="WaTutors Logo" style="height: auto; max-width: 100%; border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; color: #ffffff; font-size: 14px;"></a>
+                                  <a href="http://watutors.com" style="text-decoration: none;"><img src="https://firebasestorage.googleapis.com/v0/b/wa-tutors.appspot.com/o/public%2FIMG_3357.PNG?alt=media" width="" height="" alt="WaTutors Logo" style="height: auto; max-width: 100%; border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; color: #ffffff; font-size: 14px;"></a>
                                 </td>
                               </tr>
                               <tr>
@@ -290,9 +320,10 @@ exports.welcome = `
                       </tr>
                     </tbody>
                   </table>
-                  <!-- END MODULE: Menu 1 -->
-                  <!-- BEGIN MODULE: Transactional 1 -->
-                  <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
+                  <!-- END MODULE: Logo -->
+                    
+                <!-- BEGIN MODULE: Announcement -->   
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
                     <tbody>
                       <tr>
                         <td height="8" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
@@ -307,7 +338,7 @@ exports.welcome = `
                             <tbody>
                               <tr>
                                 <td class="pc-sm-fs-30 pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 36px; font-weight: 800; line-height: 46px; letter-spacing: -0.6px; color: #151515; padding: 0 10px;" valign="top">
-                                  Welcome, ###NAME###.
+                                  See you soon! 
                                 </td>
                               </tr>
                               <tr>
@@ -317,263 +348,132 @@ exports.welcome = `
                             <tbody>
                               <tr>
                                 <td class="pc-sm-fs-18 pc-xs-fs-16 pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 20px; line-height: 30px; letter-spacing: -0.2px; color: #9B9B9B; padding: 0 10px" valign="top">
-                                  Thank you for joining the WaTutors community. 
-                                    <br> Activate your account to get started.
+                                  You're scheduled for an upcoming tutoring session!
                                 </td>
+                                  
                               </tr>
                               <tr>
-                                <td height="25" style="line-height: 1px; font-size: 1px;">&nbsp;</td>
+                                <td height="10" style="line-height: 1px; font-size: 1px;">&nbsp;</td>
                               </tr>
                             </tbody>
-                            <tbody>
-                              <tr>
-                                <td style="padding: 5px 10px;" valign="top">
-                                  <table border="0" cellpadding="0" cellspacing="0" role="presentation">
-                                    <tbody>
-                                      <tr>
-                                        <td style="text-align: center; border-radius: 8px; padding: 14px 19px; background-color: #1595E7;" bgcolor="#1595E7" valign="top" align="center">
-                                          <a class="pc-fb-font" href=###MAINLINK### style="text-decoration: none; line-height: 24px; letter-spacing: -0.2px; font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 500; color: #ffffff; word-break: break-word; display: block;">Activate my Account and Setup PIN</a>
-                                        </td>
-                                      </tr>
-                                          <tr>
-                                                  <td height="11" style="line-height: 1px; font-size: 1px;">&nbsp;</td>
-                                                </tr> 
-                                      <tr>
-                                          <td class="disclaimer" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; letter-spacing: -0.2px; color: #D8D8D8;" valign="top">
-                                              By clicking you agree to our <a href="http://www.example.com">Liability Waiver</a> and <a href="https://www.example.com">Terms of Use</a>. 
-                                          </td>
-                                        </tr>
-                                    </tbody>
-                                  </table>
-                                </td>
-                              </tr>
-                            </tbody>
+                                
+                              <div class="pc-sm-mw-50pc pc-xs-mw-100pc" style="display: inline-block; width: 100%; max-width: 186px; vertical-align: top;">
+                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                      <tbody>
+                                        <tr>
+                                          <td style="padding: 20px;" valign="top">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                              <tbody>
+                                                <tr>
+                                                  <td valign="top">
+                                                    <img src="images/schedule.svg" width="150" height="150" alt="" style=" max-width: 100%; height: auto; border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; display: block; color: #1B1B1B;">
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td height="10" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
+                                                </tr>
+                                              </tbody>
+                                              <tbody>
+                                                <tr>
+                                                  <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; line-height: 50px; letter-spacing: -0.2px; color: #1B1B1B; " valign="top">
+                                                    ###TIMESTRING###
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 300; line-height: 22px; letter-spacing: -0.2px; color: #9B9B9B;" valign="top">
+                                                    Grade: ###GRADE###
+                                                    <br>
+                                                    Subject: ###SUBJECT###
+                                                  </td>
+                                                </tr>
+                                              </tbody>
+                                            </table>
+                              
+                                              </tr>
+                                            </tbody>
+                                          </table>
+                                  
+                              </div>
+                            </table>
+                            <!-- END MODULE: Announcement -->
                             
-                          </table>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <!-- END MODULE: Transactional 1 -->
-                 
-                    <!-- BEGIN MODULE: Feature 1 -->
-                  <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
+                            <!-- spacing -->
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
                     <tbody>
                       <tr>
                         <td height="8" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
                       </tr>
                     </tbody>
                   </table>
-                  <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
-                    <tbody>
-                      <tr>
-                        <td class="pc-sm-p-35-10-15 pc-xs-p-25-0-5" style="padding: 40px 20px; background-color: #ffffff; border-radius: 8px;" valign="top" bgcolor="#ffffff">
-                          <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
-                            <tbody>
-                              <tr>
-                                <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 700; line-height: 34px; letter-spacing: -0.4px; color: #151515; padding: 0 20px;" valign="top">
-                                  Features
-                                </td>
-                              </tr>
-                              <tr>
-                                <td height="10" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
-                              </tr>
-                            </tbody>
-                            <tbody>
-                              <tr>
-                                <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 300; line-height: 28px; letter-spacing: -0.2px; color: #9B9B9B; padding: 0 20px;" valign="top">
-                                  As a part of the WaTutors community, you'll enjoy access to:
-                                </td>
-                              </tr>
-                              <tr>
-                                <td height="20" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
-                              </tr>
-                            </tbody>
-                            <tbody>
-                              <tr>
-                                <td style="font-size: 0;" valign="top">
-                                  <!--[if (gte mso 9)|(IE)]><table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation"><tr><td width="33%" valign="top"><![endif]-->
-                                  <div class="pc-sm-mw-50pc pc-xs-mw-100pc" style="display: inline-block; width: 100%; max-width: 186px; vertical-align: top;">
-                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
-                                      <tbody>
-                                        <tr>
-                                          <td style="padding: 20px;" valign="top">
-                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
-                                              <tbody>
-                                                <tr>
-                                                  <td valign="top">
-                                                    <img src="images/feature-1-image-1.jpg" width="48" height="48" alt="" style=" max-width: 100%; height: auto; border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; display: block; color: #1B1B1B;">
-                                                  </td>
-                                                </tr>
-                                                <tr>
-                                                  <td height="10" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
-                                                </tr>
-                                              </tbody>
-                                              <tbody>
-                                                <tr>
-                                                  <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; line-height: 24px; letter-spacing: -0.2px; color: #1B1B1B;" valign="top">
-                                                    Feature 01
-                                                  </td>
-                                                </tr>
-                                                <tr>
-                                                  <td height="6" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
-                                                </tr>
-                                              </tbody>
-                                              <tbody>
-                                                <tr>
-                                                  <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 20px; letter-spacing: -0.2px; color: #9B9B9B;" valign="top">
-                                                    Description.
-                                                  </td>
-                                                </tr>
-                                              </tbody>
-                                            </table>
-                                          </td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                  <!--[if (gte mso 9)|(IE)]></td><td width="33%" valign="top"><![endif]-->
-                                  <div class="pc-sm-mw-50pc pc-xs-mw-100pc" style="display: inline-block; width: 100%; max-width: 186px; vertical-align: top;">
-                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
-                                      <tbody>
-                                        <tr>
-                                          <td style="padding: 20px;" valign="top">
-                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
-                                              <tbody>
-                                                <tr>
-                                                  <td valign="top">
-                                                    <img src="images/feature-1-image-2.jpg" width="48" height="48" alt="" style="max-width: 100%; height: auto; border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; display: block; color: #1B1B1B;">
-                                                  </td>
-                                                </tr>
-                                                <tr>
-                                                  <td height="10" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
-                                                </tr>
-                                              </tbody>
-                                              <tbody>
-                                                <tr>
-                                                  <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; line-height: 24px; letter-spacing: -0.2px; color: #1B1B1B;" valign="top">
-                                                    Feature 02
-                                                  </td>
-                                                </tr>
-                                                <tr>
-                                                  <td height="6" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
-                                                </tr>
-                                              </tbody>
-                                              <tbody>
-                                                <tr>
-                                                  <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 20px; letter-spacing: -0.2px; color: #9B9B9B;" valign="top">
-                                                    Description.
-                                                  </td>
-                                                </tr>
-                                              </tbody>
-                                                
-                                            </table>
-                                          </td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                  <!--[if (gte mso 9)|(IE)]></td><td width="33%" valign="top"><![endif]-->
-                                  <div class="pc-sm-mw-50pc pc-xs-mw-100pc" style="display: inline-block; width: 100%; max-width: 186px; vertical-align: top;">
-                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
-                                      <tbody>
-                                        <tr>
-                                          <td style="padding: 20px;" valign="top">
-                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
-                                              <tbody>
-                                                <tr>
-                                                  <td valign="top">
-                                                    <img src="images/feature-1-image-3.jpg" width="48" height="48" alt="" style="max-width: 100%; height: auto; border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; display: block; color: #1B1B1B;">
-                                                  </td>
-                                                </tr>
-                                                <tr>
-                                                  <td height="10" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
-                                                </tr>
-                                              </tbody>
-                                              <tbody>
-                                                <tr>
-                                                  <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; line-height: 24px; letter-spacing: -0.2px; color: #1B1B1B;" valign="top">
-                                                    Feature 03
-                                                  </td>
-                                                </tr>
-                                                <tr>
-                                                  <td height="6" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
-                                                </tr>
-                                              </tbody>
-                                              <tbody>
-                                                <tr>
-                                                  <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 20px; letter-spacing: -0.2px; color: #9B9B9B;" valign="top">
-                                                    Description.
-                                                  </td>
-                                                </tr>
-                                              </tbody>
-                                            
-                                            </table>
-                                          </td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                  <!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]-->
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <!-- END MODULE: Feature 1 -->
                 
-                   <!-- BEGIN MODULE: Code of Conduct -->
-                  <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                            <!-- BEGIN MODULE: Profile Tile -->
+                  <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
                     <tbody>
                       <tr>
-                        <td class="pc-sm-p-35-10-15 pc-xs-p-25-0-5" style="padding: 40px 20px; background-color: #ffffff; border-radius: 8px;" valign="top" bgcolor="#ffffff">
-                          <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                        <td class="pc-sm-p-30-20 pc-xs-p-25-10" style="padding: 40px 30px; background: #ffffff; border-radius: 8px;" bgcolor="#ffffff" valign="top">
+                          <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
                             <tbody>
                               <tr>
-                                <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 700; line-height: 34px; letter-spacing: -0.4px; color: #151515; padding: 0 20px;" valign="top">
-                                  Code of Conduct
+                                <td class="pc-sm-fs-30 pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 36px; font-weight: 800; line-height: 46px; letter-spacing: -0.6px; color: #151515; padding: 0 10px;" valign="top">
+                                  Meet your tutor. 
                                 </td>
                               </tr>
                               <tr>
-                                <td height="10" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
+                                <td height="15" style="line-height: 1px; font-size: 1px;">&nbsp;</td>
                               </tr>
                             </tbody>
                             <tbody>
                               <tr>
-                                <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 300; line-height: 28px; letter-spacing: -0.2px; color: #9B9B9B; padding: 0 20px;" valign="top">
-                                  To ensure everyone has a safe experience, keep these rules in mind:
+                                <td class="pc-sm-fs-18 pc-xs-fs-16 pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 20px; line-height: 30px; letter-spacing: -0.2px; color: #9B9B9B; padding: 0 10px" valign="top">
+                                  Get to know your tutor before you meet with them.
                                 </td>
+                                  
                               </tr>
                               <tr>
-                                <td height="20" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
+                                <td height="10" style="line-height: 1px; font-size: 1px;">&nbsp;</td>
                               </tr>
                             </tbody>
-                            <tbody>
-                              <tr>
-                                <td style="font-size: 0;" valign="top">
-                                  <!--[if (gte mso 9)|(IE)]><table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation"><tr><td width="33%" valign="top"><![endif]-->
-                                  <div class="pc-sm-mw-50pc pc-xs-mw-100pc" style="display: inline-block; width: 100%; max-width: 186px; vertical-align: top;">
+                                
+                              <div class="pc-sm-mw-50pc pc-xs-mw-100pc" style="display: inline-block; width: 100%; max-width: 186px; vertical-align: top;">
                                     <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
-                                    
-                                    </table>
-                                  </div>
-                                  <!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]-->
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <!-- END MODULE: Code of Conduct -->
-                    
-                    
-                    
-                    
+                                      <tbody>
+                                        <tr>
+                                          <td style="padding: 20px;" valign="top">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                              <tbody>
+                                                <tr>
+                                                  <td valign="top">
+                                                      <div class="image-cropper">
+                                                      <img src="###TUTOR_AVATAR###" alt='Tutor avatar image'>
+                                                      </div>
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td height="10" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
+                                                </tr>
+                                              </tbody>
+                                              <tbody>
+                                                <tr>
+                                                  <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 500; line-height: 50px; letter-spacing: -0.2px; color: #1B1B1B; " valign="top">
+                                                    ###TUTORNAME###
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 300; line-height: 22px; letter-spacing: -0.2px; color: #9B9B9B;" valign="top">
+                                                    ###ABOUT###
+                                                  </td>
+                                                </tr>
+                                              </tbody>
+                                            </table>
+                              
+                                              </tr>
+                                            </tbody>
+                                          </table>
+                                  
+                              </div>
+                            </table>
+                            <!-- END MODULE: Profile Tile -->
+                          
                   <!-- BEGIN MODULE: Footer -->
                   <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
                     <tbody>
@@ -610,7 +510,7 @@ exports.welcome = `
                                               <tbody>
                                                 <tr>
                                                   <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; letter-spacing: -0.2px; color: #D8D8D8;" valign="top">
-                                                    Here are some <a href="https://www.example.com" style="text-decoration: none; color: #1595E7">FAQs</a>.
+                                                    Here are some <a href="###FAQLINK###" style="text-decoration: none; color: #1595E7">FAQs</a>.
                                                   </td>
                                                 </tr>
                                                 <tr>
@@ -620,13 +520,9 @@ exports.welcome = `
                                               <tbody>
                                                 <tr>
                                                   <td style="font-family: Arial, sans-serif; font-size: 19px;" valign="top">
-                                                    <a href="http://example.com" style="text-decoration: none;"><img src="images/facebook-dark-gray.png" width="20" height="20" alt="" style="border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; color: #ffffff;"></a>
+                                                    <a href="###LOGOLINK###" style="text-decoration: none;"><img src="images/facebook-dark-gray.png" width="20" height="20" alt="" style="border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; color: #ffffff;"></a>
                                                     <span>&nbsp;&nbsp;</span>
-                                                    <a href="http://example.com" style="text-decoration: none;"><img src="images/twitter-dark-gray.png" width="21" height="18" alt="" style="border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; color: #ffffff;"></a>
-                                                    <span>&nbsp;&nbsp;</span>
-                                                    <a href="http://example.com" style="text-decoration: none;"><img src="images/instagram-dark-gray.png" width="21" height="20" alt="" style="border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; color: #ffffff;"></a>
-                                                    <span>&nbsp;&nbsp;</span>
-                                                    <a href="http://example.com" style="text-decoration: none;"><img src="images/pinterest-dark-gray.png" width="20" height="20" alt="" style="border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; color: #ffffff;"></a>
+                                                    
                                                   </td>
                                                 </tr>
                                               </tbody>
@@ -656,7 +552,7 @@ exports.welcome = `
                                               <tbody>
                                                 <tr>
                                                   <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; line-height: 24px; letter-spacing: -0.2px;" valign="top">
-                                                    <a href="tel:749-977-3440" style="text-decoration: none; color: #ffffff;">(555) 555-5555</a>
+                                                    <a href="tel:###CONTACT_US_PHONE###" style="text-decoration: none; color: #ffffff;">###CONTACT_US_PHONE###</a>
                                                   </td>
                                                 </tr>
                                                 <tr>
@@ -666,7 +562,9 @@ exports.welcome = `
                                               <tbody>
                                                 <tr>
                                                   <td class="pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; line-height: 24px;" valign="top">
-                                                    <a href="mailto:example@example.com" style="text-decoration: none; color: #1595E7;">example@example.com</a>
+                                                    <a href="mailto:###CONTACT_US_EMAIL###" style="text-decoration: none; color: #1595E7;">
+                                                      ###CONTACT_US_EMAIL###
+                                                    </a>
                                                   </td>
                                                 </tr>
                                               </tbody>
@@ -689,7 +587,7 @@ exports.welcome = `
                   <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
                     <tbody>
                       <tr>
-                        <td height="20" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
+                          <td height="20" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
                       </tr>
                     </tbody>
                   </table>

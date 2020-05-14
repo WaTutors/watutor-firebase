@@ -12,7 +12,7 @@ exports.htmlTemplate = `
 <style>
   .img-bg {
     /* The image used */
-    background-image: url("http://box2127.temp.domains/~watutors/wp-content/uploads/2020/04/blur-classroom.png");
+    background-image: url("https://storage.googleapis.com/public_watutor_assets/blur-classroom-min.png");
 
     /* Full height */
 
@@ -98,7 +98,6 @@ exports.htmlTemplate = `
         <a href="https://watutors.page.link/signUp" class="mx-4" role="button"><i class="fab fa-google-play fa-5x"></i></a>
         <p class="mt-4"> Log in using your email address</p>
       </div>
-
     </div>
   </div>
 </body>
@@ -151,7 +150,7 @@ exports.htmlTemplate = `
         };
 
         // second attempt
-        var url = "https://wa-tutors.appspot.com/users/parent/pin" // TODO change url root after deployment
+        var url = " https://us-central1.cloudfunctions.net/postPinAndVerifyEmail" // TODO change url root after deployment
 
         function onAjaxSuccess(resp) {
           $('#statustext').attr('class', 'text-success')

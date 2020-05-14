@@ -4,26 +4,49 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 
 const { createCharge, captureCharge } = require('./stripe')
-const { setPinPage } = require('./setPin')
-const {testMail} = require('./sendEmail')
+const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail')
+const {
+  sendStudentWelcomeEmail, sendTutorWelcomeEmail,
+  sendSlotBookConfirmEmails,
+} = require('./sendEmail')
 
 
 //================================================================================
-// One-Off Pages
+// QA Functions
 //================================================================================
+
 
 /**
- * Sends pin page
+ * Auto-approves tutor
  *
- * This should be linked from the student verification email
- * Publically available
+ * Temporary measure, since the QA dashboard is still in development
  *
- * @since 0.0.5
+ * @since 0.0.6
  *
- * @link https://firebase.google.com/docs/functions/http-events#trigger_a_function_with_an_http_request
- * @link https://nodejs.org/en/knowledge/HTTP/clients/how-to-access-query-string-parameters/
+ * @link https://cloud.google.com/firestore/docs/extend-with-functions
+ * @link https://www.sitepoint.com/delay-sleep-pause-wait/
  */
-exports.setPin = functions.https.onRequest(setPinPage);
+exports.auto_approve_tutors = functions.firestore
+  .document('tutors/{uid}')
+  .onUpdate(async (change, context) => {
+    // extract updated document's new data
+    const changes = change.after.data()
+
+    // if submitted
+    if ('cred' in changes && 'valid' in changes.cred && changes.cred.valid === 'submit') {
+      // after 2 seconds, update document
+      return new Promise(resolve => setTimeout(resolve, 2000))
+        .then(() =>
+          change.after.ref // return promise to be evaluated
+            .update({
+              ['cred.valid']: 'yes'
+            })
+        );
+    } else {
+      return
+    }
+  });
+
 
 // ================================================================================
 // Stripe
@@ -59,19 +82,111 @@ exports.captureCharge = functions.https.onCall(captureCharge);
  */
 exports.createCharge = functions.https.onCall(createCharge);
 
+
+//================================================================================
+// Authentication
+//================================================================================
+
+
+/**
+ * Sends pin page
+ *
+ * This should be linked from the student verification email
+ * Publically available
+ * 
+ * @since 0.0.5
+ * @see welcomeEmailStudent
+ *
+ * @link https://firebase.google.com/docs/functions/http-events#trigger_a_function_with_an_http_request
+ * @link https://nodejs.org/en/knowledge/HTTP/clients/how-to-access-query-string-parameters/
+ */
+exports.setPin = functions.https.onRequest(setPinPage);
+
+/**
+ * sets a user's auth emailVerified field to true
+ * requires a header 'token' containing an encrypted uid
+ *
+ * @since 0.0.7
+ * @see welcomeEmailTutor
+ *  
+ * @returns {html} website for set pin page
+ * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
+ */
+exports.verifyEmail = functions.https.onRequest(verifyEmail);
+
+/**
+ * sets a student/parent's security pin and verifyies their email
+ * posted by a one-off cloud function page sent set's a user access pin and 
+ * confirms privacy policy
+ * A token is passed in the body as "key" which should be used to validate and
+ * encode the user id
+ * 
+ * originally moved from api
+ * 
+ * @since 0.0.8
+ * @see welcomeEmailStudent
+ * 
+ * body: 
+    pin: Joi.string().required(),
+    token: Joi.string().required(),
+*/
+exports.postPinAndVerifyEmail = functions.https.onRequest(postPinAndVerifyEmail);
+
 // ================================================================================
 // Email
 // ================================================================================
 
+
 /**
- * Sends an email
- * from the watutors.auto@gmail.com email
+ * sends 'slot booked' confirmations to provider and comsumer emails
+ * doc triggered function on write
+ * send emails to both provider and comsumer about the slot
+ * 
+ * @since 0.0.8
+ * 
+ * @param {object} Change cloud function interface
+ * @param {object} Context cloud function interface
+ * @returns {promise} promise chain to send emails then update database
+ */
+exports.sendSlotBookConfirmEmails = functions.firestore
+  .document('Schedule/{slotId}')
+  .onUpdate(sendSlotBookConfirmEmails)
+
+
+/** 
+ * Sends an email welcoming a student
+ * addressed from the watutors.auto@gmail.com email
+ * generates validation email from the template
+ * email includes a link to validate the account via pinpage
  *
- * @since 0.0.5
- *
- * @link https://dev.to/akshay090/sending-personalized-email-from-cloud-function-50al
+ * @since 0.0.6
+ * 
+ * @param {string} data.toAddress address of recipient
+ * @param {string} data.displayName name of the user to display
+ * @param {string} data.uid user id 
+ * @param {object} context firebase CallableContext object
  *
  * @returns {string}                     "Success" if successfully captured charge.
- * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
+ * @throws  {functions.https.HttpsError} Any error that occurs
  */
-exports.testEmail = functions.https.onRequest(testMail);
+exports.welcomeEmailStudent = functions.https.onCall(sendStudentWelcomeEmail);
+
+
+/**
+ * Sends an email welcoming a tutor
+ * addressed from the watutors.auto@gmail.com email
+ * generates a link to validate account http function
+ * email includes a link to validate the account
+ *
+ * @since 0.0.7
+ * 
+ * @param {object} data
+ * @param {string} data.toAddress address of recipient
+ * @param {string} data.displayName name of the user to display
+ * @param {string} data.uid user id 
+ * @param {object} context firebase CallableContext object
+ *
+ * @returns {string}                     "Success" if successfully captured charge.
+ * @throws  {functions.https.HttpsError} Any error that occurs
+ */
+exports.welcomeEmailTutor = functions.https.onCall(sendTutorWelcomeEmail);

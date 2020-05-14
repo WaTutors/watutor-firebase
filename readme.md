@@ -17,7 +17,15 @@
 - - *bumper pages and whatnot*
 
 ## to deploy:
-`todo put deploy code here`
+`firebase deploy --only functions`
+
+### to deploy specific functions **recommended**
+to deploy only the functions funct1() and funct2()
+`firebase deploy --only functions:func1,functions:func2`
+
+### to deploy a single function
+comment out other functions and select `N` to the prompt:
+`? Would you like to proceed with deletion? Selecting no will continue the rest of the deployments.`
 
 ## to setup project
 
