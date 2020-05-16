@@ -1,6 +1,6 @@
-const functions = require('firebase-functions');
-const stripe = require('stripe')(functions.config().stripe.key);
+const { config, https } = require('firebase-functions');
 
+const stripe = require('stripe')(config().stripe.key);
 
 /**
  * Creates Stripe charge.
@@ -18,27 +18,21 @@ const stripe = require('stripe')(functions.config().stripe.key);
  * @param {Object} param0         Object containing source and subject.
  * @param {string} param0.source  Token generated through credit card or native pay.
  * @param {string} [subject=null] Optional subject to display in charge description.
- * 
- * @returns {string}                     "Success" if successfully created charge.
- * @throws  {functions.https.HttpsError} Any error that occurred in Stripe charge creation.
+ *
+ * @returns {string}           "Success" if successfully created charge.
+ * @throws  {https.HttpsError} Any error that occurred in Stripe charge creation.
  */
-exports.createCharge = ({ source, subject = null }) => {
-  return stripe.charges.create({
-    amount: 1500,
-    currency: 'usd',
-    description: `${subject ? `${subject} ` : ''}Tutoring Session`,
-    source,
-    // capture: false, TODO
-  })
-    .then(({ id }) => {
-      // TODO Save the returned charge ID to later be used for capturing the charge.
-
-      return 'Success';
-    })
-    .catch((error) => {
-      throw new functions.https.HttpsError('create-charge-error', error.message, error);
-    })
-};
+exports.createCharge = ({ source, subject = null }) => stripe.charges.create({
+  amount: 1500,
+  currency: 'usd',
+  description: `${subject ? `${subject} ` : ''}Tutoring Session`,
+  source,
+  capture: false,
+})
+  .then((charge) => charge.id)
+  .catch((error) => {
+    throw new https.HttpsError('unknown', error.message, error);
+  });
 
 /**
  * Captures a charge.
@@ -53,13 +47,11 @@ exports.createCharge = ({ source, subject = null }) => {
  * @link https://firebase.google.com/docs/functions/callable
  * @link https://stripe.com/docs/charges/placing-a-hold#capture-the-funds
  *
- * @returns {string}                     "Success" if successfully captured charge.
- * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
+ * @returns {string}           "Success" if successfully captured charge.
+ * @throws  {https.HttpsError} Any error that occurs during capturing.
  */
-exports.captureCharge = (chargeId) => {
-  return stripe.charges.capture(chargeId)
-    .then(() => 'Success')
-    .catch((error) => {
-      throw new functions.https.HttpsError('capture-charge-error', error.message, error);
-    })
-};
+exports.captureCharge = (chargeId) => stripe.charges.capture(chargeId)
+  .then(() => 'Success')
+  .catch((error) => {
+    throw new https.HttpsError('unknown', error.message, error);
+  });

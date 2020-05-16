@@ -3,18 +3,14 @@ const admin = require('firebase-admin');
 
 admin.initializeApp();
 
-const { createCharge, captureCharge } = require('./stripe')
-const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail')
+const { createCharge, captureCharge } = require('./stripe');
 const {
-  sendStudentWelcomeEmail, sendTutorWelcomeEmail,
-  sendSlotBookConfirmEmails,
-} = require('./sendEmail')
+  sendStudentWelcomeEmail, sendTutorWelcomeEmail, sendSlotBookConfirmEmails,
+} = require('./sendEmail');
+const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
+const { triggerIncomingCall } = require('./notifications');
 
-
-//================================================================================
-// QA Functions
-//================================================================================
-
+// SECTION - One-Off Pages
 
 /**
  * Auto-approves tutor
@@ -48,10 +44,31 @@ exports.auto_approve_tutors = functions.firestore
   });
 
 
-// ================================================================================
-// Stripe
-// ================================================================================
+// !SECTION
 
+// SECTION - Stripe
+
+/**
+ * Creates Stripe charge.
+ *
+ * Intakes a Stripe payment source (token generated through credit card or native pay) and charges
+ * the payment information that generated the token $15.00 for a tutoring session, which is labeled
+ * with an optional subject field.
+ *
+ * @since 0.0.1
+ *
+ * @link https://firebase.google.com/docs/functions/callable
+ * @link https://stripe.com/docs/payments/accept-a-payment-charges#web-create-charge
+ * @link https://stripe.com/docs/charges/placing-a-hold#authorize-a-payment
+ *
+ * @param {Object} param0         Object containing source and subject.
+ * @param {string} param0.source  Token generated through credit card or native pay.
+ * @param {string} [subject=null] Optional subject to display in charge description.
+ *
+ * @returns {string}           "Success" if successfully created charge.
+ * @throws  {https.HttpsError} Any error that occurred in Stripe charge creation.
+ */
+exports.createCharge = functions.https.onCall(createCharge);
 
 /**
  * Captures a charge.
@@ -66,27 +83,14 @@ exports.auto_approve_tutors = functions.firestore
  * @link https://firebase.google.com/docs/functions/callable
  * @link https://stripe.com/docs/charges/placing-a-hold#capture-the-funds
  *
- * @returns {string}                     "Success" if successfully captured charge.
- * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
+ * @returns {string}           "Success" if successfully captured charge.
+ * @throws  {https.HttpsError} Any error that occurs during capturing.
  */
 exports.captureCharge = functions.https.onCall(captureCharge);
 
-/**
- * Creates Stripe charge.
- *
- * Intakes a Stripe payment source (token generated through credit card or native pay) and charges
- * the payment information that generated the token $15.00 for a tutoring session, which is labeled
- * with an optional subject field.
- *
- * @since 0.0.1
- */
-exports.createCharge = functions.https.onCall(createCharge);
+// !SECTION
 
-
-//================================================================================
-// Authentication
-//================================================================================
-
+// SECTION - Authentication
 
 /**
  * Sends pin page
@@ -132,10 +136,36 @@ exports.verifyEmail = functions.https.onRequest(verifyEmail);
 */
 exports.postPinAndVerifyEmail = functions.https.onRequest(postPinAndVerifyEmail);
 
-// ================================================================================
-// Email
-// ================================================================================
+// !SECTION
 
+// SECTION - Call notifications
+
+/** Sends incoming call notification.
+ *
+ * Checks for required slot ID in function call body. Finds target slot from provided ID, creates
+ * notification payload and dispatches iOS or Android notification depending on the notification
+ * ID content.
+ *
+ * @since 0.0.6
+ *
+ * @see  dispatchIOS
+ * @see  dispatchAndroid
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Database#ref
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Reference#once
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.database.DataSnapshot#val
+ *
+ * @param {Object} param0        Object containing target slot ID.
+ * @param {Object} param0.slotId ID of slot to send incoming call notification for.
+ *
+ * @returns {string} "Success" if notification was properly dispatched.
+ * @throws {https.HttpsError} Any error that occurs during sending of notifications or if the
+ *                            function call body is invalid.
+ */
+exports.triggerIncomingCall = functions.https.onCall(triggerIncomingCall);
+
+// !SECTION
+
+// SECTION - Emails
 
 /**
  * sends 'slot booked' confirmations to provider and comsumer emails
@@ -151,7 +181,6 @@ exports.postPinAndVerifyEmail = functions.https.onRequest(postPinAndVerifyEmail)
 exports.sendSlotBookConfirmEmails = functions.firestore
   .document('Schedule/{slotId}')
   .onUpdate(sendSlotBookConfirmEmails)
-
 
 /** 
  * Sends an email welcoming a student
@@ -171,7 +200,6 @@ exports.sendSlotBookConfirmEmails = functions.firestore
  */
 exports.welcomeEmailStudent = functions.https.onCall(sendStudentWelcomeEmail);
 
-
 /**
  * Sends an email welcoming a tutor
  * addressed from the watutors.auto@gmail.com email
@@ -190,3 +218,5 @@ exports.welcomeEmailStudent = functions.https.onCall(sendStudentWelcomeEmail);
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
 exports.welcomeEmailTutor = functions.https.onCall(sendTutorWelcomeEmail);
+
+// !SECTION
