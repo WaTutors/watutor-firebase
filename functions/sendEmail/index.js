@@ -5,6 +5,7 @@ const admin = require('firebase-admin');
 const { encrypt } = require("../utils/cryptoHelpers")
 const { student_welcome_template } = require('./templates/student_welcome')
 const { student_confirm_template } = require('./templates/student_confirm')
+const { tutor_confirm_template } = require('./templates/tutor_confirm')
 
 const moment = require('moment')
 
@@ -41,11 +42,17 @@ const mailTransport = nodemailer.createTransport({
  * @param {string} param0.toAddress address to sent the email to
  * @param {string} param0.html      email html
  * @param {string} param0.displayName name of the user to send email to
+ * @param {string} param0.tutorImage optional. if included, will replace ###TUTOR_AVATAR## in html
  * 
  * @returns {string}            Express request resulution/api response
  * @throws  {functions.https.HttpsError} Any error that occurred
  */
-function sendEmail({ toAddress, html, subject }) {
+function sendEmail({ toAddress, html, subject, tutorImage }) {
+
+  if (tutorImage)
+    html = html.replace(/###TUTOR_AVATAR###/g, tutorImage
+      || 'https://i2.wp.com/box2127.temp.domains/~watutors/wp-content/plugins/elementor/assets/images/placeholder.png?w=640')
+
   var mailOptions = {
     from: '"Watutors" <noreply@firebase.com>', // sender address TODO beautify
     to: toAddress, // list of receivers 
@@ -98,7 +105,20 @@ function generateWelcomeEmailFromTemplate({ link, isTutor }) {
 function generateTutorConfirm({
   timestring, grade, subject,
 }) { // TODO get template from Hamza
-  return `A student has booked a call for ${timestring}, Grade ${grade}, Subject ${subject}`
+
+  var html = tutor_confirm_template // init template
+  html = html.replace(/###TIMESTRING###/g, timestring)
+  html = html.replace(/###DASHBOARD_LINK###/g, 'https://watutorsdash1.uc.r.appspot.com/') // TODO remove default
+  html = html.replace(/###Grade###/g, grade)
+  html = html.replace(/###Subject###/g, subject)
+
+  // not used? html = html.replace(/###CONTACT_US_PHONE###/g, '')
+  html = html.replace(/###CONTACT_US_EMAIL###/g, 'support@watutors.com')
+  html = html.replace(/###FAQLINK###/g, 'http://watutors.com/faqs/')
+  html = html.replace(/###LOGOLINK###/g, 'www.watutors.com')
+  html = html.replace(/###FB_LOGOLINK###/g, 'www.watutors.com')
+
+  return html
 }
 
 /**
@@ -118,8 +138,6 @@ function generateStudentConfirm({
   html = html.replace(/###TUTORNAME###/g, providerName)
   html = html.replace(/###ABOUT###/g, providerAbout // TODO remove default
     || 'I am a licenced tutor who is passionate about teaching. ')
-  html = html.replace(/###TUTOR_AVATAR###/g,
-      || 'https://i2.wp.com/box2127.temp.domains/~watutors/wp-content/plugins/elementor/assets/images/placeholder.png?w=640')
   html = html.replace(/###SUBJECT###/g, subject)
   html = html.replace(/###PREVIEW_TEXT###/g, subject)
   html = html.replace(/###GRADE###/g, grade)
@@ -303,7 +321,7 @@ exports.sendSlotBookConfirmEmails = (change, context) => {
   })
   const providerHtml = generateTutorConfirm({
     timestring, grade, subject,
-  })  //TODO get from hamza
+  })
 
   // declare promise vars to sent provider, consumer email
   // and update database

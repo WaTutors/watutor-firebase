@@ -1,3 +1,4 @@
+exports.tutor_confirm_template = `
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
@@ -338,7 +339,7 @@
                             <tbody>
                               <tr>
                                 <td align="center" valign="top" style="padding: 10px;">
-                                  <a href="http://watutors.com" style="text-decoration: none;"><img
+                                  <a href="###LOGOLINK###" style="text-decoration: none;"><img
                                       src="https://firebasestorage.googleapis.com/v0/b/wa-tutors.appspot.com/o/public%2FIMG_3357.PNG?alt=media"
                                       width="" height="" alt="WaTutors Logo"
                                       style="height: auto; max-width: 100%; border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; color: #ffffff; font-size: 14px;"></a>
@@ -447,7 +448,7 @@
                                             <td
                                               style="text-align: center; border-radius: 8px; padding: 14px 19px; background-color: #3478F6;"
                                               bgcolor="#3478F6" valign="top" align="center">
-                                              <a class="pc-fb-font" href="http://example.com"
+                                              <a class="pc-fb-font" href="###DASHBOARD_LINK###"
                                                 style="text-decoration: none; line-height: 24px; letter-spacing: -0.2px; font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 500; color: #ffffff; word-break: break-word; display: block;">Open
                                                 the Tutor Dashboard</a>
                                             </td>
@@ -518,7 +519,7 @@
                                                           <td class="pc-fb-font"
                                                             style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; letter-spacing: -0.2px; color: #D8D8D8;"
                                                             valign="top">
-                                                            Here are some <a href="http://watutors.com/faqs/"
+                                                            Here are some <a href="###FAQLINK###"
                                                               style="text-decoration: none; color: #1595E7">FAQs</a>.
                                                           </td>
                                                         </tr>
@@ -531,7 +532,7 @@
                                                         <tr>
                                                           <td style="font-family: Arial, sans-serif; font-size: 19px;"
                                                             valign="top">
-                                                            <a href="http://example.com"
+                                                            <a href="###FB_LOGOLINK###"
                                                               style="text-decoration: none;"><img
                                                                 src="images/facebook-dark-gray.png" width="20"
                                                                 height="20" alt=""
@@ -575,8 +576,8 @@
                                                           <td class="pc-fb-font"
                                                             style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; line-height: 24px;"
                                                             valign="top">
-                                                            <a href="mailto:example@example.com"
-                                                              style="text-decoration: none; color: #1595E7;">info@watutors.com</a>
+                                                            <a href="mailto:###CONTACT_US_EMAIL###"
+                                                              style="text-decoration: none; color: #1595E7;">###CONTACT_US_EMAIL###</a>
                                                           </td>
                                                         </tr>
                                                         <tr>
@@ -623,3 +624,4 @@
 </body>
 
 </html>
+`
