@@ -22,25 +22,23 @@ const { triggerIncomingCall } = require('./notifications');
  * @link https://cloud.google.com/firestore/docs/extend-with-functions
  * @link https://www.sitepoint.com/delay-sleep-pause-wait/
  */
-exports.auto_approve_tutors = functions.firestore
+exports.autoApproveTutors = functions.firestore
   .document('tutors/{uid}')
-  .onUpdate(async (change, context) => {
+  .onUpdate(async (change) => {
     // extract updated document's new data
-    const changes = change.after.data()
+    const changes = change.after.data();
 
     // if submitted
     if ('cred' in changes && 'valid' in changes.cred && changes.cred.valid === 'submit') {
       // after 2 seconds, update document
-      return new Promise(resolve => setTimeout(resolve, 2000))
-        .then(() =>
-          change.after.ref // return promise to be evaluated
-            .update({
-              ['cred.valid']: 'yes'
-            })
-        );
-    } else {
-      return
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      return change.after.ref // return promise to be evaluated
+        .update({
+          'cred.valid': 'yes',
+        });
     }
+
+    return null;
   });
 
 
@@ -97,7 +95,7 @@ exports.captureCharge = functions.https.onCall(captureCharge);
  *
  * This should be linked from the student verification email
  * Publically available
- * 
+ *
  * @since 0.0.5
  * @see welcomeEmailStudent
  *
@@ -112,7 +110,7 @@ exports.setPin = functions.https.onRequest(setPinPage);
  *
  * @since 0.0.7
  * @see welcomeEmailTutor
- *  
+ *
  * @returns {html} website for set pin page
  * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
  */
@@ -120,17 +118,17 @@ exports.verifyEmail = functions.https.onRequest(verifyEmail);
 
 /**
  * sets a student/parent's security pin and verifyies their email
- * posted by a one-off cloud function page sent set's a user access pin and 
+ * posted by a one-off cloud function page sent set's a user access pin and
  * confirms privacy policy
  * A token is passed in the body as "key" which should be used to validate and
  * encode the user id
- * 
+ *
  * originally moved from api
- * 
+ *
  * @since 0.0.8
  * @see welcomeEmailStudent
- * 
- * body: 
+ *
+ * body:
     pin: Joi.string().required(),
     token: Joi.string().required(),
 */
@@ -171,28 +169,28 @@ exports.triggerIncomingCall = functions.https.onCall(triggerIncomingCall);
  * sends 'slot booked' confirmations to provider and comsumer emails
  * doc triggered function on write
  * send emails to both provider and comsumer about the slot
- * 
+ *
  * @since 0.0.8
- * 
+ *
  * @param {object} Change cloud function interface
  * @param {object} Context cloud function interface
  * @returns {promise} promise chain to send emails then update database
  */
 exports.sendSlotBookConfirmEmails = functions.firestore
   .document('Schedule/{slotId}')
-  .onUpdate(sendSlotBookConfirmEmails)
+  .onUpdate(sendSlotBookConfirmEmails);
 
-/** 
+/**
  * Sends an email welcoming a student
  * addressed from the watutors.auto@gmail.com email
  * generates validation email from the template
  * email includes a link to validate the account via pinpage
  *
  * @since 0.0.6
- * 
+ *
  * @param {string} data.toAddress address of recipient
  * @param {string} data.displayName name of the user to display
- * @param {string} data.uid user id 
+ * @param {string} data.uid user id
  * @param {object} context firebase CallableContext object
  *
  * @returns {string}                     "Success" if successfully captured charge.
@@ -207,11 +205,11 @@ exports.welcomeEmailStudent = functions.https.onCall(sendStudentWelcomeEmail);
  * email includes a link to validate the account
  *
  * @since 0.0.7
- * 
+ *
  * @param {object} data
  * @param {string} data.toAddress address of recipient
  * @param {string} data.displayName name of the user to display
- * @param {string} data.uid user id 
+ * @param {string} data.uid user id
  * @param {object} context firebase CallableContext object
  *
  * @returns {string}                     "Success" if successfully captured charge.

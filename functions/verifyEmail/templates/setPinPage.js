@@ -79,7 +79,7 @@ exports.htmlTemplate = `
 
         <!-- Register -->
         <p class="mt-1">By submitting, you agree to our
-          <a href="http://watutors.com/privacy-policy-2/">privacy policy</a>
+          <a href="https://watutors.com/privacy-policy-2/">privacy policy</a>
         </p>
       </form>
 

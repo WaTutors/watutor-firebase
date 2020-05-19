@@ -4,16 +4,18 @@ const admin = require('firebase-admin');
 const moment = require('moment');
 
 const { encrypt } = require('../utils/cryptoHelpers');
-const { student_welcome_template } = require('./templates/student_welcome');
-const { student_confirm_template } = require('./templates/student_confirm');
-const { tutor_confirm_template } = require('./templates/tutor_confirm');
+const {
+  studentWelcomeTemplate, studentConfirmTemplate, tutorConfirmTemplate,
+} = require('./templates');
 
 // init email global variables
 const gmailEmail = functions.config().gmail.email;
 const gmailPassword = functions.config().gmail.password;
 
+const storage = admin.storage();
+
 /** set up OMTP server
- * @link http://www.google.com/accounts/DisplayUnlockCaptcha
+ * @link https://www.google.com/accounts/DisplayUnlockCaptcha
  * @link https://myaccount.google.com/lesssecureapps
  * @link This link is important to enable accesses to google account
  */
@@ -48,8 +50,7 @@ function sendEmail({
 }) {
   if (tutorImage) {
     // eslint-disable-next-line no-param-reassign
-    html = html.replace(/###TUTOR_AVATAR###/g, tutorImage
-      || 'https://i2.wp.com/box2127.temp.domains/~watutors/wp-content/plugins/elementor/assets/images/placeholder.png?w=640');
+    html = html.replace(/###TUTOR_AVATAR###/g, tutorImage);
   }
 
   const mailOptions = {
@@ -79,14 +80,14 @@ function generateWelcomeEmailFromTemplate({ link, isTutor }) {
   // auth via url query)
 
   // parse email from template
-  let html = student_welcome_template; // init template
+  let html = studentWelcomeTemplate; // init template
   html = html.toString();
   html = html.replace(/###MAINLINK###/g, link);
   html = html.replace(/###BUTTONTEXT###/g, isTutor
     ? 'Verify Email Address' : 'Activate my Account and Setup PIN'); // change message if tutor
   html = html.replace(/###PREVIEW_TEXT###/g, '');
-  html = html.replace(/###TERM_OF_USE_LINK###/g, 'http://watutors.com/terms/');
-  html = html.replace(/###FAQ_LINK###/g, 'http://watutors.com/faqs/');
+  html = html.replace(/###TERM_OF_USE_LINK###/g, 'https://watutors.com/terms/');
+  html = html.replace(/###FAQ_LINK###/g, 'https://watutors.com/faqs/');
   html = html.replace(/###CONTACT_US_EMAIL###/g, 'info@watutors.com');
   html = html.replace(/###CONTACT_US_PHONE###/g, ''); // none
   html = html.replace(/###FACEBOOKLINK###/g, 'www.watutors.com');
@@ -103,18 +104,18 @@ function generateWelcomeEmailFromTemplate({ link, isTutor }) {
  */
 function generateTutorConfirm({
   timestring, grade, subject,
-}) { // TODO get template from Hamza
-  let html = tutor_confirm_template; // init template
+}) {
+  let html = tutorConfirmTemplate; // init template
   html = html.replace(/###TIMESTRING###/g, timestring);
-  html = html.replace(/###DASHBOARD_LINK###/g, 'https://watutorsdash1.uc.r.appspot.com/'); // TODO remove default
+  html = html.replace(/###DASHBOARD_LINK###/g, 'https://watutorsdash1.uc.r.appspot.com/');
   html = html.replace(/###Grade###/g, grade);
   html = html.replace(/###Subject###/g, subject);
 
   // not used? html = html.replace(/###CONTACT_US_PHONE###/g, '')
   html = html.replace(/###CONTACT_US_EMAIL###/g, 'support@watutors.com');
-  html = html.replace(/###FAQLINK###/g, 'http://watutors.com/faqs/');
-  html = html.replace(/###LOGOLINK###/g, 'www.watutors.com');
-  html = html.replace(/###FB_LOGOLINK###/g, 'www.watutors.com');
+  html = html.replace(/###FAQLINK###/g, 'https://watutors.com/faqs/');
+  html = html.replace(/###LOGOLINK###/g, 'watutors.com');
+  html = html.replace(/###FB_LOGOLINK###/g, 'watutors.com');
 
   return html;
 }
@@ -130,21 +131,19 @@ function generateStudentConfirm({
   subject, grade, providerAbout, providerName, timestring,
 }) {
   // parse email from template
-  let html = student_confirm_template; // init template
+  let html = studentConfirmTemplate; // init template
   html = html.toString();
 
   html = html.replace(/###TUTORNAME###/g, providerName);
-  html = html.replace(/###ABOUT###/g, providerAbout // TODO remove default
-    || 'I am a licenced tutor who is passionate about teaching. ');
+  html = html.replace(/###ABOUT###/g, providerAbout);
   html = html.replace(/###SUBJECT###/g, subject);
-  html = html.replace(/###PREVIEW_TEXT###/g, subject);
   html = html.replace(/###GRADE###/g, grade);
   html = html.replace(/###TIMESTRING###/g, timestring);
   // constants
   html = html.replace(/###CONTACT_US_PHONE###/g, '');
   html = html.replace(/###CONTACT_US_EMAIL###/g, 'support@watutors.com');
-  html = html.replace(/###FAQLINK###/g, 'http://watutors.com/faqs/');
-  html = html.replace(/###LOGOLINK###/g, 'www.watutors.com');
+  html = html.replace(/###FAQLINK###/g, 'https://watutors.com/faqs/');
+  html = html.replace(/###LOGOLINK###/g, 'watutors.com');
 
   return html;
 }
@@ -176,12 +175,12 @@ function generateAuthLink(uid, user, toAddress = '') {
 
   // default, error case
   console.error('generateAuthLink default case hit. user:', user);
-  return 'www.watutors.com';
+  return 'watutors.com';
 }
 
-// ================================================================================
-// Exported Functions
-// ================================================================================
+// !SECTION
+
+// SECTION - Exported functions
 
 /**
  * Sends an email welcoming a student
@@ -202,7 +201,7 @@ function generateAuthLink(uid, user, toAddress = '') {
 exports.sendStudentWelcomeEmail = (data, context) => { // for testing use https
   // console.log(gmailEmail, gmailPassword, functions.config())
   const { toAddress, displayName, uid } = data;
-  const subject = 'Welcome to Watutors!';
+  const subject = 'Welcome to WaTutors!';
 
   // check that user is authenticated
   if (!context.auth) {
@@ -218,7 +217,7 @@ exports.sendStudentWelcomeEmail = (data, context) => { // for testing use https
     && typeof uid === 'string'
   )) {
     throw new functions.https.HttpsError(
-      'invalid-arguments',
+      'invalid-argument',
       'The function must be called with string arguments: displayName, toAddress',
     );
   }
@@ -249,7 +248,7 @@ exports.sendStudentWelcomeEmail = (data, context) => { // for testing use https
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
-exports.sendTutorWelcomeEmail = (data, context) => { // for testing use https
+exports.sendTutorWelcomeEmail = (_, context) => { // for testing use https
   // console.log(gmailEmail, gmailPassword, functions.config());
   const subject = 'Welcome to WaTutors!';
 
@@ -284,21 +283,18 @@ exports.sendTutorWelcomeEmail = (data, context) => { // for testing use https
  * @param {object} Context see cloud function interface
  * @returns {promise} send emails then update database
  */
-exports.sendSlotBookConfirmEmails = (change, context) => {
+exports.sendSlotBookConfirmEmails = async (change) => {
   const { consumerBefore } = change.before.data();
   const {
-    consumer, property, start,
-    provider, providerAbout, providerAvatar, providerName,
-    consumerEmail, providerEmail,
-    emailSent,
+    consumer, property, start, providerAbout, providerAvatar, providerName, consumerEmail,
+    providerEmail, emailSent,
   } = change.after.data();
 
   // only send emails if a "reservation" was triggered (add_reservation controller in api)
   // during a reservation 'consumer' field goes from false -> string
   if (consumerBefore // if consumerBefore it truthy it's not 'false' and booking didn't happen
     || typeof consumer !== 'string' // if consumer is not string then update didn't happen
-    // || consumer !== 'f' // test condiditon TODO remove before deployment
-    || emailSent // if email already sent, abort. Necessary for ideotempancy
+    || emailSent // if email already sent, abort. Necessary for idempotency
   ) {
     return null; // cancel culture strikes again
   }
@@ -311,8 +307,7 @@ exports.sendSlotBookConfirmEmails = (change, context) => {
   let subject = 'General Ed.';
   let grade = propArray[0];
   if (propArray.length === 2) { // if subject in property
-    subject = propArray[0];
-    grade = propArray[1];
+    [subject, grade] = propArray;
   }
 
   // generate email html
@@ -327,30 +322,36 @@ exports.sendSlotBookConfirmEmails = (change, context) => {
   // and update database
   console.log('send email , providerAvatar');
   const options = {
-    action: 'list',
+    action: 'read',
     expires: '03-17-2025',
   };
-  const studentEmailPromise = admin.storage()
+
+  const studentEmailPromise = storage
     .bucket()
     .file(providerAvatar)
     .getSignedUrl(options)
     .then((tutorImage) => sendEmail({
       toAddress: consumerEmail,
       html: consumerHtml,
-      subject: 'Tutor session booked!',
+      subject: 'Tutoring session booked!',
       tutorImage,
     }));
   const tutorEmailPromise = sendEmail({
     toAddress: providerEmail,
     html: providerHtml,
-    subject: 'Tutor session booked!',
+    subject: 'Tutoring session booked!',
   });
   const updateDocPromise = change.after.ref.set({
     emailSent: true,
-  }, { merge: true }); // necessary for ideotempancy
+  }, { merge: true }); // necessary for idempotency
 
   // send emails concurrently TODO resend on failure
-  return Promise.all([studentEmailPromise, tutorEmailPromise])
-    .then(() => updateDocPromise) // on email success, update db to ensure function doesn't run twice (ideotempancy)
-    .catch((err) => console.error('sendSlotBookConfirmEmails promises failed', err, { consumerEmail, providerEmail }));
+  try {
+    await Promise.all([studentEmailPromise, tutorEmailPromise]);
+    return updateDocPromise;
+  } catch (err) {
+    return console.error('sendSlotBookConfirmEmails promises failed', err, { consumerEmail, providerEmail });
+  }
 };
+
+// !SECTION
