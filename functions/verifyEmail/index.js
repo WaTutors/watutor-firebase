@@ -105,7 +105,8 @@ exports.postPinAndVerifyEmail = (req, res, next) => {
  * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
  */
 exports.verifyEmail = (req, res) => {
-  const { token } = req.query;
+  const { token, type } = req.query;
+  const isTutor = (type === 'tutor')
 
   let uid = '';
   try {
@@ -128,8 +129,9 @@ exports.verifyEmail = (req, res) => {
         parseSimplePageHtml({
           title: 'Email Verified!',
           mainText: `You're now set up to use WaTutors`,
-          linkText: 'Open the app',
-          link: 'https://watutors.page.link/signUp'
+          linkText: `Open ${isTutor ? 'dashboard' : 'app'}`,
+          link: isTutor ? 'https://watutorsdash1.uc.r.appspot.com/' // if tutor, send dashboard link
+            : 'https://watutors.page.link/signUp' // firebase dynamic link by default
         })); // generate beautiful html 
     })
     .catch(error => {

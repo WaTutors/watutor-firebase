@@ -174,7 +174,7 @@ function generateAuthLink(uid, user, toAddress = '') {
     // TODO finish and deploy verifyEmail
     const baseUrl = 'https://us-central1-wa-tutors.cloudfunctions.net/verifyEmail'
     const token = encrypt(uid)
-    return `${baseUrl}?token=${token}`
+    return `${baseUrl}?token=${token}&type=${user}`
   }
 
   // default, error case
@@ -202,7 +202,7 @@ function generateAuthLink(uid, user, toAddress = '') {
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
-exports.sendStudentWelcomeEmail = (data, context) => { // for testing use https
+exports.welcomeEmailStudent = (data, context) => { // for testing use https
   //console.log(gmailEmail, gmailPassword, functions.config())
   const { toAddress, displayName, uid } = data;
   const subject = 'Welcome to Watutors!';
@@ -250,7 +250,7 @@ exports.sendStudentWelcomeEmail = (data, context) => { // for testing use https
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
-exports.sendTutorWelcomeEmail = (data, context) => { // for testing use https
+exports.welcomeEmailTutor = (data, context) => { // for testing use https
   //console.log(gmailEmail, gmailPassword, functions.config());
   const subject = 'Welcome to WaTutors!';
 
@@ -325,27 +325,35 @@ exports.sendSlotBookConfirmEmails = (change, context) => {
 
   // declare promise vars to sent provider, consumer email
   // and update database
-  console.log('send email , providerAvatar')
+  console.log('send email confirming slots:', { consumerEmail, providerEmail })
   const options = {
-    action: 'list',
+    action: 'read',
     expires: '03-17-2025'
   };
-  const studentEmailPromise = admin.storage()
+  const studentEmailPromise = sendEmail({
+    toAddress: consumerEmail,
+    html: consumerHtml,
+    subject: 'Tutor session confirmed!',
+    tutorImage: 'https://i1.wp.com/watutors.com/wp-content/uploads/2020/05/tutoring-photo-scaled.jpg?w=1280&ssl=1',
+  })
+  /* FIXME use actual tutor profile image
+  currently causing PERMISSION_DENIED error
+  admin.storage()
     .bucket()
     .file(providerAvatar)
-    .getSignedUrl(options)
-    .then(tutorImage =>
+    .getSignedUrl(options, tutorImage =>
       sendEmail({
         toAddress: consumerEmail,
         html: consumerHtml,
-        subject: 'Tutor session booked!',
+        subject: 'Tutor session confirmed!',
         tutorImage,
       })
     );
+    */
   const tutorEmailPromise = sendEmail({
     toAddress: providerEmail,
     html: providerHtml,
-    subject: 'Tutor session booked!'
+    subject: 'A student has booked one of your sessions!',
   });
   const updateDocPromise = change.after.ref.set({
     emailSent: true

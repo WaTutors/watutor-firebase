@@ -6,7 +6,7 @@ admin.initializeApp();
 const { createCharge, captureCharge } = require('./stripe')
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail')
 const {
-  sendStudentWelcomeEmail, sendTutorWelcomeEmail,
+  welcomeEmailStudent, welcomeEmailTutor,
   sendSlotBookConfirmEmails,
 } = require('./sendEmail')
 
@@ -39,7 +39,7 @@ exports.auto_approve_tutors = functions.firestore
         .then(() =>
           change.after.ref // return promise to be evaluated
             .update({
-              ['cred.valid']: 'yes'
+              ['cred.valid']: 'yes' // NOTE may need to be changed to 'accepted'
             })
         );
     } else {
@@ -169,7 +169,7 @@ exports.sendSlotBookConfirmEmails = functions.firestore
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
-exports.welcomeEmailStudent = functions.https.onCall(sendStudentWelcomeEmail);
+exports.welcomeEmailStudent = functions.https.onCall(welcomeEmailStudent);
 
 
 /**
@@ -189,4 +189,4 @@ exports.welcomeEmailStudent = functions.https.onCall(sendStudentWelcomeEmail);
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
-exports.welcomeEmailTutor = functions.https.onCall(sendTutorWelcomeEmail);
+exports.welcomeEmailTutor = functions.https.onCall(welcomeEmailTutor);
