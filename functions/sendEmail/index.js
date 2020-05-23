@@ -304,8 +304,8 @@ exports.sendSlotBookConfirmEmails = (change, context) => {
   }
 
   // format data for email
-  const timestring = moment(start.toDate())
-    .utcOffset('-08:00') // format for PST
+  const timestring = moment.utc(start.toDate())
+    .utcOffset('-07:00') // format for PST NOTE PST is actually -8 but this works idk why
     .format('dddd, MMMM D | LT [PST]') // eg 'Saturday, May 16 | 10:00 a.m. PST'
   const propArray = property.split('_') // parse property, eg '3' or 'Math_7'
   let subject = 'General Ed.'
