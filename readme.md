@@ -1,5 +1,5 @@
 # Repo for Wa-Tutors Firebase Cloud Functions
-![Build and Deploy Functions](https://github.com/lucapaler/wa-tutors/workflows/Build%20and%20Deploy%20Functions/badge.svg)
+![Lint and Deploy Functions](https://github.com/lucapaler/wa-tutors/workflows/Build%20and%20Deploy%20Functions/badge.svg)
 
 ### File Structure
 
@@ -17,7 +17,7 @@
 
 ## to deploy:
 - Functions:
-  `firebase deploy --only functions`
+  `firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
 - Hosting:
   `firebase deploy --only hosting`
 

@@ -22,12 +22,16 @@ const stripe = require('stripe')(config().stripe.key);
  * @returns {string}           "Success" if successfully created charge.
  * @throws  {https.HttpsError} Any error that occurred in Stripe charge creation.
  */
-exports.createCharge = ({ source, subject = null }) => stripe.charges.create({
+exports.createCharge = ({ source, subject = null, destination }) => stripe.charges.create({
   amount: 1500,
   currency: 'usd',
   description: `${subject ? `${subject} ` : ''}Tutoring Session`,
   source,
   capture: false,
+  transfer_data: {
+    destination,
+    amount: 1000,
+  },
 })
   .then((charge) => charge.id)
   .catch((error) => {
@@ -53,5 +57,5 @@ exports.createCharge = ({ source, subject = null }) => stripe.charges.create({
 exports.captureCharge = (chargeId) => stripe.charges.capture(chargeId)
   .then(() => 'Success')
   .catch((error) => {
-    throw new https.HttpsError('capture-charge-error', error.message, error);
+    throw new https.HttpsError('unknown', error.message, error);
   });
