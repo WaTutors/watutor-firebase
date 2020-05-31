@@ -62,11 +62,12 @@ const getToken = async () => {
 };
 
 /**
- * Dispatches VoIP push notification for iOS.
+ * Dispatches push notifications for iOS.
  *
  * Generates JWT authentication token for APNs request using the private key "apnsKey" stored in
- * Google Secret Manager and its key ID. Creates headers dictionary using this auth token. Makes
- * HTTP/2 fetch request through to Apple's APNs server.
+ * Google Secret Manager and its key ID. Creates headers dictionary using this auth token and
+ * whether or not the notification is for an incoming call. Makes HTTP/2 fetch request to
+ * Apple's APNs server with passed notification payload and generated headers.
  *
  * @since 0.0.5
  *
@@ -76,24 +77,28 @@ const getToken = async () => {
  * @link https://developer.apple.com/documentation/pushkit/responding_to_voip_notifications_from_pushkit?language=objc
  * @link https://github.com/grantila/fetch-h2#usage
  *
- * @param {string} notificationId Notification ID to send VoIP notification to.
+ * @param {string} notificationId Notification ID to send push notification to.
  * @param {Object} json           Notification payload.
  *
  * @returns {string} "Success" if notification was properly dispatched.
  * @throws  {Error}  Response text if status code is not 200.
 */
-const dispatchIOS = async (notificationId, json) => {
+const dispatchIOS = async ({ isCall, consumerNotifId, notif }) => {
   const headers = {
     authorization: `bearer ${await getToken()}`,
-    'apns-push-type': 'voip',
-    'apns-topic': 'com.wavisits.watutors.voip',
+    'apns-push-type': isCall ? 'voip' : 'background',
+    'apns-topic': `com.wavisits.watutors${isCall ? '.voip' : ''}`,
     'apns-expiration': 0,
   };
 
-  return fetch(`https://api.push.apple.com:443${notificationId}`, {
+  if (!isCall) {
+    headers['content-available'] = 1;
+  }
+
+  return fetch(`https://api.push.apple.com:443${consumerNotifId}`, {
     method: 'POST',
     headers,
-    json,
+    json: notif,
   })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -108,7 +113,7 @@ const dispatchIOS = async (notificationId, json) => {
  * Dispatches background push notification for Android.
  *
  * Sends FCM background push notification to specificed Android device token using Firebase Admin
- * Messaging.
+ * Messaging with passed payload.
  *
  * @since 0.0.5
  *
@@ -119,13 +124,13 @@ const dispatchIOS = async (notificationId, json) => {
  *
  * @returns {string} "Success" if notification was properly dispatched.
  */
-const dispatchAndroid = async (token, data) => messaging.send({
-  data,
+const dispatchAndroid = async ({ consumerNotifId, notif }) => messaging.send({
+  data: notif,
   android: {
     priority: 'high',
     restrictedPackageName: 'com.wavisits.watutors',
   },
-  token,
+  token: consumerNotifId,
 })
   .then(() => 'Success');
 
@@ -165,18 +170,76 @@ exports.triggerIncomingCall = ({ slotId }) => {
           callerName = 'Tutor';
         }
 
-        const notif = {
-          handle: 'WaTutors',
-          callerName,
+        const data = {
+          isCall: true,
+          consumerNotifId,
+          notif: {
+            handle: 'WaTutors',
+            callerName,
+          },
         };
 
-        if (consumerNotifId.includes('/3/device')) return dispatchIOS(consumerNotifId, notif);
+        if (consumerNotifId.includes('/3/device')) return dispatchIOS(data);
 
-        return dispatchAndroid(consumerNotifId, notif);
+        return dispatchAndroid(data);
       })
       .catch((error) => {
         throw new https.HttpsError('unknown', error.message, error);
       });
+  }
+
+  throw new https.HttpsError('invalid-argument', 'Missing slotId.');
+};
+
+/**
+ * Sends session canceled notification.
+ *
+ * Checks for required slot ID in function call body. Finds target slot from provided ID, creates
+ * notification payload from the slot ID's subject and dispatches iOS or Android notification
+ * depending on the notification ID content.
+ *
+ * @since 0.1.0
+ *
+ * @see  dispatchIOS
+ * @see  dispatchAndroid
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Database#ref
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Reference#once
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.database.DataSnapshot#val
+ *
+ * @param {Object} param0        Object containing target slot ID.
+ * @param {Object} param0.slotId ID of slot to send notification for.
+ *
+ * @returns {string}           "Success" if notification was properly dispatched.
+ * @throws  {https.HttpsError} Any error that occurs during sending of notifications or if the
+ *                             function call body is invalid.
+ */
+exports.triggerSessionCanceled = async ({ slotId }) => {
+  if (slotId) {
+    try {
+      const doc = await db.doc(`Schedule/${slotId}`).get();
+      const { property, consumerNotifId } = doc.data();
+
+      let subject = '';
+
+      const parts = property.split('_');
+      if (parts.length > 1) {
+        subject = `${parts[0]} `;
+      }
+
+      const data = {
+        isCall: false,
+        consumerNotifId,
+        notif: {
+          subject: subject || 'none',
+        },
+      };
+
+      if (consumerNotifId.includes('/3/device')) return dispatchIOS(data);
+
+      return dispatchAndroid(data);
+    } catch (error) {
+      throw new https.HttpsError('unknown', error.message, error);
+    }
   }
 
   throw new https.HttpsError('invalid-argument', 'Missing slotId.');
