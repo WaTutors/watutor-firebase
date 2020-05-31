@@ -1,19 +1,24 @@
-const fs = require("fs");
 const admin = require('firebase-admin');
 
-const { decrypt } = require("../utils/cryptoHelpers")
+const { decrypt } = require('../utils/cryptoHelpers');
 
-const { htmlTemplate } = require("./templates/setPinPage")
-const { simple_page } = require("../sendEmail/templates/simple_page")
+const { htmlTemplate } = require('./templates/setPinPage');
+const { simplePage } = require('../sendEmail/templates');
+
+const db = admin.firestore();
 
 // helper to parse sample page html
-function parseSimplePageHtml({ title, mainText, link, linkText }) {
-  let html = simple_page
+function parseSimplePageHtml({
+  title, mainText, link, linkText,
+}) {
+  let html = simplePage;
+
   html = html.replace(/###TITLE###/g, title);
   html = html.replace(/###MAINTEXT###/g, mainText);
   html = html.replace(/###LINK###/g, link);
   html = html.replace(/###LINKTEXT###/g, linkText);
-  return html
+
+  return html;
 }
 
 /**
@@ -33,11 +38,12 @@ function parseSimplePageHtml({ title, mainText, link, linkText }) {
 exports.setPinPage = (req, res) => {
   const { code, email } = req.query;
 
-  if (!code || !email) // TODO regex verify
-    return res.status(403).send('Not authorized.')
+  if (!code || !email) { // TODO regex verify
+    return res.status(403).send('Not authorized.');
+  }
 
   // format and send html
-  var html = htmlTemplate
+  let html = htmlTemplate;
   html = html.replace(/##CODE##/g, code);
   html = html.replace(/##EMAIL##/g, email);
 
@@ -47,50 +53,48 @@ exports.setPinPage = (req, res) => {
 
 /**
  * sets a student/parent's security pin and verifyies their email
- * posted by a one-off cloud function page sent set's a user access pin and 
+ * posted by a one-off cloud function page sent set's a user access pin and
  * confirms privacy policy
  * A token is passed in the body as "key" which should be used to validate and
  * encode the user id
- * 
+ *
  * originally moved from api
- * 
+ *
  * @since 0.0.8
  * @see welcomeEmailStudent
- * 
- * body: 
+ *
+ * body:
     pin: Joi.string().required(),
     token: Joi.string().required(),
 */
-exports.postPinAndVerifyEmail = (req, res, next) => {
-  const token = req.body.token
-  const uid = decrypt(token) // use crypto library with custom key
-  const pin = req.body.pin
-  console.log("'cryption", token, uid)
+exports.postPinAndVerifyEmail = async (req, res) => {
+  const { token } = req.body;
+  const uid = decrypt(token); // use crypto library with custom key
+  const { pin } = req.body;
+  console.log("'cryption", token, uid);
 
   // set up doc
   const studentRef = db.collection('students').doc(uid);
   const updateBody = {
     pin,
     emailConfirm: true,
-  }
+  };
 
   // set up promises
-  const docPromise = studentRef.set(updateBody, { merge: true })
+  const docPromise = studentRef.set(updateBody, { merge: true });
   const authPromise = admin.auth().updateUser(uid, {
-    emailVerified: true
-  })
+    emailVerified: true,
+  });
 
-  return Promise.all([docPromise, authPromise])
-    .then(doc => {
-      return res.status(201).json('Account updated');
-    })
-    .catch(err => {
-      console.error('postPinAndVerifyEmail caught:', err);
-      return res.status(500).json('Server Error');
-    });
+  try {
+    await Promise.all([docPromise, authPromise]);
+    return res.status(201).json('Account updated');
+  } catch (err) {
+    console.error('postPinAndVerifyEmail caught:', err);
+    return res.status(500).json('Server Error');
+  }
   // TODO verify email address concurrently
-
-}
+};
 
 
 /**
@@ -100,7 +104,7 @@ exports.postPinAndVerifyEmail = (req, res, next) => {
  * @see welcomeEmailStudent
  * @see welcomeEmailTutor
  * @since 0.0.7
- * 
+ *
  * @returns {html} website for set pin page
  * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
  */
@@ -110,18 +114,19 @@ exports.verifyEmail = (req, res) => {
 
   let uid = '';
   try {
-    uid = decrypt(token) // use crypto library with custom key
+    uid = decrypt(token); // use crypto library with custom key
   } catch (error) {
-    console.error('encrypt error:', error)
+    console.error('encrypt error:', error);
     return res.status(500).send('Server Error.');
   }
 
-  if (uid.length === 0) // TODO check exact length
+  if (uid.length === 0) { // TODO check exact length
     return res.status(500).send('Server Error.');
+  }
 
   // verify email
   return admin.auth().updateUser(uid, {
-    emailVerified: true
+    emailVerified: true,
   })
     .then(userRecord => {
       // See the UserRecord reference doc for the contents of userRecord.
@@ -136,15 +141,15 @@ exports.verifyEmail = (req, res) => {
     })
     .catch(error => {
       console.error('verifyEmail catch:', error, token)
+
       return res.status(500).send(
         parseSimplePageHtml({
           title: 'Error updating profile.',
           mainText: `Thank you for your patience <br/>
           User id:  ${uid}`,
           linkText: 'Please contact us to manually resolve this issue.',
-          link: 'https://watutors.atlassian.net/servicedesk/customer/portal/1'
-        })
+          link: 'https://watutors.atlassian.net/servicedesk/customer/portal/1',
+        }),
       );
-    });// generate beautiful html 
-
+    });// generate beautiful html
 };

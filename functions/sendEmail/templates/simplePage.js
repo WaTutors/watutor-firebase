@@ -1,15 +1,15 @@
 /** lightweight simple page usable for most simple cases
- * 
+ *
  * variables:
  * ###TITLE###
  * ###MAINTEXT###
  * ###LINK###
  * ###LINKTEXT###
- * 
- * extracted from: 
+ *
+ * extracted from:
  * @link www.example.com
  */
-exports.simple_page = `
+exports.simplePage = `
 <!doctype html>
 <html>
 
@@ -61,4 +61,4 @@ exports.simple_page = `
 </body>
 
 </html>
-`
+`;

@@ -1,4 +1,4 @@
-exports.student_welcome_template = `
+exports.studentWelcomeTemplate = `
 
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -322,7 +322,7 @@ exports.student_welcome_template = `
                             <tbody>
                               <tr>
                                 <td align="center" valign="top" style="padding: 10px;">
-                                  <a href="http://watutors.com" style="text-decoration: none;"><img
+                                  <a href="https://watutors.com" style="text-decoration: none;"><img
                                       src="https://firebasestorage.googleapis.com/v0/b/wa-tutors.appspot.com/o/public%2FIMG_3357.PNG?alt=media"
                                       width="" height="" alt="WaTutors Logo"
                                       style="height: auto; max-width: 100%; border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; color: #ffffff; font-size: 14px;"></a>

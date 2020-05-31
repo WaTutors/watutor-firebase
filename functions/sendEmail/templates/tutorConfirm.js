@@ -1,4 +1,4 @@
-exports.tutor_confirm_template = `
+exports.tutorConfirmTemplate = `
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
@@ -415,7 +415,7 @@ exports.tutor_confirm_template = `
                                         <tbody>
                                           <tr>
                                             <td valign="top">
-                                              <img src="images/schedule.svg" width="150" height="150" alt=""
+                                              <img src="https://firebasestorage.googleapis.com/v0/b/wa-tutors.appspot.com/o/public%2Fschedule.svg?alt=media" width="150" height="150" alt=""
                                                 style=" max-width: 100%; height: auto; border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; display: block; color: #1B1B1B;">
                                             </td>
                                           </tr>
@@ -624,4 +624,4 @@ exports.tutor_confirm_template = `
 </body>
 
 </html>
-`
+`;
