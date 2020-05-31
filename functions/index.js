@@ -131,7 +131,7 @@ exports.triggerIncomingCall = functions.https.onCall(triggerIncomingCall);
  *
  * @return {Promise} Null if nothing to do, or a Promise to create a task on the Cloud queue
  */
-exports.reserveSlots = functions.firestore.document(`Schedule/${slotId}`).onUpdate(reserveSlots);
+exports.reserveSlots = functions.firestore.document(`Schedule/{slotId}`).onUpdate(reserveSlots);
 
 /**
  * Releases reserved slots.
