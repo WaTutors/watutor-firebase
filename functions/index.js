@@ -138,7 +138,7 @@ exports.reserveSlots = functions.firestore.document(`Schedule/{slotId}`).onUpdat
  *
  * Sets the reserved field to false in a document with the Schedule collection. The function is
  * triggered by HTTP requests made to:
- * "https://us-central1-wa-tutors.cloudfunctions.net/reservation_Callback."
+ * "https://us-central1-wa-tutors.cloudfunctions.net/reservationCallback."
  *
  * @since 0.0.7
  *
