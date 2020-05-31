@@ -168,9 +168,10 @@ function generateAuthLink(uid, user, toAddress = '') {
 
   if (user === 'tutor') {
     // TODO finish and deploy verifyEmail
-    const baseUrl = 'https://us-central1-wa-tutors.cloudfunctions.net/verifyEmail';
-    const token = encrypt(uid);
-    return `${baseUrl}?token=${token}`;
+    const baseUrl = 'https://us-central1-wa-tutors.cloudfunctions.net/verifyEmail'
+    const token = encrypt(uid)
+    return `${baseUrl}?token=${token}&type=${user}`
+
   }
 
   // default, error case
@@ -198,8 +199,9 @@ function generateAuthLink(uid, user, toAddress = '') {
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
-exports.sendStudentWelcomeEmail = (data, context) => { // for testing use https
-  // console.log(gmailEmail, gmailPassword, functions.config())
+exports.welcomeEmailStudent = (data, context) => { // for testing use https
+  //console.log(gmailEmail, gmailPassword, functions.config())
+
   const { toAddress, displayName, uid } = data;
   const subject = 'Welcome to WaTutors!';
 
@@ -248,8 +250,9 @@ exports.sendStudentWelcomeEmail = (data, context) => { // for testing use https
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
-exports.sendTutorWelcomeEmail = (_, context) => { // for testing use https
-  // console.log(gmailEmail, gmailPassword, functions.config());
+exports.welcomeEmailTutor = (data, context) => { // for testing use https
+  //console.log(gmailEmail, gmailPassword, functions.config());
+
   const subject = 'Welcome to WaTutors!';
 
   // check that user is authenticated
@@ -300,12 +303,13 @@ exports.sendSlotBookConfirmEmails = async (change) => {
   }
 
   // format data for email
-  const timestring = moment(start.toDate())
-    .utcOffset('-08:00') // format for PST
-    .format('dddd, MMMM D | LT [PST]'); // eg 'Saturday, May 16 | 10:00 a.m. PST'
-  const propArray = property.split('_'); // parse property, eg '3' or 'Math_7'
-  let subject = 'General Ed.';
-  let grade = propArray[0];
+  const timestring = moment.utc(start.toDate())
+    .utcOffset('-07:00') // format for PST NOTE PST is actually -8 but this works idk why
+    .format('dddd, MMMM D | LT [PST]') // eg 'Saturday, May 16 | 10:00 a.m. PST'
+  const propArray = property.split('_') // parse property, eg '3' or 'Math_7'
+  let subject = 'General Ed.'
+  let grade = propArray[0]
+
   if (propArray.length === 2) { // if subject in property
     [subject, grade] = propArray;
   }
@@ -320,26 +324,35 @@ exports.sendSlotBookConfirmEmails = async (change) => {
 
   // declare promise vars to sent provider, consumer email
   // and update database
-  console.log('send email , providerAvatar');
+  console.log('send email confirming slots:', { consumerEmail, providerEmail })
   const options = {
     action: 'read',
-    expires: '03-17-2025',
+    expires: '03-17-2025'
   };
-
-  const studentEmailPromise = storage
+  const studentEmailPromise = sendEmail({
+    toAddress: consumerEmail,
+    html: consumerHtml,
+    subject: 'Tutor session confirmed!',
+    tutorImage: 'https://i1.wp.com/watutors.com/wp-content/uploads/2020/05/tutoring-photo-scaled.jpg?w=1280&ssl=1',
+  })
+  /* FIXME use actual tutor profile image
+  currently causing PERMISSION_DENIED error
+  admin.storage()
     .bucket()
     .file(providerAvatar)
-    .getSignedUrl(options)
-    .then((tutorImage) => sendEmail({
-      toAddress: consumerEmail,
-      html: consumerHtml,
-      subject: 'Tutoring session booked!',
-      tutorImage,
-    }));
+    .getSignedUrl(options, tutorImage =>
+      sendEmail({
+        toAddress: consumerEmail,
+        html: consumerHtml,
+        subject: 'Tutor session confirmed!',
+        tutorImage,
+      })
+    );
+    */
   const tutorEmailPromise = sendEmail({
     toAddress: providerEmail,
     html: providerHtml,
-    subject: 'Tutoring session booked!',
+    subject: 'A student has booked one of your sessions!',
   });
   const updateDocPromise = change.after.ref.set({
     emailSent: true,

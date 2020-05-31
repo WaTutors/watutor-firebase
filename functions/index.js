@@ -3,11 +3,11 @@ const admin = require('firebase-admin');
 
 admin.initializeApp();
 
-const { createCharge, captureCharge } = require('./stripe');
-
 const {
-  sendStudentWelcomeEmail, sendTutorWelcomeEmail, sendSlotBookConfirmEmails,
-} = require('./sendEmail');
+  welcomeEmailStudent, welcomeEmailTutor,
+  sendSlotBookConfirmEmails,
+} = require('./sendEmail')
+const { createCharge, captureCharge } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall } = require('./notifications');
 const { reserveSlots, reservationCallback } = require('./scheduleReservations');
@@ -33,11 +33,15 @@ exports.autoApproveTutors = functions.firestore
     // if submitted
     if ('cred' in changes && 'valid' in changes.cred && changes.cred.valid === 'submit') {
       // after 2 seconds, update document
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      return change.after.ref // return promise to be evaluated
-        .update({
-          'cred.valid': 'yes',
-        });
+      return new Promise(resolve => setTimeout(resolve, 2000))
+        .then(() =>
+          change.after.ref // return promise to be evaluated
+            .update({
+              ['cred.valid']: 'yes' // NOTE may need to be changed to 'accepted'
+            })
+        );
+    } else{
+      return
     }
 
     return null;
@@ -230,7 +234,7 @@ exports.sendSlotBookConfirmEmails = functions.firestore
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
-exports.welcomeEmailStudent = functions.https.onCall(sendStudentWelcomeEmail);
+exports.welcomeEmailStudent = functions.https.onCall(welcomeEmailStudent);
 
 /**
  * Sends an email welcoming a tutor
@@ -249,6 +253,6 @@ exports.welcomeEmailStudent = functions.https.onCall(sendStudentWelcomeEmail);
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
-exports.welcomeEmailTutor = functions.https.onCall(sendTutorWelcomeEmail);
+exports.welcomeEmailTutor = functions.https.onCall(welcomeEmailTutor);
 
 // !SECTION

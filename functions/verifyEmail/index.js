@@ -109,7 +109,8 @@ exports.postPinAndVerifyEmail = async (req, res) => {
  * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
  */
 exports.verifyEmail = (req, res) => {
-  const { token } = req.query;
+  const { token, type } = req.query;
+  const isTutor = (type === 'tutor')
 
   let uid = '';
   try {
@@ -127,17 +128,20 @@ exports.verifyEmail = (req, res) => {
   return admin.auth().updateUser(uid, {
     emailVerified: true,
   })
-    .then(() => res.status(200).send( // See the UserRecord reference doc for the contents of
-      // userRecord.
-      parseSimplePageHtml({
-        title: 'Email Verified!',
-        mainText: 'You\'re now set up to use WaTutors',
-        linkText: 'Open the app',
-        link: 'https://watutors.page.link/signUp',
-      }),
-    )) // generate beautiful html
-    .catch((error) => {
-      console.error('verifyEmail catch:', error, token);
+    .then(userRecord => {
+      // See the UserRecord reference doc for the contents of userRecord.
+      return res.status(200).send(
+        parseSimplePageHtml({
+          title: 'Email Verified!',
+          mainText: `You're now set up to use WaTutors`,
+          linkText: `Open ${isTutor ? 'dashboard' : 'app'}`,
+          link: isTutor ? 'https://watutorsdash1.uc.r.appspot.com/' // if tutor, send dashboard link
+            : 'https://watutors.page.link/signUp' // firebase dynamic link by default
+        })); // generate beautiful html 
+    })
+    .catch(error => {
+      console.error('verifyEmail catch:', error, token)
+
       return res.status(500).send(
         parseSimplePageHtml({
           title: 'Error updating profile.',
