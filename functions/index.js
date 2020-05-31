@@ -4,11 +4,13 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 
 const { createCharge, captureCharge } = require('./stripe');
+
 const {
   sendStudentWelcomeEmail, sendTutorWelcomeEmail, sendSlotBookConfirmEmails,
 } = require('./sendEmail');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall } = require('./notifications');
+const { reserveSlots, reservationCallback } = require('./scheduleReservations');
 
 // SECTION - One-Off Pages
 
@@ -162,6 +164,38 @@ exports.postPinAndVerifyEmail = functions.https.onRequest(postPinAndVerifyEmail)
 exports.triggerIncomingCall = functions.https.onCall(triggerIncomingCall);
 
 // !SECTION
+
+// SECTION - Reservations Scheduler
+
+/**
+ * Queues reservationCallback function.
+ *
+ * Queues the reservationCallback function to run 5 minutes later via Google Cloud Tasks. Triggered
+ * whenever a document in the Schedule collection is updated.
+ *
+ * @since 0.0.7
+ *
+ * @param {Object}                     change        Object containing before and after snapshots.
+ * @param {firestore.DocumentSnapshot} change.before Snapshot before the document update.
+ *
+ * @return {Promise} Null if nothing to do, or a Promise to create a task on the Cloud queue
+ */
+exports.reserveSlots = functions.firestore.document(`Schedule/{slotId}`).onUpdate(reserveSlots);
+
+/**
+ * Releases reserved slots.
+ *
+ * Sets the reserved field to false in a document with the Schedule collection. The function is
+ * triggered by HTTP requests made to:
+ * "https://us-central1-wa-tutors.cloudfunctions.net/reservationCallback."
+ *
+ * @since 0.0.7
+ *
+ * @param {Object} req Object containing the document ID to be used.
+ */
+exports.reservationCallback = functions.https.onRequest((req, res) => {
+  reservationCallback(req, res, admin);
+});
 
 // SECTION - Emails
 
