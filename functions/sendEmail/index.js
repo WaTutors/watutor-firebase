@@ -1,9 +1,5 @@
-const nodemailer = require('nodemailer');
 const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-const moment = require('moment');
 
-const { encrypt } = require('../utils/cryptoHelpers');
 const {
   studentWelcomeTemplate, studentConfirmTemplate, tutorConfirmTemplate,
 } = require('./templates');
@@ -12,25 +8,11 @@ const {
 const gmailEmail = functions.config().gmail.email;
 const gmailPassword = functions.config().gmail.password;
 
-const storage = admin.storage();
-
-/** set up OMTP server
- * @link https://www.google.com/accounts/DisplayUnlockCaptcha
- * @link https://myaccount.google.com/lesssecureapps
- * @link This link is important to enable accesses to google account
- */
-const mailTransport = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: gmailEmail,
-    pass: gmailPassword,
-  },
-});
-
 // SECTION - Helpers
 
 /**
  * send email
+ * TODO move to sendgrid to leverage their analytics https://app.sendgrid.com/guide/integrate/langs/nodejs
  *
  * @since 0.0.5
  *
@@ -48,6 +30,20 @@ const mailTransport = nodemailer.createTransport({
 function sendEmail({
   toAddress, html, subject, tutorImage,
 }) {
+  /** set up OMTP server lazily
+   * @link https://www.google.com/accounts/DisplayUnlockCaptcha
+   * @link https://myaccount.google.com/lesssecureapps
+   * @link This link is important to enable accesses to google account
+   */
+  const nodemailer = require('nodemailer');
+  const mailTransport = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: gmailEmail,
+      pass: gmailPassword,
+    },
+  });
+
   if (tutorImage) {
     // eslint-disable-next-line no-param-reassign
     html = html.replace(/###TUTOR_AVATAR###/g, tutorImage);
@@ -157,6 +153,8 @@ function generateStudentConfirm({
  * @param {string} user type of user. Enum [tutor, student]
  */
 function generateAuthLink(uid, user, toAddress = '') {
+  const { encrypt } = require('../_helpers/cryptoHelpers');
+
   /** generate link to pin set page
    * @see /setPin
    */
@@ -287,6 +285,11 @@ exports.welcomeEmailTutor = (data, context) => { // for testing use https
  * @returns {promise} send emails then update database
  */
 exports.sendSlotBookConfirmEmails = async (change) => {
+  // lazily import 
+  const admin = require('firebase-admin');
+  const storage = admin.storage();
+  const moment = require('moment');
+
   const { consumerBefore } = change.before.data();
   const {
     consumer, property, start, providerAbout, providerAvatar, providerName, consumerEmail,

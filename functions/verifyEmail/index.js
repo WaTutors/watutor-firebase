@@ -1,11 +1,7 @@
-const admin = require('firebase-admin');
-
-const { decrypt } = require('../utils/cryptoHelpers');
+const { decrypt } = require('../_helpers/cryptoHelpers');
 
 const { htmlTemplate } = require('./templates/setPinPage');
 const { simplePage } = require('../sendEmail/templates');
-
-const db = admin.firestore();
 
 // helper to parse sample page html
 function parseSimplePageHtml({
@@ -68,6 +64,9 @@ exports.setPinPage = (req, res) => {
     token: Joi.string().required(),
 */
 exports.postPinAndVerifyEmail = async (req, res) => {
+  const admin = require('firebase-admin');
+  const db = admin.firestore();
+
   const { token } = req.body;
   const uid = decrypt(token); // use crypto library with custom key
   const { pin } = req.body;
@@ -109,6 +108,8 @@ exports.postPinAndVerifyEmail = async (req, res) => {
  * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
  */
 exports.verifyEmail = (req, res) => {
+  const admin = require('firebase-admin');
+
   const { token, type } = req.query;
   const isTutor = (type === 'tutor')
 

@@ -3,6 +3,8 @@
 
 ### File Structure
 
+All functions are imported into a monolithic functions/index.js. They are defined by category into subfolders. 
+
 - functions
   - **setPin** - @stoddabr
     - *HTML page for setting pin*
@@ -16,13 +18,27 @@
   - *Handling for Universal Links into WaTutors app.*
 
 ## to deploy:
-- Functions:
-  `firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
-- Hosting:
-  `firebase deploy --only hosting`
+Values for `${project}`. For more information, see [this document](https://docs.google.com/document/d/1gZGQlRQQR2Tgdk1-uPGFcvGxJotpyK8v8yv8z2cyMPQ/): 
+ - `watutors` V0 (Deployed)
+ - `watutors1` V1 (Under development) 
 
+Select project (setup)
+```bash
+firebase use ${project} 
+```
+Once proper project is selected
+```bash
+firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]
+```
+
+## Cloud Tasks Queue
+
+This project also uses cloud task queues to manage delay timeouts. Several of the cloud functions in this repo are triggered by Tasks. 
+See the readme in www.github.com/stoddabr/watutors-api repo for more info on queues
 
 ## to setup project
+
+THIS SECTION UNDER CONSTRUCTION. HARDHATS REQUIRED
 
 ### Test Functions
 1. Generate a new [private key file](https://console.firebase.google.com/u/0/project/wa-tutors/settings/serviceaccounts/adminsdk) for the Firebase Admin SDK.
