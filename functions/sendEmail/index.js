@@ -237,10 +237,10 @@ exports.welcomeEmailStudent = (data, context) => { // for testing use https
  * addressed from the watutors.auto@gmail.com email
  * generates a link to validate account http function
  * email includes a link to validate the account
- * 
+ *
  * @since 0.0.7
  * @link https://firebase.google.com/docs/functions/callable#write_and_deploy_the_callable_function
- * 
+ *
  * @param {object} data
  * @param {string} data.toAddress address of recipient
  * @param {string} data.displayName name of the user to display
@@ -329,7 +329,7 @@ exports.sendSlotBookConfirmEmails = async (change) => {
 
   // declare promise vars to sent provider, consumer email
   // and update database
-  console.log('send email confirming slots:', { consumerEmail, providerEmail });
+  console.log('sending email confirming slots:', { consumerEmail, providerEmail });
 
   const studentEmailPromise = sendEmail({
     toAddress: consumerEmail,
