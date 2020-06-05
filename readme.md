@@ -58,15 +58,16 @@ Helpful links
 
 THIS SECTION UNDER CONSTRUCTION. HARDHATS REQUIRED
 `firebase init
-**JESSE README** add a file `functions/tutorCredentialCheck/index.js`
+**JESSE README** 
 
 Dev steps:
-1. Write a call to google's (cloud vision api)[https://cloud.google.com/vision/docs/request] 
-2. Experiment around with the JSON that gets returned
+1. add a file `functions/tutorCredentialCheck/index.js`
+2. Write a call to google's (cloud vision api)[https://cloud.google.com/vision/docs/request] 
+3. Experiment around with the JSON that gets returned
     - Use (this website)[https://cloud.google.com/vision/docs/drag-and-drop] to get JSON without needing to make an api call 
-3. Parse documents ((pdf))[https://cloud.google.com/vision/docs/pdf]. (More info here.)[https://cloud.google.com/vision/docs/ocr#detect_text_in_a_remote_image]
+4. Parse documents ((pdf))[https://cloud.google.com/vision/docs/pdf]. (More info here.)[https://cloud.google.com/vision/docs/ocr#detect_text_in_a_remote_image]
     - Talk to Pelham/Sanjay to see if we even need to wory about images if so, Optomize it for images (png, jpg, mpg). See slack message about (fiducials)[https://en.wikipedia.org/wiki/Fiducial_marker] 
-4. Talk to Pelham about testing on multiple images
+5. Talk to Pelham about testing on multiple images
 
 ### Test Functions
 1. Generate a new [private key file](https://console.firebase.google.com/u/0/project/watutors-1/settings/serviceaccounts/adminsdk) for the Firebase Admin SDK.
