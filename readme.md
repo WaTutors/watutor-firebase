@@ -59,7 +59,7 @@ Helpful links
 THIS SECTION UNDER CONSTRUCTION. HARDHATS REQUIRED
 
 
-###JESSE README
+### JESSE README
 
 Dev steps:
 0. (initialize firebase cloud functions cli)[https://firebase.google.com/docs/functions/get-started#set-up-node.js-and-the-firebase-cli]
