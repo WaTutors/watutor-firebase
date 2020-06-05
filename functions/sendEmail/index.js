@@ -337,7 +337,7 @@ exports.sendSlotBookConfirmEmails = async (change) => {
     subject: 'Tutor session confirmed!',
     tutorImage: 'https://i1.wp.com/watutors.com/wp-content/uploads/2020/05/tutoring-photo-scaled.jpg?w=1280&ssl=1',
   });
-  /* FIXME use actual tutor profile image
+  /* TODO use actual tutor profile image
   const options = {
     action: 'read',
     expires: '03-17-2025',
