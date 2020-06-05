@@ -1,4 +1,3 @@
-/* eslint-disable global-require */
 const { https } = require('firebase-functions');
 
 let apnsKey;
@@ -122,22 +121,15 @@ const dispatchIOS = async ({ isCall, consumerNotifId, notif }) => {
  *
  * @returns {string} "Success" if notification was properly dispatched.
  */
-const dispatchAndroid = async ({ consumerNotifId, notif }) => {
-  const admin = require('firebase-admin');
-  admin.initializeApp();
-
-  const messaging = admin.messaging();
-
-  return messaging.send({
-    data: notif,
-    android: {
-      priority: 'high',
-      restrictedPackageName: 'com.wavisits.watutors',
-    },
-    token: consumerNotifId,
-  })
-    .then(() => 'Success');
-};
+const dispatchAndroid = async ({ messaging, consumerNotifId, notif }) => messaging().send({
+  data: notif,
+  android: {
+    priority: 'high',
+    restrictedPackageName: 'com.wavisits.watutors',
+  },
+  token: consumerNotifId,
+})
+  .then(() => 'Success');
 
 /**
  * Sends incoming call notification.
@@ -191,7 +183,7 @@ exports.triggerIncomingCall = ({ slotId }) => {
 
         if (consumerNotifId.includes('/3/device')) return dispatchIOS(data);
 
-        return dispatchAndroid(data);
+        return dispatchAndroid({ messaging: admin.messaging, ...data });
       })
       .catch((error) => {
         throw new https.HttpsError('unknown', error.message, error);

@@ -18,13 +18,13 @@ const gmailPassword = functions.config().gmail.password;
  *
  * @link https://dev.to/akshay090/sending-personalized-email-from-cloud-function-50al
  *
- * @param {Object} param0           Object containing source and subject.
- * @param {string} param0.toAddress address to sent the email to
- * @param {string} param0.html      email html
+ * @param {Object} param0             Object containing source and subject.
+ * @param {string} param0.toAddress   address to sent the email to
+ * @param {string} param0.html        email html
  * @param {string} param0.displayName name of the user to send email to
- * @param {string} param0.tutorImage optional. if included, will replace ###TUTOR_AVATAR## in html
+ * @param {string} param0.tutorImage  optional. if included, will replace ###TUTOR_AVATAR## in html
  *
- * @returns {string}            Express request resulution/api response
+ * @returns {string}                     Express request resulution/api response
  * @throws  {functions.https.HttpsError} Any error that occurred
  */
 function sendEmail({
@@ -67,6 +67,7 @@ function sendEmail({
  * generate welcome email html
  *
  * @param {string} param0.link main action link that should provide next step in flow
+ *
  * @returns {string} string html
  */
 function generateWelcomeEmailFromTemplate({ link, isTutor }) {
@@ -96,6 +97,7 @@ function generateWelcomeEmailFromTemplate({ link, isTutor }) {
  * for confirming booking of a call
  *
  * @param {object} param0 object containing personalized variables for use in email
+ *
  * @returns {string} fromatted html email
  */
 function generateTutorConfirm({
@@ -121,6 +123,7 @@ function generateTutorConfirm({
  * for confirming booking of a call
  *
  * @param {object} param0 object containing personalized variables for use in email
+ *
  * @returns {string} formatted html email
  */
 function generateStudentConfirm({
@@ -189,29 +192,22 @@ function generateAuthLink(uid, user) {
  * an intermediate "setPin" page
  *
  * @since 0.0.6
+ *
  * @see verifyEmail
  *
- * @param {string} data.toAddress address of recipient
+ * @param {string} data.toAddress   address of recipient
  * @param {string} data.displayName name of the user to display
- * @param {string} data.uid user id
- * @param {object} context firebase CallableContext object
+ * @param {string} data.uid         user id
+ * @param {object} context          firebase CallableContext object
  *
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
-exports.welcomeEmailStudent = (data, context) => { // for testing use https
+exports.welcomeEmailStudent = (data) => { // for testing use https
   // console.log(gmailEmail, gmailPassword, functions.config())
 
   const { toAddress, displayName, uid } = data;
   const subject = 'Welcome to WaTutors!';
-
-  // check that user is authenticated
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-      'failed-precondition',
-      'The function must be called while authenticated.',
-    );
-  }
 
   // ensure data is passed properly
   if (!(typeof displayName === 'string'
@@ -239,29 +235,22 @@ exports.welcomeEmailStudent = (data, context) => { // for testing use https
  * email includes a link to validate the account
  *
  * @since 0.0.7
+ *
  * @link https://firebase.google.com/docs/functions/callable#write_and_deploy_the_callable_function
  *
  * @param {object} data
- * @param {string} data.toAddress address of recipient
+ * @param {string} data.toAddress   address of recipient
  * @param {string} data.displayName name of the user to display
- * @param {string} data.uid user id
- * @param {object} context firebase CallableContext object
+ * @param {string} data.uid         user id
+ * @param {object} context          firebase CallableContext object
  *
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
-exports.welcomeEmailTutor = (data, context) => { // for testing use https
+exports.welcomeEmailTutor = (_, context) => { // for testing use https
   // console.log(gmailEmail, gmailPassword, functions.config());
 
   const subject = 'Welcome to WaTutors!';
-
-  // check that user is authenticated
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-      'failed-precondition',
-      'The function must be called while authenticated.',
-    );
-  }
 
   // extract data from context (token passed from caller)
   const { uid } = context.auth;
@@ -279,12 +268,13 @@ exports.welcomeEmailTutor = (data, context) => { // for testing use https
  * doc triggered function on write
  * send emails to both provider and comsumer about the slot
  *
- * @link https://firebase.google.com/docs/functions/firestore-events#event_data
  * @since 0.0.8
  *
- * @param {object} Change see cloud function interface
- * @param {object} Context see cloud function interface
- * @returns {promise} send emails then update database
+ * @link https://firebase.google.com/docs/functions/firestore-events#event_data
+ *
+ * @param {Object} change see cloud function interface
+ *
+ * @returns {Promise} send emails then update database
  */
 exports.sendSlotBookConfirmEmails = async (change) => {
   // lazily import
