@@ -67,10 +67,8 @@ exports.setPinPage = (req, res) => {
     token: Joi.string().required(),
 */
 exports.postPinAndVerifyEmail = async (req, res) => {
-  const admin = require('firebase-admin');
-  if (!admin.apps.length) { // avoid initializing multiple times
-    admin.initializeApp();
-  }
+  const admin = require('../_helpers/firebase_admin');
+
   const db = admin.firestore();
 
   const { token } = req.body;
@@ -114,10 +112,8 @@ exports.postPinAndVerifyEmail = async (req, res) => {
  * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
  */
 exports.verifyEmail = async (req, res) => {
-  const admin = require('firebase-admin');
-  if (!admin.apps.length) { // avoid initializing multiple times
-    admin.initializeApp();
-  }
+  const admin = require('../_helpers/firebase_admin');
+
   const { token, type } = req.query;
   const isTutor = (type === 'tutor');
   let uid = '';

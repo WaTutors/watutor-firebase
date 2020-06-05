@@ -154,10 +154,8 @@ const dispatchAndroid = async ({ messaging, consumerNotifId, notif }) => messagi
  *                             function call body is invalid.
  */
 exports.triggerIncomingCall = ({ slotId }) => {
-  const admin = require('firebase-admin');
-  if (!admin.apps.length) { // avoid initializing multiple times
-    admin.initializeApp();
-  }
+  const admin = require('../_helpers/firebase_admin');
+
   const db = admin.firestore();
 
   if (slotId) {
@@ -217,10 +215,8 @@ exports.triggerIncomingCall = ({ slotId }) => {
  *                             function call body is invalid.
  */
 exports.triggerSessionCanceled = async ({ slotId }) => {
-  const admin = require('firebase-admin');
-  if (!admin.apps.length) { // avoid initializing multiple times
-    admin.initializeApp();
-  }
+  const admin = require('../_helpers/firebase_admin');
+
   const db = admin.firestore();
 
   if (slotId) {

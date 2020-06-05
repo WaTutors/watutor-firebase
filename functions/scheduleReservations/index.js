@@ -70,10 +70,8 @@ exports.reserveSlots = async (change) => {
  * @param {Object} req Object containing the document ID to be used.
  */
 exports.reservationCallback = async (req, res) => {
-  const admin = require('firebase-admin');
-  if (!admin.apps.length) { // avoid initializing multiple times
-    admin.initializeApp();
-  }
+  const admin = require('../_helpers/firebase_admin');
+
   try {
     // The reserved field is only used when checking if someone has looked at the document
     // recently, so we always set it to false.
