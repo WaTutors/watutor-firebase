@@ -57,10 +57,12 @@ Helpful links
 ## Setup
 
 THIS SECTION UNDER CONSTRUCTION. HARDHATS REQUIRED
-`firebase init
-**JESSE README** 
+
+
+###JESSE README
 
 Dev steps:
+0. (initialize firebase cloud functions cli)[https://firebase.google.com/docs/functions/get-started#set-up-node.js-and-the-firebase-cli]
 1. add a file `functions/tutorCredentialCheck/index.js`
 2. Write a call to google's (cloud vision api)[https://cloud.google.com/vision/docs/request] 
 3. Experiment around with the JSON that gets returned
