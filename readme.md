@@ -5,12 +5,22 @@
 All functions are imported into a monolithic functions/index.js. They are defined by category into subfolders. 
 
 - functions
-  - **setPin** - @stoddabr
-    - *HTML page for setting pin*
-  - **notifications** - @lucapaler
-    - triggerIncomingCall
+  - **_helpers**
+    - helper functions used by one or more functions
+  - **_templates**
+    - template functions that can be easily copy/pasted
+  - **notifications** @lucapaler
+    - functions relating to notifications
+  - **scheduleReservations** @kris.wong / @stoddabr
+    - function timeout for the reservation system that prevents double booking
+  - **sendEmail** @stoddabr
+    - functions that format and send different types of emails
   - **stripe** - @lucapaler
     - createCharge *and* captureCharge *Stripe functions.*
+  - **verifyEmail** @stoddabr
+    - functions and one-off-pages that handle email verification
+
+
   - *index.js* imports functions and sets triggers
   - *package.json*
 - public
