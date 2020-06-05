@@ -1,7 +1,5 @@
 const { config, https } = require('firebase-functions');
 
-const stripe = require('stripe')(config().stripe.key);
-
 /**
  * Creates Stripe charge.
  *
@@ -22,21 +20,25 @@ const stripe = require('stripe')(config().stripe.key);
  * @returns {string}           "Success" if successfully created charge.
  * @throws  {https.HttpsError} Any error that occurred in Stripe charge creation.
  */
-exports.createCharge = ({ source, subject = null, destination }) => stripe.charges.create({
-  amount: 1500,
-  currency: 'usd',
-  description: `${subject ? `${subject} ` : ''}Tutoring Session`,
-  source,
-  capture: false,
-  transfer_data: {
-    destination,
-    amount: 1000,
-  },
-})
-  .then((charge) => charge.id)
-  .catch((error) => {
-    throw new https.HttpsError('unknown', error.message, error);
-  });
+exports.createCharge = ({ source, subject = null, destination }) => {
+  const stripe = require('stripe')(config().stripe.key);
+
+  return stripe.charges.create({
+    amount: 1500,
+    currency: 'usd',
+    description: `${subject ? `${subject} ` : ''}Tutoring Session`,
+    source,
+    capture: false,
+    transfer_data: {
+      destination,
+      amount: 1000,
+    },
+  })
+    .then((charge) => charge.id)
+    .catch((error) => {
+      throw new https.HttpsError('unknown', error.message, error);
+    });
+};
 
 /**
  * Captures a charge.
@@ -54,8 +56,12 @@ exports.createCharge = ({ source, subject = null, destination }) => stripe.charg
  * @returns {string}           "Success" if successfully captured charge.
  * @throws  {https.HttpsError} Any error that occurs during capturing.
  */
-exports.captureCharge = (chargeId) => stripe.charges.capture(chargeId)
-  .then(() => 'Success')
-  .catch((error) => {
-    throw new https.HttpsError('unknown', error.message, error);
-  });
+exports.captureCharge = (chargeId) => {
+  const stripe = require('stripe')(config().stripe.key);
+
+  return stripe.charges.capture(chargeId)
+    .then(() => 'Success')
+    .catch((error) => {
+      throw new https.HttpsError('unknown', error.message, error);
+    });
+};

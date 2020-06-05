@@ -1,15 +1,6 @@
-const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
-const jwt = require('jsonwebtoken');
-const { fetch } = require('fetch-h2');
-const admin = require('firebase-admin');
 const { https } = require('firebase-functions');
 
-const secretClient = new SecretManagerServiceClient();
-
-const db = admin.firestore();
-const messaging = admin.messaging();
-
-let apnsKey = '';
+let apnsKey;
 
 /**
  * Refreshes APNs JWT token.
@@ -27,14 +18,18 @@ let apnsKey = '';
  * @returns {string} JWT token to use with APNs.
  */
 const getToken = async () => {
+  const jwt = require('jsonwebtoken');
+  const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
+  const secretClient = new SecretManagerServiceClient();
+
   if (!apnsKey) {
     apnsKey = await secretClient.accessSecretVersion({
-      name: 'projects/wa-tutors/secrets/apns-key/versions/latest',
+      name: 'projects/watutors-1/secrets/apns-key/versions/latest',
     }).then(([{ payload }]) => payload.data.toString().replace(/\\n/g, '\n'));
   }
 
   const token = await secretClient.accessSecretVersion({
-    name: 'projects/wa-tutors/secrets/apns-token/versions/latest',
+    name: 'projects/watutors-1/secrets/apns-token/versions/latest',
   }).then(([{ payload }]) => payload.data.toString());
 
   const payload = jwt.decode(token);
@@ -49,7 +44,7 @@ const getToken = async () => {
     });
 
     await secretClient.addSecretVersion({
-      parent: 'projects/wa-tutors/secrets/apns-token',
+      parent: 'projects/watutors-1/secrets/apns-token',
       payload: {
         data: Buffer.from(newToken, 'utf8'),
       },
@@ -84,6 +79,8 @@ const getToken = async () => {
  * @throws  {Error}  Response text if status code is not 200.
 */
 const dispatchIOS = async ({ isCall, consumerNotifId, notif }) => {
+  const { fetch } = require('fetch-h2');
+
   const headers = {
     authorization: `bearer ${await getToken()}`,
     'apns-push-type': isCall ? 'voip' : 'background',
@@ -124,7 +121,7 @@ const dispatchIOS = async ({ isCall, consumerNotifId, notif }) => {
  *
  * @returns {string} "Success" if notification was properly dispatched.
  */
-const dispatchAndroid = async ({ consumerNotifId, notif }) => messaging.send({
+const dispatchAndroid = async ({ messaging, consumerNotifId, notif }) => messaging().send({
   data: notif,
   android: {
     priority: 'high',
@@ -157,6 +154,11 @@ const dispatchAndroid = async ({ consumerNotifId, notif }) => messaging.send({
  *                             function call body is invalid.
  */
 exports.triggerIncomingCall = ({ slotId }) => {
+  const admin = require('firebase-admin');
+  admin.initializeApp();
+
+  const db = admin.firestore();
+
   if (slotId) {
     return db.doc(`Schedule/${slotId}`).get()
       .then((doc) => doc.data())
@@ -181,7 +183,7 @@ exports.triggerIncomingCall = ({ slotId }) => {
 
         if (consumerNotifId.includes('/3/device')) return dispatchIOS(data);
 
-        return dispatchAndroid(data);
+        return dispatchAndroid({ messaging: admin.messaging, ...data });
       })
       .catch((error) => {
         throw new https.HttpsError('unknown', error.message, error);
@@ -214,6 +216,11 @@ exports.triggerIncomingCall = ({ slotId }) => {
  *                             function call body is invalid.
  */
 exports.triggerSessionCanceled = async ({ slotId }) => {
+  const admin = require('firebase-admin');
+  admin.initializeApp();
+
+  const db = admin.firestore();
+
   if (slotId) {
     try {
       const doc = await db.doc(`Schedule/${slotId}`).get();

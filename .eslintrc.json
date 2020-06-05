@@ -15,5 +15,7 @@
         "sourceType": "module"
     },
     "rules": {
+        "global-require": "off",
+        "linebreak-style": "off"
     }
 }
