@@ -68,8 +68,9 @@ exports.setPinPage = (req, res) => {
 */
 exports.postPinAndVerifyEmail = async (req, res) => {
   const admin = require('firebase-admin');
-  admin.initializeApp();
-
+  if (!admin.apps.length) { // avoid initializing multiple times
+    admin.initializeApp();
+  }
   const db = admin.firestore();
 
   const { token } = req.body;
@@ -114,8 +115,9 @@ exports.postPinAndVerifyEmail = async (req, res) => {
  */
 exports.verifyEmail = async (req, res) => {
   const admin = require('firebase-admin');
-  admin.initializeApp();
-
+  if (!admin.apps.length) { // avoid initializing multiple times
+    admin.initializeApp();
+  }
   const { token, type } = req.query;
   const isTutor = (type === 'tutor');
   let uid = '';

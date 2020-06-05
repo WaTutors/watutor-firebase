@@ -18,7 +18,40 @@ const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmai
 const { triggerIncomingCall } = require('./notifications');
 const { reserveSlots, reservationCallback } = require('./scheduleReservations');
 
-// SECTION - One-Off Pages
+// SECTION - Temporary or tester functions (shouldn't be used during deployment)
+
+
+/**
+ * Simple Counter
+ *
+ * Used to test cloud task scalability
+ *
+ * @since 0.0.8
+ *
+ */
+exports.testIncrementFirestoreField = functions.https.onCall(async (data, context) => {
+  const admin = require('firebase-admin');
+  if (!admin.apps.length) { // avoid initializing multiple times
+    admin.initializeApp();
+  }
+  const db = admin.firestore();
+
+  const {
+    amount, // amount to increment by
+    id, // schedule doc id to increment
+  } = data;
+
+  try {
+    await db.doc(`Schedule/${id}`).set({
+      counter: admin.firestore.FieldValue.increment(amount),
+    }, { merge: true });
+  } catch (err) {
+    return functions.https.HttpsError('invalid-argument', `Counter function crashed:${JSON.stringify(err)}`);
+  }
+
+  // (optional) Returning message to the client.
+  return { text: `incremented by ${amount}`, context };
+});
 
 /**
  * Auto-approves tutor

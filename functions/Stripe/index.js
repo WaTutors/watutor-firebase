@@ -1,4 +1,4 @@
-const { config, https } = require('firebase-functions');
+const { config, https } = require('../node_modules/firebase-functions');
 
 /**
  * Creates Stripe charge.

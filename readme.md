@@ -19,8 +19,6 @@ All functions are imported into a monolithic functions/index.js. They are define
     - createCharge *and* captureCharge *Stripe functions.*
   - **verifyEmail** @stoddabr
     - functions and one-off-pages that handle email verification
-
-
   - *index.js* imports functions and sets triggers
   - *package.json*
 - public
@@ -34,7 +32,7 @@ Values for `${project}`. For more information, see [this document](https://docs.
 
 Select the project (setup):
 
-Windows: `bash firebase use ${project}`
+Windows: `firebase use ${project}`
 
 Unix: `firebase use ${project}`
 
@@ -43,6 +41,7 @@ Deploy your desired functions:
 Windows: `bash firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
 
 Unix: `firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
+
 
 ## Cloud Tasks Queue
 
