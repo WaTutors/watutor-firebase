@@ -1,4 +1,3 @@
-
 /**
  * Queues reservationCallback function.
  *
@@ -6,6 +5,7 @@
  * whenever a document in the Schedule collection is updated.
  *
  * @since 0.0.7
+ *
  * @see watutors-clear-reservation-queue queue that schedule GCP Tasks flow through
  * @link State Machine Hierarchy, Slide 6/Session SM, Event H https://docs.google.com/presentation/d/1SgZ4KAak3ldCzZqMRm5Y-iLCt0jFQkri_OBnBxkPqPs
  *

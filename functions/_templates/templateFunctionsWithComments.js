@@ -16,21 +16,23 @@
  * @link https://firebase.google.com/docs/functions/callable-reference
  */
 
-/** High level explination
+/**
+ * High level explanation.
  *
- * More detailed multi-line explination
+ * More detailed multi-line explanation.
  *
  * @since 0.0.X
  *
- * @see   otherFunction this functions is related because
- * @see   {CloudTaskName}.{QueueName} if triggered by cloud task via API
- * @link  https://principlesofchaos.org/?lang=ENcontent
+ * @see  otherFunction               this functions is related because
+ * @see  {CloudTaskName}.{QueueName} if triggered by cloud task via API
+ * @link https://principlesofchaos.org/?lang=ENcontent
  *
  * @param {Object} data        Object containing target slot ID.
  * @param {Object} data.slotId ID of slot to send incoming call notification for.
- * @param {object} context firebase CallableContext object
- * @returns {string}           "Success" if notification was properly dispatched.
- * @throws  {https.HttpsError} if not authenticated
+ * @param {Object} context     firebase CallableContext object
+ *
+ * @returns {string}             "Success" if notification was properly dispatched.
+ * @throws  {https.HttpsError}   if not authenticated
  */
 // from index.js
 // exports.triggerOnCall = functions.https.onCall(triggerOnCall);
@@ -39,10 +41,6 @@ exports.triggerOnCall = (data, context) => {
 
   const { slotId } = data;
 
-  // check that user is authenticated
-  if (!context.auth) {
-    throw new ForbiddenError(); // imported from _helpers/errors.js
-  }
   /**
    * stuff
    * things
@@ -66,17 +64,16 @@ exports.triggerOnCall = (data, context) => {
  * @link https://firebase.google.com/docs/functions/callable-reference
  */
 
-/** High level explination
+/**
+ * High level explanation.
  *
- * More detailed multi-line explination
+ * More detailed multi-line explanation.
  *
  * @since 0.0.X
  *
- * @see otherFunction this functions is related because
+ * @see otherFunction               this functions is related because
  * @see {CloudTaskName}.{QueueName} if triggered by cloud task via API
  * @link https://principlesofchaos.org/?lang=ENcontent
- *
- * @throws  {https.HttpsError} if not authenticated
  */
 // from index.js
 // exports.setPin = functions.https.onCall(exampleRequest);
@@ -84,9 +81,6 @@ exports.exampleRequest = (data, context) => {
   const { example } = require('example'); // lazy import to reduce cold start time
 
   const { code, email } = data;
-
-  // check authentication credentials
-  if (!context.auth) throw new ForbiddenError(); // imported from _helpers/errors.js
 
   /**
    * stuff
@@ -114,9 +108,10 @@ exports.exampleRequest = (data, context) => {
  *
  * @since 0.0.X
  *
- * @param {object} Change cloud function interface
- * @param {object} Context cloud function interface
- * @returns {promise} promise chain to send emails then update database
+ * @param {Object} change  cloud function interface
+ * @param {Object} context cloud function interface
+ *
+ * @returns {Promise} promise chain to send emails then update database
  */
 // from index.js
 // exports.backgroundExample = functions.firestore

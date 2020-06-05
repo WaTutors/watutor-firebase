@@ -11,10 +11,9 @@
 const functions = require('firebase-functions');
 
 const {
-  welcomeEmailStudent, welcomeEmailTutor,
-  sendSlotBookConfirmEmails,
+  welcomeEmailStudent, welcomeEmailTutor, sendSlotBookConfirmEmails,
 } = require('./sendEmail');
-const { createCharge, captureCharge } = require('./Stripe');
+const { createCharge, captureCharge } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall } = require('./notifications');
 const { reserveSlots, reservationCallback } = require('./scheduleReservations');
@@ -52,7 +51,8 @@ exports.autoApproveTutors = functions.firestore
 
 // SECTION - Stripe
 
-/** Creates Stripe charge.
+/**
+ * Creates Stripe charge.
  *
  * Intakes a Stripe payment source (token generated through credit card or native pay) and charges
  * the payment information that generated the token $15.00 for a tutoring session, which is labeled
@@ -73,7 +73,8 @@ exports.autoApproveTutors = functions.firestore
  */
 exports.createCharge = functions.https.onCall(createCharge);
 
-/** Captures a charge TODO convert to onRequest so it can be called by Cloud Task
+/**
+ * Captures a charge. TODO convert to onRequest so it can be called by Cloud Task
  *
  * Intakes a charge ID generated from the createCharge function and captures the funds from it.
  * This function should be called programmatically 24 hours after a user's session with a provider
@@ -94,7 +95,8 @@ exports.captureCharge = functions.https.onCall(captureCharge);
 
 // SECTION - Authentication
 
-/** Sets pin from Pin page TODO deprecate, pin moved to app
+/**
+ * Sets pin from Pin page. TODO deprecate, pin moved to app
  *
  * This should be linked from the student verification email
  * Publically available
@@ -107,7 +109,8 @@ exports.captureCharge = functions.https.onCall(captureCharge);
  */
 exports.setPin = functions.https.onRequest(setPinPage);
 
-/** Custom user email verification page
+/**
+ * Custom user email verification page
  *
  * sets a user's auth emailVerified field to true
  * requires a header 'token' containing an encrypted uid
@@ -115,12 +118,14 @@ exports.setPin = functions.https.onRequest(setPinPage);
  * @since 0.0.7
  * @see welcomeEmailTutor
  *
- * @returns {html} website for set pin page
+ * @returns {html}                       website for set pin page
  * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
  */
 exports.verifyEmail = functions.https.onRequest(verifyEmail);
 
-/** One-off Pin webpage
+/**
+ * One-off Pin webpage
+ *
  * sets a student/parent's security pin and verifyies their email
  * posted by a one-off cloud function page sent set's a user access pin and
  * confirms privacy policy
@@ -130,6 +135,7 @@ exports.verifyEmail = functions.https.onRequest(verifyEmail);
  * originally moved from api
  *
  * @since 0.0.8
+ *
  * @see welcomeEmailStudent
  *
  * body:
@@ -142,7 +148,8 @@ exports.postPinAndVerifyEmail = functions.https.onRequest(postPinAndVerifyEmail)
 
 // SECTION - Call notifications
 
-/** Sends incoming call notification. TODO convert to onRequest so it can be called by Cloud Task
+/**
+ * Sends incoming call notification. TODO convert to onRequest so it can be called by Cloud Task
  *
  * Checks for required slot ID in function call body. Finds target slot from provided ID, creates
  * notification payload and dispatches iOS or Android notification depending on the notification
@@ -150,8 +157,6 @@ exports.postPinAndVerifyEmail = functions.https.onRequest(postPinAndVerifyEmail)
  *
  * @since 0.0.6
  *
- * @see  dispatchIOS
- * @see  dispatchAndroid
  * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Database#ref
  * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Reference#once
  * @link https://firebase.google.com/docs/reference/admin/node/admin.database.DataSnapshot#val
@@ -159,7 +164,7 @@ exports.postPinAndVerifyEmail = functions.https.onRequest(postPinAndVerifyEmail)
  * @param {Object} param0        Object containing target slot ID.
  * @param {Object} param0.slotId ID of slot to send incoming call notification for.
  *
- * @returns {string} "Success" if notification was properly dispatched.
+ * @returns {string}          "Success" if notification was properly dispatched.
  * @throws {https.HttpsError} Any error that occurs during sending of notifications or if the
  *                            function call body is invalid.
  */
@@ -176,7 +181,8 @@ exports.triggerIncomingCall = functions.https.onCall(triggerIncomingCall);
  * whenever a document in the Schedule collection is updated.
  *
  * @since 0.0.7
- * @see watutors-clear-reservation-queue queue that schedule GCP Tasks flow through
+ *
+ * @see  watutors-clear-reservation-queue queue that schedule GCP Tasks flow through
  * @link State Machine Hierarchy: Slide 6/Session SM, Event H https://docs.google.com/presentation/d/1SgZ4KAak3ldCzZqMRm5Y-iLCt0jFQkri_OBnBxkPqPs
  *
  * @param {Object}                     change        Object containing before and after snapshots.
@@ -243,10 +249,10 @@ exports.welcomeEmailStudent = functions.https.onCall(welcomeEmailStudent);
  * @since 0.0.7
  *
  * @param {object} data
- * @param {string} data.toAddress address of recipient
+ * @param {string} data.toAddress   address of recipient
  * @param {string} data.displayName name of the user to display
- * @param {string} data.uid user id
- * @param {object} context firebase CallableContext object
+ * @param {string} data.uid         user id
+ * @param {object} context          firebase CallableContext object
  *
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs
