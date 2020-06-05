@@ -319,7 +319,7 @@ exports.sendSlotBookConfirmEmails = async (change) => {
 
   // declare promise vars to sent provider, consumer email
   // and update database
-  console.log('send email confirming slots:', { consumerEmail, providerEmail });
+  console.log('sending email confirming slots:', { consumerEmail, providerEmail });
 
   const studentEmailPromise = sendEmail({
     toAddress: consumerEmail,
