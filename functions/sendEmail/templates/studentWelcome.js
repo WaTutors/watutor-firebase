@@ -1133,4 +1133,4 @@ exports.studentWelcomeTemplate = `
 </body>
 
 </html>
-`
+`;

@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 const { https } = require('firebase-functions');
 
 let apnsKey;
@@ -24,12 +25,12 @@ const getToken = async () => {
 
   if (!apnsKey) {
     apnsKey = await secretClient.accessSecretVersion({
-      name: 'projects/wa-tutors/secrets/apns-key/versions/latest',
+      name: 'projects/watutors-1/secrets/apns-key/versions/latest',
     }).then(([{ payload }]) => payload.data.toString().replace(/\\n/g, '\n'));
   }
 
   const token = await secretClient.accessSecretVersion({
-    name: 'projects/wa-tutors/secrets/apns-token/versions/latest',
+    name: 'projects/watutors-1/secrets/apns-token/versions/latest',
   }).then(([{ payload }]) => payload.data.toString());
 
   const payload = jwt.decode(token);
@@ -44,7 +45,7 @@ const getToken = async () => {
     });
 
     await secretClient.addSecretVersion({
-      parent: 'projects/wa-tutors/secrets/apns-token',
+      parent: 'projects/watutors-1/secrets/apns-token',
       payload: {
         data: Buffer.from(newToken, 'utf8'),
       },
@@ -123,6 +124,8 @@ const dispatchIOS = async ({ isCall, consumerNotifId, notif }) => {
  */
 const dispatchAndroid = async ({ consumerNotifId, notif }) => {
   const admin = require('firebase-admin');
+  admin.initializeApp();
+
   const messaging = admin.messaging();
 
   return messaging.send({
@@ -134,7 +137,7 @@ const dispatchAndroid = async ({ consumerNotifId, notif }) => {
     token: consumerNotifId,
   })
     .then(() => 'Success');
-}
+};
 
 /**
  * Sends incoming call notification.
@@ -160,6 +163,8 @@ const dispatchAndroid = async ({ consumerNotifId, notif }) => {
  */
 exports.triggerIncomingCall = ({ slotId }) => {
   const admin = require('firebase-admin');
+  admin.initializeApp();
+
   const db = admin.firestore();
 
   if (slotId) {
@@ -220,6 +225,8 @@ exports.triggerIncomingCall = ({ slotId }) => {
  */
 exports.triggerSessionCanceled = async ({ slotId }) => {
   const admin = require('firebase-admin');
+  admin.initializeApp();
+
   const db = admin.firestore();
 
   if (slotId) {

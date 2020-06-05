@@ -8,20 +8,22 @@
  * @since 0.0.7
  * @see watutors-clear-reservation-queue queue that schedule GCP Tasks flow through
  * @link State Machine Hierarchy, Slide 6/Session SM, Event H https://docs.google.com/presentation/d/1SgZ4KAak3ldCzZqMRm5Y-iLCt0jFQkri_OBnBxkPqPs
- * 
+ *
  * @param {Object}                     change        Object containing before and after snapshots.
  * @param {firestore.DocumentSnapshot} change.before Snapshot before the document update.
- * 
+ *
  * @return {Promise} Null if nothing to do, or a Promise to create a task on the Cloud queue
  */
 exports.reserveSlots = async (change) => {
+  const { CloudTasksClient } = require('@google-cloud/tasks');
+
   // Check if we care about this update - we only care if reserved has chagned from false to true.
   if (!(change.before.data().reserved === false && change.after.data().reserved === true)) {
     return null; // Do nothing and return no promises to be finished
   }
 
   // important variables to set up the Task which we send to Google Tasks
-  const project = 'wa-tutors'; // projectId
+  const project = 'watutors-1'; // projectId
   const location = 'us-central1'; // project location
   const queue = 'watutors-clear-reservation-queue'; // Name used to create cloud tasks queue
   const tasksClient = new CloudTasksClient();
@@ -61,7 +63,7 @@ exports.reserveSlots = async (change) => {
  *
  * Sets the reserved field to false in a document with the Schedule collection. The function is
  * triggered by HTTP requests made to:
- * "https://us-central1-wa-tutors.cloudfunctions.net/reservation_Callback."
+ * "https://us-central1-watutors-1.cloudfunctions.net/reservation_Callback."
  *
  * @since 0.0.7
  *

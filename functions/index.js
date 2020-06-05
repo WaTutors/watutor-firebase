@@ -1,11 +1,11 @@
 /**
  * cloud functions root
- * 
- * see /_templates for writing new functions 
+ *
+ * see /_templates for writing new functions
  * use lazy imports to reduce cold start time
  *    @link https://firebase.google.com/docs/functions/tips#do_lazy_initialization_of_global_variables
  *    @link https://www.youtube.com/watch?v=v3eG9xpzNXM
- * 
+ *
  * see README for more information
  */
 const functions = require('firebase-functions');
@@ -13,8 +13,8 @@ const functions = require('firebase-functions');
 const {
   welcomeEmailStudent, welcomeEmailTutor,
   sendSlotBookConfirmEmails,
-} = require('./sendEmail')
-const { createCharge, captureCharge } = require('./stripe');
+} = require('./sendEmail');
+const { createCharge, captureCharge } = require('./Stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall } = require('./notifications');
 const { reserveSlots, reservationCallback } = require('./scheduleReservations');
@@ -40,17 +40,12 @@ exports.autoApproveTutors = functions.firestore
     // if submitted
     if ('cred' in changes && 'valid' in changes.cred && changes.cred.valid === 'submit') {
       // after 2 seconds, update document
-      return new Promise(resolve => setTimeout(resolve, 2000))
-        .then(() =>
-          change.after.ref // return promise to be evaluated
-            .update({
-              ['cred.valid']: 'yes' // NOTE may need to be changed to 'accepted'
-            })
-        );
-    } else {
-      return
+      return new Promise((resolve) => setTimeout(resolve, 2000))
+        .then(() => change.after.ref // return promise to be evaluated
+          .update({
+            'cred.valid': 'yes', // NOTE may need to be changed to 'accepted'
+          }));
     }
-
     return null;
   });
 
@@ -113,7 +108,7 @@ exports.captureCharge = functions.https.onCall(captureCharge);
 exports.setPin = functions.https.onRequest(setPinPage);
 
 /** Custom user email verification page
- * 
+ *
  * sets a user's auth emailVerified field to true
  * requires a header 'token' containing an encrypted uid
  *
@@ -183,20 +178,20 @@ exports.triggerIncomingCall = functions.https.onCall(triggerIncomingCall);
  * @since 0.0.7
  * @see watutors-clear-reservation-queue queue that schedule GCP Tasks flow through
  * @link State Machine Hierarchy: Slide 6/Session SM, Event H https://docs.google.com/presentation/d/1SgZ4KAak3ldCzZqMRm5Y-iLCt0jFQkri_OBnBxkPqPs
- * 
+ *
  * @param {Object}                     change        Object containing before and after snapshots.
  * @param {firestore.DocumentSnapshot} change.before Snapshot before the document update.
- * 
+ *
  * @return {Promise} Null if nothing to do, or a Promise to create a task on the Cloud queue
  */
-exports.reserveSlots = functions.firestore.document(`Schedule/{slotId}`).onUpdate(reserveSlots);
+exports.reserveSlots = functions.firestore.document('Schedule/{slotId}').onUpdate(reserveSlots);
 
 /**
  * Releases reserved slots.
  *
  * Sets the reserved field to false in a document with the Schedule collection. The function is
  * triggered by HTTP requests made to:
- * "https://us-central1-wa-tutors.cloudfunctions.net/reservationCallback."
+ * "https://us-central1-watutors-1.cloudfunctions.net/reservationCallback."
  *
  * @since 0.0.7
  *

@@ -4,7 +4,7 @@
 ### File Structure
 
 All functions are imported into a monolithic functions/index.js. They are defined by category into subfolders. 
-
+firebase functions:config:get
 - functions
   - **setPin** - @stoddabr
     - *HTML page for setting pin*
@@ -19,8 +19,8 @@ All functions are imported into a monolithic functions/index.js. They are define
 
 ## to deploy:
 Values for `${project}`. For more information, see [this document](https://docs.google.com/document/d/1gZGQlRQQR2Tgdk1-uPGFcvGxJotpyK8v8yv8z2cyMPQ/): 
- - `watutors` V0 (Deployed)
- - `watutors1` V1 (Under development) 
+ - `wa-tutors` V0 (Deployed)
+ - `watutors-1` V1 (Under development) 
 
 Select project (setup)
 ```bash
@@ -41,7 +41,7 @@ See the readme in www.github.com/stoddabr/watutors-api repo for more info on que
 THIS SECTION UNDER CONSTRUCTION. HARDHATS REQUIRED
 
 ### Test Functions
-1. Generate a new [private key file](https://console.firebase.google.com/u/0/project/wa-tutors/settings/serviceaccounts/adminsdk) for the Firebase Admin SDK.
+1. Generate a new [private key file](https://console.firebase.google.com/u/0/project/watutors-1/settings/serviceaccounts/adminsdk) for the Firebase Admin SDK.
 2. Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the full path of the key file.
 3. Copy server-side functions config into ./functions: `firebase functions:config:get > .runtimeconfig.json`
 4. Start emulator: `firebase emulators:start --only functions`

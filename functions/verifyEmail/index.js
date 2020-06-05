@@ -48,6 +48,9 @@ exports.setPinPage = (req, res) => {
 
 
 /**
+ * DEPRECATED 6/4
+ * pin page functionality moved to entirely happen on the app
+ *
  * sets a student/parent's security pin and verifyies their email
  * posted by a one-off cloud function page sent set's a user access pin and
  * confirms privacy policy
@@ -65,6 +68,8 @@ exports.setPinPage = (req, res) => {
 */
 exports.postPinAndVerifyEmail = async (req, res) => {
   const admin = require('firebase-admin');
+  admin.initializeApp();
+
   const db = admin.firestore();
 
   const { token } = req.body;
@@ -107,50 +112,50 @@ exports.postPinAndVerifyEmail = async (req, res) => {
  * @returns {html} website for set pin page
  * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
  */
-exports.verifyEmail = (req, res) => {
+exports.verifyEmail = async (req, res) => {
   const admin = require('firebase-admin');
+  admin.initializeApp();
 
   const { token, type } = req.query;
-  const isTutor = (type === 'tutor')
-
+  const isTutor = (type === 'tutor');
   let uid = '';
   try {
     uid = decrypt(token); // use crypto library with custom key
   } catch (error) {
-    console.error('encrypt error:', error);
+    console.error('decrypt error:', error);
     return res.status(500).send('Server Error.');
   }
 
   if (uid.length === 0) { // TODO check exact length
     return res.status(500).send('Server Error.');
   }
+  // console.log('Decrypted', { uid });
 
   // verify email
-  return admin.auth().updateUser(uid, {
-    emailVerified: true,
-  })
-    .then(userRecord => {
-      // See the UserRecord reference doc for the contents of userRecord.
-      return res.status(200).send(
-        parseSimplePageHtml({
-          title: 'Email Verified!',
-          mainText: `You're now set up to use WaTutors`,
-          linkText: `Open ${isTutor ? 'dashboard' : 'app'}`,
-          link: isTutor ? 'https://watutorsdash1.uc.r.appspot.com/' // if tutor, send dashboard link
-            : 'https://watutors.page.link/signUp' // firebase dynamic link by default
-        })); // generate beautiful html 
-    })
-    .catch(error => {
-      console.error('verifyEmail catch:', error, token)
-
-      return res.status(500).send(
-        parseSimplePageHtml({
-          title: 'Error updating profile.',
-          mainText: `Thank you for your patience <br/>
+  try {
+    await admin.auth().updateUser(uid, {
+      emailVerified: true,
+    });
+    return res.status(200).send(
+      parseSimplePageHtml({ // generate beautiful html
+        title: 'Email Verified!',
+        mainText: 'You\'re now set up to use WaTutors',
+        linkText: `Open ${isTutor ? 'dashboard' : 'app'}`,
+        link: isTutor ? 'https://watutors-tutor1.uc.r.appspot.com/' // if tutor, send dashboard link (V1)
+          : 'https://watutors.page.link/signUp', // firebase dynamic link by default, linked to "watutors" (V0) project
+        // eslint-disable-next-line comma-dangle
+      }) // ^ a comma on this line causes a CF outright crash
+    );
+  } catch (error) {
+    console.error('verifyEmail catch:', error, token);
+    return res.status(500).send(
+      parseSimplePageHtml({
+        title: 'Error updating profile.',
+        mainText: `Thank you for your patience <br/>
           User id:  ${uid}`,
-          linkText: 'Please contact us to manually resolve this issue.',
-          link: 'https://watutors.atlassian.net/servicedesk/customer/portal/1',
-        }),
-      );
-    });// generate beautiful html
+        linkText: 'Please contact us to manually resolve this issue.',
+        link: 'https://watutors.atlassian.net/servicedesk/customer/portal/1',
+      }),
+    );
+  }
 };

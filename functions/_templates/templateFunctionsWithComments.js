@@ -1,3 +1,5 @@
+/* eslint-disable */ 
+
 /**
  * this document contains useful cloud function templates
  */
@@ -8,10 +10,10 @@
 /**
  * these are the most common cloud functions
  * they are easily callable by frontends and API
- * 
- * they are abstracted onRequest functions following a 
+ *
+ * they are abstracted onRequest functions following a
  * specific protocol specification
- * @link https://firebase.google.com/docs/functions/callable-reference 
+ * @link https://firebase.google.com/docs/functions/callable-reference
  */
 
 /** High level explination
@@ -33,18 +35,18 @@
 // from index.js
 // exports.triggerOnCall = functions.https.onCall(triggerOnCall);
 exports.triggerOnCall = (data, context) => {
-  const { example } = require('example') // lazy import to reduce cold start time
+  const { example } = require('example'); // lazy import to reduce cold start time
 
   const { slotId } = data;
 
   // check that user is authenticated
   if (!context.auth) {
-    throw new ForbiddenError // imported from _helpers/errors.js
+    throw new ForbiddenError(); // imported from _helpers/errors.js
   }
   /**
-   * stuff 
+   * stuff
    * things
-   * maybe code? 
+   * maybe code?
    * probably safer to just write comments
    */
 
@@ -52,16 +54,16 @@ exports.triggerOnCall = (data, context) => {
   return { text: message };
 };
 
-// !SECTION 
+// !SECTION
 
 // SECTION - onRequest
 
 /**
- * these are functions called by 
- * 
- * they are abstracted onRequest functions following a 
+ * these are functions called by
+ *
+ * they are abstracted onRequest functions following a
  * specific protocol specification
- * @link https://firebase.google.com/docs/functions/callable-reference 
+ * @link https://firebase.google.com/docs/functions/callable-reference
  */
 
 /** High level explination
@@ -79,18 +81,17 @@ exports.triggerOnCall = (data, context) => {
 // from index.js
 // exports.setPin = functions.https.onCall(exampleRequest);
 exports.exampleRequest = (data, context) => {
-  const { example } = require('example') // lazy import to reduce cold start time
+  const { example } = require('example'); // lazy import to reduce cold start time
 
   const { code, email } = data;
 
   // check authentication credentials
-  if (!context.auth)
-    throw new ForbiddenError // imported from _helpers/errors.js
+  if (!context.auth) throw new ForbiddenError(); // imported from _helpers/errors.js
 
   /**
-   * stuff 
+   * stuff
    * things
-   * maybe code? 
+   * maybe code?
    * probably safer to just write comments
    */
   return res.status(200).send('<h3>DONE</h3>');
@@ -103,7 +104,7 @@ exports.exampleRequest = (data, context) => {
 /**
  * these are functions called by background triggers
  * their use should be minimized to limit vendor lock-in
- * 
+ *
  * for example firestore events
  * @link https://firebase.google.com/docs/functions/firestore-events
  */
@@ -118,11 +119,11 @@ exports.exampleRequest = (data, context) => {
  * @returns {promise} promise chain to send emails then update database
  */
 // from index.js
-//exports.backgroundExample = functions.firestore
+// exports.backgroundExample = functions.firestore
 //  .document('{collectionId}/{docId}')
 //  .onUpdate(backgroundExample);
 exports.sendSlotBookConfirmEmails = async (change) => {
-  const { example } = require('example') // lazy import to reduce cold start time
+  const { example } = require('example'); // lazy import to reduce cold start time
 
   const { fieldBefore } = change.before.data();
   const { fieldAfter } = change.after.data();
@@ -134,5 +135,3 @@ exports.sendSlotBookConfirmEmails = async (change) => {
     return console.error('something bad happened', { fieldBefore, fieldAfter });
   }
 };
-
-

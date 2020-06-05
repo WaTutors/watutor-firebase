@@ -152,24 +152,23 @@ function generateStudentConfirm({
  * @param {string} uid the user id to be authenticated by the link
  * @param {string} user type of user. Enum [tutor, student]
  */
-function generateAuthLink(uid, user, toAddress = '') {
+function generateAuthLink(uid, user) {
   const { encrypt } = require('../_helpers/cryptoHelpers');
 
   /** generate link to pin set page
    * @see /setPin
    */
   if (user === 'student') {
-    const baseUrl = 'https://us-central1-wa-tutors.cloudfunctions.net/setPin';
+    const baseUrl = 'https://us-central1-watutors-1.cloudfunctions.net/verifyEmail';
     const token = encrypt(uid);
-    return `${baseUrl}?code=${token}&email=${toAddress}`;
+    return `${baseUrl}?token=${token}&type=${user}`;
   }
 
   if (user === 'tutor') {
     // TODO finish and deploy verifyEmail
-    const baseUrl = 'https://us-central1-wa-tutors.cloudfunctions.net/verifyEmail'
-    const token = encrypt(uid)
-    return `${baseUrl}?token=${token}&type=${user}`
-
+    const baseUrl = 'https://us-central1-watutors-1.cloudfunctions.net/verifyEmail';
+    const token = encrypt(uid);
+    return `${baseUrl}?token=${token}&type=${user}`;
   }
 
   // default, error case
@@ -185,9 +184,12 @@ function generateAuthLink(uid, user, toAddress = '') {
  * Sends an email welcoming a student
  * addressed from the watutors.auto@gmail.com email
  * generates validation email from the template
- * email includes a link to validate the account via pinpage
+ *
+ * in deprecated versions (pre-6/4), this page sent a link to
+ * an intermediate "setPin" page
  *
  * @since 0.0.6
+ * @see verifyEmail
  *
  * @param {string} data.toAddress address of recipient
  * @param {string} data.displayName name of the user to display
@@ -198,7 +200,7 @@ function generateAuthLink(uid, user, toAddress = '') {
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
 exports.welcomeEmailStudent = (data, context) => { // for testing use https
-  //console.log(gmailEmail, gmailPassword, functions.config())
+  // console.log(gmailEmail, gmailPassword, functions.config())
 
   const { toAddress, displayName, uid } = data;
   const subject = 'Welcome to WaTutors!';
@@ -222,7 +224,7 @@ exports.welcomeEmailStudent = (data, context) => { // for testing use https
     );
   }
 
-  const link = generateAuthLink(uid, 'student', toAddress);
+  const link = generateAuthLink(uid, 'student');
   const html = generateWelcomeEmailFromTemplate({ link, isTutor: false });
 
   // send email
@@ -235,10 +237,10 @@ exports.welcomeEmailStudent = (data, context) => { // for testing use https
  * addressed from the watutors.auto@gmail.com email
  * generates a link to validate account http function
  * email includes a link to validate the account
- *
+ * 
  * @since 0.0.7
  * @link https://firebase.google.com/docs/functions/callable#write_and_deploy_the_callable_function
- *
+ * 
  * @param {object} data
  * @param {string} data.toAddress address of recipient
  * @param {string} data.displayName name of the user to display
@@ -249,7 +251,7 @@ exports.welcomeEmailStudent = (data, context) => { // for testing use https
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
 exports.welcomeEmailTutor = (data, context) => { // for testing use https
-  //console.log(gmailEmail, gmailPassword, functions.config());
+  // console.log(gmailEmail, gmailPassword, functions.config());
 
   const subject = 'Welcome to WaTutors!';
 
@@ -285,14 +287,14 @@ exports.welcomeEmailTutor = (data, context) => { // for testing use https
  * @returns {promise} send emails then update database
  */
 exports.sendSlotBookConfirmEmails = async (change) => {
-  // lazily import 
-  const admin = require('firebase-admin');
-  const storage = admin.storage();
+  // lazily import
+  // const admin = require('firebase-admin');
+  // const storage = admin.storage();
   const moment = require('moment');
 
   const { consumerBefore } = change.before.data();
   const {
-    consumer, property, start, providerAbout, providerAvatar, providerName, consumerEmail,
+    consumer, property, start, consumerEmail, providerAbout, providerName, // providerAvatar
     providerEmail, emailSent,
   } = change.after.data();
 
@@ -308,10 +310,10 @@ exports.sendSlotBookConfirmEmails = async (change) => {
   // format data for email
   const timestring = moment.utc(start.toDate())
     .utcOffset('-07:00') // format for PST NOTE PST is actually -8 but this works idk why
-    .format('dddd, MMMM D | LT [PST]') // eg 'Saturday, May 16 | 10:00 a.m. PST'
-  const propArray = property.split('_') // parse property, eg '3' or 'Math_7'
-  let subject = 'General Ed.'
-  let grade = propArray[0]
+    .format('dddd, MMMM D | LT [PST]'); // eg 'Saturday, May 16 | 10:00 a.m. PST'
+  const propArray = property.split('_'); // parse property, eg '3' or 'Math_7'
+  let subject = 'General Ed.';
+  let grade = propArray[0];
 
   if (propArray.length === 2) { // if subject in property
     [subject, grade] = propArray;
@@ -327,18 +329,19 @@ exports.sendSlotBookConfirmEmails = async (change) => {
 
   // declare promise vars to sent provider, consumer email
   // and update database
-  console.log('send email confirming slots:', { consumerEmail, providerEmail })
-  const options = {
-    action: 'read',
-    expires: '03-17-2025'
-  };
+  console.log('send email confirming slots:', { consumerEmail, providerEmail });
+
   const studentEmailPromise = sendEmail({
     toAddress: consumerEmail,
     html: consumerHtml,
     subject: 'Tutor session confirmed!',
     tutorImage: 'https://i1.wp.com/watutors.com/wp-content/uploads/2020/05/tutoring-photo-scaled.jpg?w=1280&ssl=1',
-  })
+  });
   /* FIXME use actual tutor profile image
+  const options = {
+    action: 'read',
+    expires: '03-17-2025',
+  };
   currently causing PERMISSION_DENIED error
   admin.storage()
     .bucket()

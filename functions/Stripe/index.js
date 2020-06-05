@@ -38,7 +38,7 @@ exports.createCharge = ({ source, subject = null, destination }) => {
     .catch((error) => {
       throw new https.HttpsError('unknown', error.message, error);
     });
-}
+};
 
 /**
  * Captures a charge.
@@ -64,4 +64,4 @@ exports.captureCharge = (chargeId) => {
     .catch((error) => {
       throw new https.HttpsError('unknown', error.message, error);
     });
-}
+};
