@@ -156,38 +156,38 @@ const dispatchAndroid = async ({ messaging, consumerNotifId, notif }) => messagi
 exports.triggerIncomingCall = ({ slotId }) => {
   const { db, messaging } = require('../_helpers/initialize_admin');
 
-  if (slotId) {
-    return db.doc(`Schedule/${slotId}`).get()
-      .then((doc) => doc.data())
-      .then(({ property, consumerNotifId }) => {
-        let callerName = '';
-
-        const parts = property.split('_');
-        if (parts.length > 1) {
-          callerName = `${parts[0].slice(0, 1).toUpperCase()}${parts[0].slice(1)} Tutor`;
-        } else {
-          callerName = 'Tutor';
-        }
-
-        const data = {
-          isCall: true,
-          consumerNotifId,
-          notif: {
-            handle: 'WaTutors',
-            callerName,
-          },
-        };
-
-        if (consumerNotifId.includes('/3/device')) return dispatchIOS(data);
-
-        return dispatchAndroid({ messaging, ...data });
-      })
-      .catch((error) => {
-        throw new https.HttpsError('unknown', error.message, error);
-      });
+  if (!slotId) {
+    return new https.HttpsError('invalid-argument', 'Falsy slotId.');
   }
 
-  throw new https.HttpsError('invalid-argument', 'Missing slotId.');
+  return db.doc(`Schedule/${slotId}`).get()
+    .then((doc) => doc.data())
+    .then(({ property, consumerNotifId }) => {
+      let callerName = '';
+
+      const parts = property.split('_');
+      if (parts.length > 1) {
+        callerName = `${parts[0].slice(0, 1).toUpperCase()}${parts[0].slice(1)} Tutor`;
+      } else {
+        callerName = 'Tutor';
+      }
+
+      const data = {
+        isCall: true,
+        consumerNotifId,
+        notif: {
+          handle: 'WaTutors',
+          callerName,
+        },
+      };
+
+      if (consumerNotifId.includes('/3/device')) return dispatchIOS(data);
+
+      return dispatchAndroid({ messaging, ...data });
+    })
+    .catch((error) => {
+      throw new https.HttpsError('unknown', error.message, error);
+    });
 };
 
 /**
