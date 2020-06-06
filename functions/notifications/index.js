@@ -154,9 +154,7 @@ const dispatchAndroid = async ({ messaging, consumerNotifId, notif }) => messagi
  *                             function call body is invalid.
  */
 exports.triggerIncomingCall = ({ slotId }) => {
-  const admin = require('../_helpers/firebase_admin');
-
-  const db = admin.firestore();
+  const { db, messaging } = require('../_helpers/initialize_admin');
 
   if (slotId) {
     return db.doc(`Schedule/${slotId}`).get()
@@ -182,7 +180,7 @@ exports.triggerIncomingCall = ({ slotId }) => {
 
         if (consumerNotifId.includes('/3/device')) return dispatchIOS(data);
 
-        return dispatchAndroid({ messaging: admin.messaging, ...data });
+        return dispatchAndroid({ messaging, ...data });
       })
       .catch((error) => {
         throw new https.HttpsError('unknown', error.message, error);
@@ -215,9 +213,7 @@ exports.triggerIncomingCall = ({ slotId }) => {
  *                             function call body is invalid.
  */
 exports.triggerSessionCanceled = async ({ slotId }) => {
-  const admin = require('../_helpers/firebase_admin');
-
-  const db = admin.firestore();
+  const { db } = require('../_helpers/initialize_admin');
 
   if (slotId) {
     try {

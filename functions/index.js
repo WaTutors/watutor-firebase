@@ -29,12 +29,10 @@ const { reserveSlots, reservationCallback } = require('./scheduleReservations');
  * @since 0.0.8
  *
  */
-exports.testIncrementFirestoreField = functions.https.onCall(async (data, context) => {
-  const admin = require('firebase-admin');
-  if (!admin.apps.length) { // avoid initializing multiple times
-    admin.initializeApp();
-  }
-  const db = admin.firestore();
+exports.testIncrementFirestoreField = functions.https.onCall(async (data, _context) => {
+  console.log('starting function', data);
+  const admin = require('firebase-admin'); // TODO fix everywhere
+  const { db } = require('./_helpers/initialize_admin');
 
   const {
     amount, // amount to increment by
@@ -42,15 +40,20 @@ exports.testIncrementFirestoreField = functions.https.onCall(async (data, contex
   } = data;
 
   try {
+    console.log('starting db update', {
+      amount, id, f: typeof db, FieldValue: db.FieldValue,
+    });
     await db.doc(`Schedule/${id}`).set({
       counter: admin.firestore.FieldValue.increment(amount),
+      time: admin.firestore.FieldValue.arrayUnion(Math.floor(new Date() / 1000)), // seconds
     }, { merge: true });
   } catch (err) {
+    console.error('execution error', err);
     return functions.https.HttpsError('invalid-argument', `Counter function crashed:${JSON.stringify(err)}`);
   }
 
   // (optional) Returning message to the client.
-  return { text: `incremented by ${amount}`, context };
+  return { text: `incremented by ${amount}` };
 });
 
 /**
@@ -107,7 +110,7 @@ exports.autoApproveTutors = functions.firestore
 exports.createCharge = functions.https.onCall(createCharge);
 
 /**
- * Captures a charge. TODO convert to onRequest so it can be called by Cloud Task
+ * Captures a charge.
  *
  * Intakes a charge ID generated from the createCharge function and captures the funds from it.
  * This function should be called programmatically 24 hours after a user's session with a provider

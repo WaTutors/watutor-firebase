@@ -278,8 +278,7 @@ exports.welcomeEmailTutor = (_, context) => { // for testing use https
  */
 exports.sendSlotBookConfirmEmails = async (change) => {
   // lazily import
-  // const admin = require('../_helpers/firebase_admin');
-  // const storage = admin.storage();
+  // TODO import to sign tutor image url
   const moment = require('moment');
 
   const { consumerBefore } = change.before.data();
