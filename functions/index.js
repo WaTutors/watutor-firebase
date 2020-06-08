@@ -16,7 +16,7 @@ const {
 const { createCharge, captureCharge } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall } = require('./notifications');
-const { reserveSlots, reservationCallback } = require('./scheduleReservations');
+const { reserveSlots, reservationCallback } = require('./callSessionEvents');
 
 // SECTION - Temporary or tester functions (shouldn't be used during deployment)
 
@@ -24,7 +24,7 @@ const { reserveSlots, reservationCallback } = require('./scheduleReservations');
 /**
  * Simple Counter
  *
- * Used to test cloud task scalability
+ * Used to test cloud task scalability of cloud tasks
  *
  * @since 0.0.8
  *
