@@ -21,55 +21,29 @@ const { getSessionsFromEmail } = require('./bizDev');
 
 // SECTION - Temporary or tester functions (shouldn't be used during deployment)
 
+
 /**
- * High level explanation.
+ * Allows a team member to search for a user's sessions by email address
  *
- * More detailed multi-line explanation.
+ * To be used for resolving customer issues and getting the session id
+ *    to be used to viewing session video calls in Twilio
+ * Authenticated using a secret key to be passed in query
  *
  * @since 0.1.0
  *
+ * @see otherFunction               this functions is related because
+ * @see {CloudTaskName}.{QueueName} if triggered by cloud task via API
  * @link https://principlesofchaos.org/?lang=ENcontent
+ *
+ * @param {string} req.token  private key
+ * @param {string} req.email  email to search for
+ * @param {string} req.type   user type. Either "provider" or "consumer"
  *
  * @returns {200} Formatted html table if successful
  * @returns {200} Error message otherwise
  * @returns {400} 'Invalid' if unauthorized
  */
 exports.getSessionsFromEmail = functions.https.onRequest(getSessionsFromEmail);
-
-/**
- * Simple Counter
- *
- * Used to test cloud task scalability of cloud tasks
- *
- * @since 0.0.8
- *
- */
-exports.testIncrementFirestoreField = functions.https.onCall(async (data, _context) => {
-  console.log('starting function', data);
-  const admin = require('firebase-admin'); // TODO fix everywhere
-  const { db } = require('./_helpers/initialize_admin');
-
-  const {
-    amount, // amount to increment by
-    id, // schedule doc id to increment
-  } = data;
-
-  try {
-    console.log('starting db update', {
-      amount, id, f: typeof db, FieldValue: db.FieldValue,
-    });
-    await db.doc(`Schedule/${id}`).set({
-      counter: admin.firestore.FieldValue.increment(amount),
-      time: admin.firestore.FieldValue.arrayUnion(Math.floor(new Date() / 1000)), // seconds
-    }, { merge: true });
-  } catch (err) {
-    console.error('execution error', err);
-    return functions.https.HttpsError('invalid-argument', `Counter function crashed:${JSON.stringify(err)}`);
-  }
-
-  // (optional) Returning message to the client.
-  return { text: `incremented by ${amount}` };
-});
 
 /**
  * Auto-approves tutor
