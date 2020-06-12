@@ -17,9 +17,24 @@ const { createCharge, captureCharge } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall } = require('./notifications');
 const { reserveSlots, reservationCallback } = require('./callSessionEvents');
+const { getSessionsFromEmail } = require('./bizDev');
 
 // SECTION - Temporary or tester functions (shouldn't be used during deployment)
 
+/**
+ * High level explanation.
+ *
+ * More detailed multi-line explanation.
+ *
+ * @since 0.1.0
+ *
+ * @link https://principlesofchaos.org/?lang=ENcontent
+ *
+ * @returns {200} Formatted html table if successful
+ * @returns {200} Error message otherwise
+ * @returns {400} 'Invalid' if unauthorized
+ */
+exports.getSessionsFromEmail = functions.https.onRequest(getSessionsFromEmail);
 
 /**
  * Simple Counter

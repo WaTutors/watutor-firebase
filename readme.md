@@ -1,5 +1,10 @@
 # Repo for WaTutors Firebase Cloud Functions
 
+#### Versions
+Version numbering officially started at 1.0.0
+- **1**
+  - **0.0** add tutor verification, add url to search for sessions by email, 
+
 ### File Structure
 
 All functions are imported into a monolithic functions/index.js. They are defined by category into subfolders. 
@@ -38,7 +43,7 @@ Unix: `firebase use ${project}`
 
 Deploy your desired functions:
 
-Windows: `bash firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
+Windows: `firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
 
 Unix: `firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
 
