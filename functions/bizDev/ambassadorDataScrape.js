@@ -200,7 +200,7 @@ exports.ambassadorDataScrape = async (req, res) => {
   // construct date objets for query
   const now = new Date();
   // FIXME remove 50 testcase
-  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000 * 50); // subtract 24hr in ms
+  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // subtract 24hr in ms
   console.log('dates of queries', { now, dayAgo });
 
   // get call sessions that occured in the last 24 hours
