@@ -17,25 +17,6 @@ const { createCharge, captureCharge } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall } = require('./notifications');
 const { reserveSlots, reservationCallback } = require('./scheduleReservations');
-const { verifyCredential } = require('./tutorCredentialCheck');
-
-// SECTION --------------------------------------------------------------------
-
-/**
- * Verifies tutor's credential
- *
- * NOTE MVP only! These sections should be revised due to quality and security 
- *      concerns.
- * TODO Revise & Document
- * 
- * @since 0.0.x
- *
- * @link https://firebase.google.com/docs/functions/callable-reference
- * @link https://cloud.google.com/vision/docs/ocr
- */
-exports.verifyCredential = functions.https.onCall(verifyCredential);
-
-// !SECTION -------------------------------------------------------------------
 
 // SECTION - One-Off Pages
 
