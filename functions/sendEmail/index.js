@@ -28,7 +28,7 @@ const gmailPassword = functions.config().gmail.password;
  * @throws  {functions.https.HttpsError} Any error that occurred
  */
 function sendEmail({
-  toAddress, html, subject, tutorImage,
+  toAddress, html, subject, tutorImage = false,
 }) {
   /** set up OMTP server lazily
    * @link https://www.google.com/accounts/DisplayUnlockCaptcha
@@ -81,7 +81,7 @@ function generateWelcomeEmailFromTemplate({ link, isTutor }) {
   html = html.toString();
   html = html.replace(/###MAINLINK###/g, link);
   html = html.replace(/###BUTTONTEXT###/g, isTutor
-    ? 'Verify Email Address' : 'Activate my Account and Setup PIN'); // change message if tutor
+    ? 'Verify Email Address' : 'Verify Email Address'); // change message if tutor
   html = html.replace(/###PREVIEW_TEXT###/g, '');
   html = html.replace(/###TERM_OF_USE_LINK###/g, 'https://watutors.com/terms/');
   html = html.replace(/###FAQ_LINK###/g, 'https://watutors.com/faqs/');

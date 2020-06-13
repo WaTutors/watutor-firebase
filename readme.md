@@ -47,7 +47,6 @@ Windows: `firebase deploy --only functions[:triggerIncomingCall,createCharge,etc
 
 Unix: `firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
 
-
 ## Cloud Tasks Queue
 
 This project also uses cloud task queues to manage delay timeouts. Several of the cloud functions in this repo are triggered by Tasks. 

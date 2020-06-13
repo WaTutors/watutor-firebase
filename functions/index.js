@@ -17,7 +17,7 @@ const { createCharge, captureCharge } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall } = require('./notifications');
 const { reserveSlots, reservationCallback } = require('./callSessionEvents');
-const { getSessionsFromEmail } = require('./bizDev');
+const { getSessionsFromEmail, ambassadorDataScrape } = require('./bizDev');
 
 // SECTION - Temporary or tester functions (shouldn't be used during deployment)
 
@@ -44,6 +44,9 @@ const { getSessionsFromEmail } = require('./bizDev');
  * @returns {400} 'Invalid' if unauthorized
  */
 exports.getSessionsFromEmail = functions.https.onRequest(getSessionsFromEmail);
+
+// TODO copy comment
+exports.ambassadorDataScrape = functions.https.onRequest(ambassadorDataScrape);
 
 /**
  * Auto-approves tutor
