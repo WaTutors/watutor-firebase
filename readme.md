@@ -35,7 +35,8 @@ Values for `${project}`. For more information, see [this document](https://docs.
  - `wa-tutors` V0 (Deployed)
  - `watutors-1` V1 (Under development) 
 
-Select the project (setup):
+Select the project (setup): `firebase use ${project}`
+
 
 Windows: `firebase use ${project}`
 
@@ -46,6 +47,7 @@ Deploy your desired functions:
 Windows: `firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
 
 Unix: `firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
+
 
 ## Cloud Tasks Queue
 
@@ -60,17 +62,20 @@ Helpful links
 ## Setup
 
 THIS SECTION UNDER CONSTRUCTION. HARDHATS REQUIRED
-`firebase init
-**JESSE README** 
+
+
+### JESSE README
 
 Dev steps:
-1. add a file `functions/tutorCredentialCheck/index.js`
-2. Write a call to google's (cloud vision api)[https://cloud.google.com/vision/docs/request] 
+
+0. [Initialize Firebase Cloud Functions CLI](https://firebase.google.com/docs/functions/get-started#set-up-node.js-and-the-firebase-cli).
+1. Add a file `functions/tutorCredentialCheck/index.js`.
+2. Write a call to Google's [Cloud Vision API](https://cloud.google.com/vision/docs/request).
 3. Experiment around with the JSON that gets returned
-    - Use (this website)[https://cloud.google.com/vision/docs/drag-and-drop] to get JSON without needing to make an api call 
-4. Parse documents ((pdf))[https://cloud.google.com/vision/docs/pdf]. (More info here.)[https://cloud.google.com/vision/docs/ocr#detect_text_in_a_remote_image]
-    - Talk to Pelham/Sanjay to see if we even need to wory about images if so, Optomize it for images (png, jpg, mpg). See slack message about (fiducials)[https://en.wikipedia.org/wiki/Fiducial_marker] 
-5. Talk to Pelham about testing on multiple images
+    - Use [this website](https://cloud.google.com/vision/docs/drag-and-drop) to get JSON without needing to make an API call.
+4. [Parse documents](https://cloud.google.com/vision/docs/pdf). [More info here](https://cloud.google.com/vision/docs/ocr#detect_text_in_a_remote_image).
+    - Talk to Pelham/Sanjay to see if we even need to worry about images if so, optimize it for images (png, jpg, mpg). See slack message about [fiducials](https://en.wikipedia.org/wiki/Fiducial_marker).
+5. Talk to Pelham about testing on multiple images.
 
 ### Test Functions
 1. Generate a new [private key file](https://console.firebase.google.com/u/0/project/watutors-1/settings/serviceaccounts/adminsdk) for the Firebase Admin SDK.
