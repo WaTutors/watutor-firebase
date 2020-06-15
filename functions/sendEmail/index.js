@@ -5,8 +5,8 @@ const {
 } = require('./templates');
 
 // init email global variables
-const gmailEmail = 'jschick.cs@gmail.com'; // FIXME functions.config().gmail.email;
-const gmailPassword = '.Incandenza-71'; // FIXME functions.config().gmail.password;
+const gmailEmail = functions.config().gmail.email;
+const gmailPassword = functions.config().gmail.password;
 
 // SECTION - Helpers
 
@@ -251,7 +251,7 @@ exports.manualVerificationEmail = (uid, messages) => {
   html = html.replace(/###LINK###/g, `https://console.firebase.google.com/u/1/project/watutors-1/storage/watutors-1.appspot.com/files~2F${uid}~2Fcert`);
   html = html.replace(/###LINKTEXT###/g, 'View document');
   return sendEmail({
-      toAddress: 'jschick.cs@gmail.com' /* 'support@watutors.atlassian.net' */, // FIXME
+      toAddress: 'support@watutors.atlassian.net',
       html: html,
       subject: 'Manual credential verification required'
   });
