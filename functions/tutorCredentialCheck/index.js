@@ -1,6 +1,22 @@
 const bucketName = 'watutors-1.appspot.com';
 
-const email = 'support@watutors.atlassian.net';
+// Simple search through all text in document TODO revise
+function searchText(text, pattern, start) {
+    const minIndex = text.indexOf(pattern, start || 0);
+    return minIndex;
+};
+
+// // helper to set email html
+// function generateManualVerificationHtml({ title, mainText, link, linkText }) {
+//     const { simplePage } = require('../sendEmail/templates/simplePage');
+//     let html = simplePage;
+//     html = html.toString();
+//     html = html.replace(/###TITLE###/g, title);
+//     html = html.replace(/###MAINTEXT###/g, mainText);
+//     html = html.replace(/###LINK###/g, link);
+//     html = html.replace(/###LINKTEXT###/g, linkText);
+//     return html;
+// }
 
 // SECTION
 // TODO Revise & Document
@@ -49,23 +65,25 @@ exports.verifyCredential = async (data, context) => {
         messages.push(`Unable to recognize state '${state}' in uploaded document`);
     }
 
+    messages.push('FINAL TEST'); //FIXME
+
     const body = {};
     if (messages.length == 0) {
         body.valid = 'yes';
     } else {
-        const { sendEmail } = require('../sendEmail');
+        const { manualVerificationEmail } = require('../sendEmail');
+        // const emailHtml = generateManualVerificationHtml({
+        //     title: 'Manual credential verification required',
+        //     mainText: messages.join('<br>'),
+        //     link: `https://console.firebase.google.com/u/1/project/watutors-1/storage/watutors-1.appspot.com/files~2F${uid}~2Fcert`,
+        //     linkText: 'View document'
+        // });
+        const res = await manualVerificationEmail(uid, messages);
+        console.assert(res.accepted.length === 1);
         body.valid = 'pending';
         body.messages = messages;
     }
     return body;
-};
-
-function searchText(text, pattern, start) {
-    console.assert(text);
-    console.assert(pattern);
-    // console.log(text.length, pattern, start);
-    const firstIndex = text.indexOf(pattern, start || 0); // TODO improve on runtime
-    return firstIndex;
 };
 
 // !SECTION
