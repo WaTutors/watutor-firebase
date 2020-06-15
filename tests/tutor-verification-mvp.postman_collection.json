@@ -63,6 +63,35 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Production -- FAIL",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"data\": {\n        \"cred\": {\n            \"cert\": \"33452327-7655-457d-9623-691bf1542141.png\",\n            \"dob\": \"0000-00-00\",\n            \"legalName\": \"Jesse Chick\",\n            \"state\": \"Oregon\",\n            \"valid\": \"submit\"\n        },\n        \"uid\": \"8IK1Rrrwk0Mx9CFc7mjk0qnVwGA2\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://us-central1-watutors-1.cloudfunctions.net/verifyCredential",
+					"protocol": "https",
+					"host": [
+						"us-central1-watutors-1",
+						"cloudfunctions",
+						"net"
+					],
+					"path": [
+						"verifyCredential"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"protocolProfileBehavior": {}
