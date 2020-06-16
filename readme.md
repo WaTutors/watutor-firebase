@@ -1,6 +1,13 @@
 # Repo for WaTutors Firebase Cloud Functions
 
+## Git Commit Guide
+
+Read both this [github commit starter guide](https://medium.com/@nawarpianist/git-commit-best-practices-dab8d722de99) and [github commit best practices](https://github.com/trein/dev-best-practices/wiki/Git-Commit-Best-Practices). Follow these best practices whenever possible. Healthy habits save sanity.  
+
+[Smart Commit Commands](https://support.atlassian.com/jira-software-cloud/docs/process-issues-with-smart-commits/) should be should be used whenever applicable to update Jira. For example `JRA-34 #comment corrected indent issue`
+
 #### Versions
+TODO research CI/CD automated tools
 Version numbering officially started at 1.0.0
 - **1**
   - **0.0** add tutor verification, add url to search for sessions by email, 
