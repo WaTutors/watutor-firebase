@@ -24,10 +24,10 @@ const { verifyCredential } = require('./tutorCredentialCheck');
 /**
  * Verifies tutor's credential
  *
- * NOTE MVP only! These sections should be revised due to quality and security 
+ * NOTE MVP only! These sections should be revised due to quality and security
  *      concerns.
  * TODO Revise & Document
- * 
+ *
  * @since 0.0.x
  *
  * @link https://firebase.google.com/docs/functions/callable-reference
