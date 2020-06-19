@@ -1,16 +1,41 @@
+/**
+ * cloud functions root
+ *
+ * see /_templates for writing new functions
+ * use lazy imports to reduce cold start time
+ *    @link https://firebase.google.com/docs/functions/tips#do_lazy_initialization_of_global_variables
+ *    @link https://www.youtube.com/watch?v=v3eG9xpzNXM
+ *
+ * see README for more information
+ */
 const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-
-admin.initializeApp();
 
 const {
-  welcomeEmailStudent, welcomeEmailTutor,
-  sendSlotBookConfirmEmails,
-} = require('./sendEmail')
+  welcomeEmailStudent, welcomeEmailTutor, sendSlotBookConfirmEmails,
+} = require('./sendEmail');
 const { createCharge, captureCharge } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall } = require('./notifications');
 const { reserveSlots, reservationCallback } = require('./scheduleReservations');
+const { verifyCredential } = require('./tutorCredentialCheck');
+
+// SECTION --------------------------------------------------------------------
+
+/**
+ * Verifies tutor's credential
+ *
+ * NOTE MVP only! These sections should be revised due to quality and security
+ *      concerns.
+ * TODO Revise & Document
+ *
+ * @since 0.0.x
+ *
+ * @link https://firebase.google.com/docs/functions/callable-reference
+ * @link https://cloud.google.com/vision/docs/ocr
+ */
+exports.verifyCredential = functions.https.onCall(verifyCredential);
+
+// !SECTION -------------------------------------------------------------------
 
 // SECTION - One-Off Pages
 
@@ -33,22 +58,15 @@ exports.autoApproveTutors = functions.firestore
     // if submitted
     if ('cred' in changes && 'valid' in changes.cred && changes.cred.valid === 'submit') {
       // after 2 seconds, update document
-      return new Promise(resolve => setTimeout(resolve, 2000))
-        .then(() =>
-          change.after.ref // return promise to be evaluated
-            .update({
-              ['cred.valid']: 'yes' // NOTE may need to be changed to 'accepted'
-            })
-        );
-    } else{
-      return
+      return new Promise((resolve) => setTimeout(resolve, 2000))
+        .then(() => change.after.ref // return promise to be evaluated
+          .update({
+            'cred.valid': 'yes', // NOTE may need to be changed to 'accepted'
+          }));
     }
-
     return null;
   });
 
-
-// !SECTION
 
 // SECTION - Stripe
 
@@ -75,7 +93,7 @@ exports.autoApproveTutors = functions.firestore
 exports.createCharge = functions.https.onCall(createCharge);
 
 /**
- * Captures a charge.
+ * Captures a charge. TODO convert to onRequest so it can be called by Cloud Task
  *
  * Intakes a charge ID generated from the createCharge function and captures the funds from it.
  * This function should be called programmatically 24 hours after a user's session with a provider
@@ -97,7 +115,7 @@ exports.captureCharge = functions.https.onCall(captureCharge);
 // SECTION - Authentication
 
 /**
- * Sends pin page
+ * Sets pin from Pin page. TODO deprecate, pin moved to app
  *
  * This should be linked from the student verification email
  * Publically available
@@ -111,18 +129,22 @@ exports.captureCharge = functions.https.onCall(captureCharge);
 exports.setPin = functions.https.onRequest(setPinPage);
 
 /**
+ * Custom user email verification page
+ *
  * sets a user's auth emailVerified field to true
  * requires a header 'token' containing an encrypted uid
  *
  * @since 0.0.7
  * @see welcomeEmailTutor
  *
- * @returns {html} website for set pin page
+ * @returns {html}                       website for set pin page
  * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
  */
 exports.verifyEmail = functions.https.onRequest(verifyEmail);
 
 /**
+ * One-off Pin webpage
+ *
  * sets a student/parent's security pin and verifyies their email
  * posted by a one-off cloud function page sent set's a user access pin and
  * confirms privacy policy
@@ -132,6 +154,7 @@ exports.verifyEmail = functions.https.onRequest(verifyEmail);
  * originally moved from api
  *
  * @since 0.0.8
+ *
  * @see welcomeEmailStudent
  *
  * body:
@@ -144,7 +167,8 @@ exports.postPinAndVerifyEmail = functions.https.onRequest(postPinAndVerifyEmail)
 
 // SECTION - Call notifications
 
-/** Sends incoming call notification.
+/**
+ * Sends incoming call notification. TODO convert to onRequest so it can be called by Cloud Task
  *
  * Checks for required slot ID in function call body. Finds target slot from provided ID, creates
  * notification payload and dispatches iOS or Android notification depending on the notification
@@ -152,8 +176,6 @@ exports.postPinAndVerifyEmail = functions.https.onRequest(postPinAndVerifyEmail)
  *
  * @since 0.0.6
  *
- * @see  dispatchIOS
- * @see  dispatchAndroid
  * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Database#ref
  * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Reference#once
  * @link https://firebase.google.com/docs/reference/admin/node/admin.database.DataSnapshot#val
@@ -161,7 +183,7 @@ exports.postPinAndVerifyEmail = functions.https.onRequest(postPinAndVerifyEmail)
  * @param {Object} param0        Object containing target slot ID.
  * @param {Object} param0.slotId ID of slot to send incoming call notification for.
  *
- * @returns {string} "Success" if notification was properly dispatched.
+ * @returns {string}          "Success" if notification was properly dispatched.
  * @throws {https.HttpsError} Any error that occurs during sending of notifications or if the
  *                            function call body is invalid.
  */
@@ -179,26 +201,29 @@ exports.triggerIncomingCall = functions.https.onCall(triggerIncomingCall);
  *
  * @since 0.0.7
  *
+ * @see  watutors-clear-reservation-queue queue that schedule GCP Tasks flow through
+ * @link State Machine Hierarchy: Slide 6/Session SM, Event H https://docs.google.com/presentation/d/1SgZ4KAak3ldCzZqMRm5Y-iLCt0jFQkri_OBnBxkPqPs
+ *
  * @param {Object}                     change        Object containing before and after snapshots.
  * @param {firestore.DocumentSnapshot} change.before Snapshot before the document update.
  *
  * @return {Promise} Null if nothing to do, or a Promise to create a task on the Cloud queue
  */
-exports.reserveSlots = functions.firestore.document(`Schedule/{slotId}`).onUpdate(reserveSlots);
+exports.reserveSlots = functions.firestore.document('Schedule/{slotId}').onUpdate(reserveSlots);
 
 /**
  * Releases reserved slots.
  *
  * Sets the reserved field to false in a document with the Schedule collection. The function is
  * triggered by HTTP requests made to:
- * "https://us-central1-wa-tutors.cloudfunctions.net/reservationCallback."
+ * "https://us-central1-watutors-1.cloudfunctions.net/reservationCallback."
  *
  * @since 0.0.7
  *
  * @param {Object} req Object containing the document ID to be used.
  */
 exports.reservationCallback = functions.https.onRequest((req, res) => {
-  reservationCallback(req, res, admin);
+  reservationCallback(req, res);
 });
 
 // SECTION - Emails
@@ -218,8 +243,7 @@ exports.sendSlotBookConfirmEmails = functions.firestore
   .document('Schedule/{slotId}')
   .onUpdate(sendSlotBookConfirmEmails);
 
-/**
- * Sends an email welcoming a student
+/** Sends an email welcoming a student
  * addressed from the watutors.auto@gmail.com email
  * generates validation email from the template
  * email includes a link to validate the account via pinpage
@@ -236,8 +260,7 @@ exports.sendSlotBookConfirmEmails = functions.firestore
  */
 exports.welcomeEmailStudent = functions.https.onCall(welcomeEmailStudent);
 
-/**
- * Sends an email welcoming a tutor
+/** Sends an email welcoming a tutor
  * addressed from the watutors.auto@gmail.com email
  * generates a link to validate account http function
  * email includes a link to validate the account
@@ -245,10 +268,10 @@ exports.welcomeEmailStudent = functions.https.onCall(welcomeEmailStudent);
  * @since 0.0.7
  *
  * @param {object} data
- * @param {string} data.toAddress address of recipient
+ * @param {string} data.toAddress   address of recipient
  * @param {string} data.displayName name of the user to display
- * @param {string} data.uid user id
- * @param {object} context firebase CallableContext object
+ * @param {string} data.uid         user id
+ * @param {object} context          firebase CallableContext object
  *
  * @returns {string}                     "Success" if successfully captured charge.
  * @throws  {functions.https.HttpsError} Any error that occurs
