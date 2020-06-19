@@ -227,6 +227,35 @@ exports.welcomeEmailStudent = (data) => { // for testing use https
   return sendEmail({ toAddress, subject, html });
 };
 
+/**
+ * Send an email to support@watutors.atlassian.net
+ * notifying them that the automated credential 
+ * verification process was inconclusive, and the 
+ * credential document requires human review.
+ * 
+ * NOTE Refactoring anticipated.
+ * 
+ * @since 0.0.x
+ *
+ * @see tutorCredentialCheck
+ * 
+ * @param {string} uid      tutor's unique identifier in Firebase Storage
+ * @param {Array} messages  message(s) hinting at the cause of failure in automated task
+ */
+exports.manualVerificationEmail = (uid, messages) => {
+  const { simplePage } = require('../sendEmail/templates/simplePage');
+  let html = simplePage;
+  html = html.toString();
+  html = html.replace(/###TITLE###/g, 'Manual credential verification required');
+  html = html.replace(/###MAINTEXT###/g, messages.join('<br>'));
+  html = html.replace(/###LINK###/g, `https://console.firebase.google.com/u/1/project/watutors-1/storage/watutors-1.appspot.com/files~2F${uid}~2Fcert`);
+  html = html.replace(/###LINKTEXT###/g, 'View document');
+  return sendEmail({
+      toAddress: 'support@watutors.atlassian.net',
+      html: html,
+      subject: 'Manual credential verification required'
+  });
+};
 
 /**
  * Sends an email welcoming a tutor

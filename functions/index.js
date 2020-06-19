@@ -18,6 +18,26 @@ const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmai
 const { triggerIncomingCall } = require('./notifications');
 const { reserveSlots, reservationCallback } = require('./callSessionEvents');
 const { getSessionsFromEmail, ambassadorDataScrape } = require('./bizDev');
+const { reserveSlots, reservationCallback } = require('./scheduleReservations');
+const { verifyCredential } = require('./tutorCredentialCheck');
+
+// SECTION --------------------------------------------------------------------
+
+/**
+ * Verifies tutor's credential
+ *
+ * NOTE MVP only! These sections should be revised due to quality and security
+ *      concerns.
+ * TODO Revise & Document
+ *
+ * @since 0.0.x
+ *
+ * @link https://firebase.google.com/docs/functions/callable-reference
+ * @link https://cloud.google.com/vision/docs/ocr
+ */
+exports.verifyCredential = functions.https.onCall(verifyCredential);
+
+// !SECTION -------------------------------------------------------------------
 
 // SECTION - Temporary or tester functions (shouldn't be used during deployment)
 
