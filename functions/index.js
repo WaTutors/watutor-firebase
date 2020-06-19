@@ -17,7 +17,6 @@ const { createCharge, captureCharge } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall } = require('./notifications');
 const { reserveSlots, reservationCallback } = require('./scheduleReservations');
-<<<<<<< HEAD
 const { verifyCredential } = require('./tutorCredentialCheck');
 
 // SECTION --------------------------------------------------------------------
@@ -37,8 +36,6 @@ const { verifyCredential } = require('./tutorCredentialCheck');
 exports.verifyCredential = functions.https.onCall(verifyCredential);
 
 // !SECTION -------------------------------------------------------------------
-=======
->>>>>>> 5f5c265736a7748391197df570c72ca18177cee3
 
 // SECTION - One-Off Pages
 
