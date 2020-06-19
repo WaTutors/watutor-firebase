@@ -16,8 +16,9 @@ const {
 const { createCharge, captureCharge } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall } = require('./notifications');
+const { reserveSlots, reservationCallback } = require('./callSessionEvents');
+const { getSessionsFromEmail, ambassadorDataScrape } = require('./bizDev');
 const { reserveSlots, reservationCallback } = require('./scheduleReservations');
-<<<<<<< HEAD
 const { verifyCredential } = require('./tutorCredentialCheck');
 
 // SECTION --------------------------------------------------------------------
@@ -37,10 +38,35 @@ const { verifyCredential } = require('./tutorCredentialCheck');
 exports.verifyCredential = functions.https.onCall(verifyCredential);
 
 // !SECTION -------------------------------------------------------------------
-=======
->>>>>>> 5f5c265736a7748391197df570c72ca18177cee3
 
-// SECTION - One-Off Pages
+// SECTION - Temporary or tester functions (shouldn't be used during deployment)
+
+
+/**
+ * Allows a team member to search for a user's sessions by email address
+ *
+ * To be used for resolving customer issues and getting the session id
+ *    to be used to viewing session video calls in Twilio
+ * Authenticated using a secret key to be passed in query
+ *
+ * @since 0.1.0
+ *
+ * @see otherFunction               this functions is related because
+ * @see {CloudTaskName}.{QueueName} if triggered by cloud task via API
+ * @link https://principlesofchaos.org/?lang=ENcontent
+ *
+ * @param {string} req.token  private key
+ * @param {string} req.email  email to search for
+ * @param {string} req.type   user type. Either "provider" or "consumer"
+ *
+ * @returns {200} Formatted html table if successful
+ * @returns {200} Error message otherwise
+ * @returns {400} 'Invalid' if unauthorized
+ */
+exports.getSessionsFromEmail = functions.https.onRequest(getSessionsFromEmail);
+
+// TODO copy comment
+exports.ambassadorDataScrape = functions.https.onRequest(ambassadorDataScrape);
 
 /**
  * Auto-approves tutor
@@ -96,7 +122,7 @@ exports.autoApproveTutors = functions.firestore
 exports.createCharge = functions.https.onCall(createCharge);
 
 /**
- * Captures a charge. TODO convert to onRequest so it can be called by Cloud Task
+ * Captures a charge.
  *
  * Intakes a charge ID generated from the createCharge function and captures the funds from it.
  * This function should be called programmatically 24 hours after a user's session with a provider
