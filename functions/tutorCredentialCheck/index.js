@@ -9,6 +9,8 @@ function searchText(text, pattern, start) {
 
 // SECTION
 exports.verifyCredential = async (data) => {
+  const { db } = require('../_helpers/initialize_admin');
+
   const { cert, legalName, state } = data.cred;
   const { uid } = data;
   const legalNameParts = legalName.split(' ');
@@ -49,6 +51,16 @@ exports.verifyCredential = async (data) => {
     const res = await manualVerificationEmail(uid, messages);
     console.assert(res.accepted.length === 1);
   }
+
+  // set up doc to update the document if approved
+  if (body.valid) {
+    const tutorRef = db.collection('tutors').doc(uid);
+    const updateBody = {
+      'cred.valid': 'yes',
+    };
+    await tutorRef.set(updateBody, { merge: true });
+  }
+
   return body;
 };
 
