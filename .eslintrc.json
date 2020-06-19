@@ -16,6 +16,7 @@
     },
     "rules": {
         "global-require": "off",
-        "linebreak-style": "off"
+        "linebreak-style": "off",
+        "no-unused-vars": "warn"
     }
 }
