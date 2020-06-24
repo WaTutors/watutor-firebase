@@ -50,7 +50,7 @@ function sendEmail({
   }
 
   const mailOptions = {
-    from: '"WaTutors" <noreply@firebase.com>', // sender address TODO beautify
+    from: '"WaTutor" <noreply@firebase.com>', // sender address TODO beautify
     to: toAddress, // list of receivers
     subject, // Subject line
     html, // html body
@@ -176,7 +176,7 @@ function generateAuthLink(uid, user) {
 
   // default, error case
   console.error('generateAuthLink default case hit. user:', user);
-  return 'watutors.com';
+  return 'watutor.com';
 }
 
 // !SECTION
@@ -207,7 +207,7 @@ exports.welcomeEmailStudent = (data) => { // for testing use https
   // console.log(gmailEmail, gmailPassword, functions.config())
 
   const { toAddress, displayName, uid } = data;
-  const subject = 'Welcome to WaTutors!';
+  const subject = 'Welcome to WaTutor!';
 
   // ensure data is passed properly
   if (!(typeof displayName === 'string'
@@ -251,7 +251,7 @@ exports.manualVerificationEmail = (uid, messages) => {
   html = html.replace(/###LINK###/g, `https://console.firebase.google.com/u/1/project/watutors-1/storage/watutors-1.appspot.com/files~2F${uid}~2Fcert`);
   html = html.replace(/###LINKTEXT###/g, 'View document');
   return sendEmail({
-    toAddress: 'support@watutors.atlassian.net',
+    toAddress: 'support@watutor-dev.atlassian.net', // legacy 'support@watutors.atlassian.net',
     html,
     subject: 'Manual credential verification required',
   });
@@ -279,7 +279,7 @@ exports.manualVerificationEmail = (uid, messages) => {
 exports.welcomeEmailTutor = (_, context) => { // for testing use https
   // console.log(gmailEmail, gmailPassword, functions.config());
 
-  const subject = 'Welcome to WaTutors!';
+  const subject = 'Welcome to WaTutor!';
 
   // extract data from context (token passed from caller)
   const { uid } = context.auth;

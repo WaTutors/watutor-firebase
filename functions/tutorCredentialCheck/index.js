@@ -46,6 +46,7 @@ exports.verifyCredential = async (data) => {
     body.valid = 'yes';
   } else {
     body.valid = 'pending';
+    console.log('user invalid');
     body.messages = messages;
     const { manualVerificationEmail } = require('../sendEmail');
     const res = await manualVerificationEmail(uid, messages);
@@ -54,11 +55,12 @@ exports.verifyCredential = async (data) => {
 
   // set up doc to update the document if approved
   if (body.valid) {
+    console.log('updating doc');
     const tutorRef = db.collection('tutors').doc(uid);
     const updateBody = {
-      'cred.valid': 'yes',
+      'cred.valid': body.valid,
     };
-    await tutorRef.set(updateBody, { merge: true });
+    await tutorRef.update(updateBody);
   }
 
   return body;

@@ -6,7 +6,7 @@ const PRIVATE_TRIGGER_TOKEN = 'sdfofjawoijfoisdjfosidjfoisjdfoigerig46898s89guwm
 function getJwt() {
   const { google } = require('googleapis');
 
-  const credentials = require('./_watutors-1-spreadsheet-writer-key.json');
+  const credentials = require('./keys/_watutors-1-spreadsheet-writer-key.json');
   return new google.auth.JWT(
     credentials.client_email, null, credentials.private_key,
     ['https://www.googleapis.com/auth/spreadsheets'],
@@ -14,7 +14,7 @@ function getJwt() {
 }
 
 function getApiKey() {
-  const apiKeyFile = require('./_api-key.json');
+  const apiKeyFile = require('./keys/_api-key.json');
   return apiKeyFile.key;
 }
 
@@ -201,7 +201,7 @@ exports.ambassadorDataScrape = async (req, res) => {
   const now = new Date();
   // FIXME change 1 to 24hrs   ~~~~~~~~v
   const dayAgo = new Date(Date.now() - 1 * 60 * 60 * 1000); // subtract 24hr in ms
-  console.log('dates of queries', { now, dayAgo });
+  console.log(`dates of queries: now:${now} ago:${dayAgo}`);
 
   // get call sessions that occured in the last 24 hours
   // return promise<array<array>> formatted for the sheets
@@ -267,30 +267,27 @@ exports.ambassadorDataScrape = async (req, res) => {
   const spreadsheetId = '1EqF13WTZDtbSG9jjypYqxvSBfDSfgxj8JPTQGBiB9C8'; // Ambassador CRM V0
   const writePromiseArray = [
     // appendSheetRows(jwt, apiKey, spreadsheetId, 'batch_raw_tutor!A2',
-    // [[1, 2, 3, 4], [1, 2, 3, 'meirl']]),
+    //   [[1, 2, 3, 4], [1, 2, 3, 'meirl']]),
   ]; // FIXME
 
+  console.log('newSessions', JSON.stringify(newSessions));
   // prep add add sessions to google sheet
   const sessionRange = 'batch_raw_session!A2'; // 'sessions_batch_raw'; //
-  newSessions.forEach(async (sessionRow) => {
-    writePromiseArray.push(
-      appendSheetRow(jwt, apiKey, spreadsheetId, sessionRange, sessionRow),
-    );
-  });
+  writePromiseArray.push(
+    appendSheetRows(jwt, apiKey, spreadsheetId, sessionRange, newSessions),
+  );
+
   // prep add tutors to google sheet
   const tutorRange = 'batch_raw_tutor!A2'; // 'sessions_batch_raw'; //
-  newTutors.forEach(async (tutorRow) => {
-    writePromiseArray.push(
-      appendSheetRow(jwt, apiKey, spreadsheetId, tutorRange, tutorRow),
-    );
-  });
+  writePromiseArray.push(
+    appendSheetRows(jwt, apiKey, spreadsheetId, tutorRange, newTutors),
+  );
+
   // prep add students to google sheet
   const studentRange = 'batch_raw_student!A2'; // 'sessions_batch_raw'; //
-  newStudents.forEach(async (studentRow) => {
-    writePromiseArray.push(
-      appendSheetRow(jwt, apiKey, spreadsheetId, studentRange, studentRow),
-    );
-  });
+  writePromiseArray.push(
+    appendSheetRows(jwt, apiKey, spreadsheetId, studentRange, newStudents),
+  );
 
   // execute google sheet writes
   await Promise.all(writePromiseArray)
