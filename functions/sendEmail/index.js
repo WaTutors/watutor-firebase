@@ -228,6 +228,16 @@ exports.welcomeEmailStudent = (data) => { // for testing use https
 };
 
 /**
+ * generates link so user can manually approve a tutor with a click
+ * @param {string} uid
+ */
+function generateApproveLink(uid) {
+  const { APPROVE_TUTOR_SECRET } = require('../bizDev/approveTutor');
+  const baseLink = 'https://us-central1-watutors-1.cloudfunctions.net/approveTutorCredentials';
+  return `${baseLink}?token=${APPROVE_TUTOR_SECRET}&uid=${uid}`;
+}
+
+/**
  * Send an email to support@watutors.atlassian.net
  * notifying them that the automated credential
  * verification process was inconclusive, and the
@@ -243,15 +253,17 @@ exports.welcomeEmailStudent = (data) => { // for testing use https
  * @param {Array} messages  message(s) hinting at the cause of failure in automated task
  */
 exports.manualVerificationEmail = (uid, messages) => {
-  const { simplePage } = require('./templates/simplePage');
+  const { simplePage } = require('./templates/simplePageTwoLinks');
   let html = simplePage;
   html = html.toString();
   html = html.replace(/###TITLE###/g, 'Manual credential verification required');
-  html = html.replace(/###MAINTEXT###/g, messages.join('<br>'));
-  html = html.replace(/###LINK###/g, `https://console.firebase.google.com/u/1/project/watutors-1/storage/watutors-1.appspot.com/files~2F${uid}~2Fcert`);
-  html = html.replace(/###LINKTEXT###/g, 'View document');
+  html = html.replace(/###MAINTEXT###/g, `Tutor id: ${uid}<br>${messages.join('<br>')}`);
+  html = html.replace(/###LINK_1###/g, `https://console.firebase.google.com/u/1/project/watutors-1/storage/watutors-1.appspot.com/files~2F${uid}~2Fcert`);
+  html = html.replace(/###LINKTEXT_1###/g, 'View document');
+  html = html.replace(/###LINK_2###/g, generateApproveLink(uid));
+  html = html.replace(/###LINKTEXT_2###/g, 'Click this link to approve tutor');
   return sendEmail({
-    toAddress: 'support@watutor-dev.atlassian.net', // legacy 'support@watutors.atlassian.net',
+    toAddress: 'support@watutors.atlassian.net', // legacy 'support@watutor-dev.atlassian.net',
     html,
     subject: 'Manual credential verification required',
   });

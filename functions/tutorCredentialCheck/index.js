@@ -21,7 +21,7 @@ exports.verifyCredential = async (data) => {
   const { annotate } = require('../_helpers/googleCloudVision');
   const gcsSourceUri = `gs://${bucketName}/${uid}/cert/${cert}`;
   const gcvResult = await annotate(gcsSourceUri);
-  const text = gcvResult.fullTextAnnotation.text.toLowerCase(); // NOTE
+  const text = gcvResult.fullTextAnnotation.text.toLowerCase(); // FIXME crashes if empty
 
   const messages = [];
   // Verify first name occurs in document

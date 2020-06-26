@@ -17,7 +17,7 @@ const { createCharge, captureCharge } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall } = require('./notifications');
 const { reserveSlots, reservationCallback } = require('./callSessionEvents');
-const { getSessionsFromEmail, ambassadorDataScrape } = require('./bizDev');
+const { getSessionsFromEmail, ambassadorDataScrape, approveTutorCredentials } = require('./bizDev');
 const { verifyCredential } = require('./tutorCredentialCheck');
 
 // SECTION --------------------------------------------------------------------
@@ -67,6 +67,8 @@ exports.getSessionsFromEmail = functions.https.onRequest(getSessionsFromEmail);
 // TODO copy comment
 exports.ambassadorDataScrape = functions.https.onRequest(ambassadorDataScrape);
 
+// TODO copy comment
+exports.approveTutorCredentials = functions.https.onRequest(approveTutorCredentials);
 
 // SECTION - Stripe
 
