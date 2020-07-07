@@ -38,36 +38,39 @@ async function checkCredential(data) {
     messages.push(`Unable to recognize state '${state}' in uploaded document`);
   }
 
-  return messages.length > 0 ? messages : null;
-}
-
-function checkBackground(data) {
-  // REVIEW There might be a node module which already accomplishes the same thing as 'request'.
-  const request = require('request');
-  // Construct request
-  const { REQUIRE_EXACT_MATCH, getBackgroundCheckUrl } = require('./templates/backgroundCheckApi');
-  const { legalName, dob, state } = data.cred;
-  const legalNameParts = legalName.split(' ');
-  const tutorData = {
-    firstName: legalNameParts[0],
-    lastName: legalNameParts[legalNameParts.length - 1],
-    state,
-    birthYear: dob.split('-')[0], // dob in yyyy-mm-dd format
-    exactMatch: REQUIRE_EXACT_MATCH,
-  };
-  // Send request to Background Check API
-  const backgroundCheckUrl = getBackgroundCheckUrl(tutorData);
-  let messages = null;
-  request(backgroundCheckUrl, (error, response, body) => {
-    if (response && response.statusCode === 200) {
-      messages = body.response;
-    } else {
-      messages = [error];
-      // TODO status code-specific logic; non-essential, just makes it more robust
-    }
-  });
   return messages;
 }
+
+// function checkBackground(data) {
+//   // REVIEW There might be a node module which already accomplishes the same thing as 'request'.
+//   const request = require('request');
+//   // Construct request
+//   const {
+//     REQUIRE_EXACT_MATCH,
+//     getBackgroundCheckUrl,
+//   } = require('./templates/backgroundCheckApi');
+//   const { legalName, dob, state } = data.cred;
+//   const legalNameParts = legalName.split(' ');
+//   const tutorData = {
+//     firstName: legalNameParts[0],
+//     lastName: legalNameParts[legalNameParts.length - 1],
+//     state,
+//     birthYear: dob.split('-')[0], // dob in yyyy-mm-dd format
+//     exactMatch: REQUIRE_EXACT_MATCH,
+//   };
+//   // Send request to Background Check API
+//   const backgroundCheckUrl = getBackgroundCheckUrl(tutorData);
+//   let messages = null;
+//   request(backgroundCheckUrl, (error, response, body) => {
+//     if (response && response.statusCode === 200) {
+//       messages = body.response;
+//     } else {
+//       messages = [error];
+//       // TODO status code-specific logic; non-essential, just makes it more robust
+//     }
+//   });
+//   return messages;
+// }
 
 // TODO The function name should reflect that this does both credential and background checks.
 exports.verifyCredential = async (data) => {
@@ -77,7 +80,7 @@ exports.verifyCredential = async (data) => {
   } = require('../sendEmail');
 
   const credentialCheckMessages = await checkCredential(data);
-  const backgroundCheckMessages = checkBackground(data);
+  const backgroundCheckMessages = []; // FIXME checkBackground(data);
 
   const body = {};
   if (credentialCheckMessages.length === 0 && backgroundCheckMessages.length === 0) {
@@ -87,7 +90,8 @@ exports.verifyCredential = async (data) => {
     // body.messages = credentialCheckMessages + backgroundCheckMessages; REVIEW
     if (credentialCheckMessages.length > 0) {
       manualCredentialVerificationEmail(data.uid, credentialCheckMessages);
-    } else {
+    }
+    if (backgroundCheckMessages.length > 0) {
       manualBackgroundVerificationEmail(data.uid, backgroundCheckMessages);
     }
   }

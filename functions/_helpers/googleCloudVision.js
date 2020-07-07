@@ -5,9 +5,10 @@ exports.annotate = async (gcsSourceUri) => {
   const client = new ImageAnnotatorClient();
   try {
     const [result] = await client.textDetection(gcsSourceUri);
+    // FIXME const result = require('../../tests/response.json');
     return result;
   } catch (err) {
     console.error(err);
-    return null;
+    return err;
   }
 };
