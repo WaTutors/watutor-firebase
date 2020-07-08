@@ -107,7 +107,7 @@ exports.verifyCredential = async (data) => {
     messages: [
       ...credentialCheckMessages,
       ...backgroundCheckMessages,
-    ]
+    ],
   };
   return body;
 };
