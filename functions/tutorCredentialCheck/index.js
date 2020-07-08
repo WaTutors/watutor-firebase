@@ -1,7 +1,8 @@
 const bucketName = 'watutors-1.appspot.com';
 
 // Simple pattern search through all text in document
-// TODO revise
+// TODO revise search algorithm
+// TODO find a good spot for this...
 function searchText(text, pattern, start) {
   const minIndex = text.indexOf(pattern, start || 0);
   return minIndex;
@@ -17,11 +18,15 @@ async function checkCredential(data) {
   // Get text annotation from Google Cloud Vision API
   const { annotate } = require('../_helpers/googleCloudVision');
   const gcsSourceUri = `gs://${bucketName}/${uid}/cert/${cert}`;
-  const gcvResult = await annotate(gcsSourceUri);
-  const text = gcvResult.fullTextAnnotation.text.toLowerCase(); // NOTE
+  let gcvResult = null;
+  try {
+    gcvResult = await annotate(gcsSourceUri);
+  } catch (err) {
+    return [err];
+  }
+  const text = gcvResult.fullTextAnnotation.text.toLowerCase(); // NOTE case-insensitive
 
   const messages = [];
-  // TODO do this less verbosely; foreach?
   // Verify first name occurs in document
   const firstNameIndex = searchText(text, firstName.toLowerCase());
   if (firstNameIndex === -1) {
@@ -41,59 +46,68 @@ async function checkCredential(data) {
   return messages;
 }
 
-// function checkBackground(data) {
-//   // REVIEW There might be a node module which already accomplishes the same thing as 'request'.
-//   const request = require('request');
-//   // Construct request
-//   const {
-//     REQUIRE_EXACT_MATCH,
-//     getBackgroundCheckUrl,
-//   } = require('./templates/backgroundCheckApi');
-//   const { legalName, dob, state } = data.cred;
-//   const legalNameParts = legalName.split(' ');
-//   const tutorData = {
-//     firstName: legalNameParts[0],
-//     lastName: legalNameParts[legalNameParts.length - 1],
-//     state,
-//     birthYear: dob.split('-')[0], // dob in yyyy-mm-dd format
-//     exactMatch: REQUIRE_EXACT_MATCH,
-//   };
-//   // Send request to Background Check API
-//   const backgroundCheckUrl = getBackgroundCheckUrl(tutorData);
-//   let messages = null;
-//   request(backgroundCheckUrl, (error, response, body) => {
-//     if (response && response.statusCode === 200) {
-//       messages = body.response;
-//     } else {
-//       messages = [error];
-//       // TODO status code-specific logic; non-essential, just makes it more robust
-//     }
-//   });
-//   return messages;
-// }
+async function checkBackground(data) {
+  // Construct request
+  const {
+    REQUIRE_EXACT_MATCH,
+    getBackgroundCheckUrl,
+  } = require('../_helpers/backgroundCheckApi');
+  const { legalName, dob, state } = data.cred;
+  const legalNameParts = legalName.split(' ');
+  const tutorData = {
+    firstName: legalNameParts[0],
+    lastName: legalNameParts[legalNameParts.length - 1],
+    state,
+    birthYear: dob.split('-')[0], // dob in yyyy-mm-dd format
+    exactMatch: REQUIRE_EXACT_MATCH,
+  };
+  // Send request to Background Check API
+  const fetch = require('node-fetch');
+  const backgroundCheckUrl = getBackgroundCheckUrl(tutorData);
+  const backgroundCheckResponse = await fetch(backgroundCheckUrl);
+  const body = JSON.parse(await backgroundCheckResponse.text());
+  let messages = null;
+  if (body.status.code === '200 OK') {
+    messages = body.response.length === 0 ? [] : [body.requests, ...body.response];
+  } else {
+    messages = [body.status.error];
+  }
+
+  return messages;
+}
 
 // TODO The function name should reflect that this does both credential and background checks.
 exports.verifyCredential = async (data) => {
-  const {
-    manualCredentialVerificationEmail,
-    manualBackgroundVerificationEmail,
-  } = require('../sendEmail');
-
-  const credentialCheckMessages = await checkCredential(data);
-  const backgroundCheckMessages = []; // FIXME checkBackground(data);
-
-  const body = {};
-  if (credentialCheckMessages.length === 0 && backgroundCheckMessages.length === 0) {
-    body.valid = 'yes';
-  } else {
-    body.valid = 'pending';
-    // body.messages = credentialCheckMessages + backgroundCheckMessages; REVIEW
-    if (credentialCheckMessages.length > 0) {
-      manualCredentialVerificationEmail(data.uid, credentialCheckMessages);
-    }
-    if (backgroundCheckMessages.length > 0) {
-      manualBackgroundVerificationEmail(data.uid, backgroundCheckMessages);
-    }
+  // Perform credential check
+  let credentialCheckMessages = null;
+  try {
+    credentialCheckMessages = await checkCredential(data);
+  } catch (err) {
+    credentialCheckMessages = [err];
   }
+  if (credentialCheckMessages.length > 0) {
+    const { manualCredentialVerificationEmail } = require('../sendEmail');
+    manualCredentialVerificationEmail(data.uid, credentialCheckMessages);
+  }
+  // Perform background check
+  let backgroundCheckMessages = null;
+  try {
+    backgroundCheckMessages = await checkBackground(data);
+  } catch (err) {
+    backgroundCheckMessages = [err];
+  }
+  if (backgroundCheckMessages.length > 0) {
+    const { manualBackgroundVerificationEmail } = require('../sendEmail');
+    manualBackgroundVerificationEmail(data.uid, backgroundCheckMessages);
+  }
+  // Construct response body
+  const body = {
+    valid: credentialCheckMessages.length === 0 && backgroundCheckMessages.length === 0 ? 'yes' : 'pending',
+    // REVIEW potential security risks of returning 'messages' property before doing so
+    messages: [
+      ...credentialCheckMessages,
+      ...backgroundCheckMessages,
+    ]
+  };
   return body;
 };
