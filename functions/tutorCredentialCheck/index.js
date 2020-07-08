@@ -1,5 +1,3 @@
-const bucketName = 'watutors-1.appspot.com';
-
 // Simple pattern search through all text in document
 // TODO revise search algorithm
 // TODO find a good spot for this...
@@ -15,32 +13,41 @@ async function checkCredential(data) {
   const firstName = legalNameParts[0];
   const lastName = legalNameParts[legalNameParts.length - 1];
 
-  // Get text annotation from Google Cloud Vision API
-  const { annotate } = require('../_helpers/googleCloudVision');
-  const gcsSourceUri = `gs://${bucketName}/${uid}/cert/${cert}`;
-  let gcvResult = null;
-  try {
-    gcvResult = await annotate(gcsSourceUri);
-  } catch (err) {
-    return [err];
-  }
-  const text = gcvResult.fullTextAnnotation.text.toLowerCase(); // NOTE case-insensitive
-
   const messages = [];
-  // Verify first name occurs in document
-  const firstNameIndex = searchText(text, firstName.toLowerCase());
-  if (firstNameIndex === -1) {
-    messages.push(`Unable to recognize first name '${firstName}' in uploaded document`);
+
+  // Get text annotation from Google Cloud Vision API
+  const bucketName = 'watutors-1.appspot.com';
+  const gcsSourceUri = `gs://${bucketName}/${uid}/cert/${cert}`;
+  let text = null;
+  try {
+    const { annotate } = require('../_helpers/googleCloudVision');
+    const gcvResult = await annotate(gcsSourceUri);
+    if (gcvResult.error) {
+      messages.push(`Unnable to annotate image: [${gcvResult.error}]`);
+    } else {
+      text = gcvResult.fullTextAnnotation.text.toLowerCase(); // NOTE case-insensitive
+    }
+  } catch (err) {
+    messages.push(err);
   }
-  // Verify last name occurs in document
-  const lastNameIndex = searchText(text, lastName.toLowerCase(), firstNameIndex);
-  if (lastNameIndex === -1) {
-    messages.push(`Unable to recognize last name '${lastName}' in uploaded document`);
-  }
-  // Verify state name occurs in document
-  const stateIndex = searchText(text, state.toLowerCase());
-  if (stateIndex === -1) {
-    messages.push(`Unable to recognize state '${state}' in uploaded document`);
+
+  // Look for tutor-supplied information in uploaded credential, if credential was annotated
+  if (messages.length === 0) {
+    // Verify first name occurs in document
+    const firstNameIndex = searchText(text, firstName.toLowerCase());
+    if (firstNameIndex === -1) {
+      messages.push(`Unable to recognize first name '${firstName}' in uploaded document`);
+    }
+    // Verify last name occurs in document
+    const lastNameIndex = searchText(text, lastName.toLowerCase(), firstNameIndex);
+    if (lastNameIndex === -1) {
+      messages.push(`Unable to recognize last name '${lastName}' in uploaded document`);
+    }
+    // Verify state name occurs in document
+    const stateIndex = searchText(text, state.toLowerCase());
+    if (stateIndex === -1) {
+      messages.push(`Unable to recognize state '${state}' in uploaded document`);
+    }
   }
 
   return messages;
@@ -104,10 +111,10 @@ exports.verifyCredential = async (data) => {
   const body = {
     valid: credentialCheckMessages.length === 0 && backgroundCheckMessages.length === 0 ? 'yes' : 'pending',
     // REVIEW potential security risks of returning 'messages' property before doing so
-    messages: [
-      ...credentialCheckMessages,
-      ...backgroundCheckMessages,
-    ],
+    messages: {
+      credential: credentialCheckMessages,
+      background: backgroundCheckMessages,
+    },
   };
   return body;
 };

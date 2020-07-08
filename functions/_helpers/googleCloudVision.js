@@ -3,7 +3,13 @@
 exports.annotate = async (gcsSourceUri) => {
   const { ImageAnnotatorClient } = require('@google-cloud/vision');
   const client = new ImageAnnotatorClient();
-  const [result] = await client.textDetection(gcsSourceUri);
-  // FIXME const result = require('../../tests/response.json');
+  let result = null;
+  try {
+    // result = require('../../tests/response.json'); // NOTE Jesse's local testing
+    const [textDetectionResult] = await client.textDetection(gcsSourceUri);
+    result = textDetectionResult;
+  } catch (err) {
+    result = { error: err };
+  }
   return result;
 };
