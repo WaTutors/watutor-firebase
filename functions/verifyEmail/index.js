@@ -46,7 +46,6 @@ exports.setPinPage = (req, res) => {
   return res.status(200).send(html);
 };
 
-
 /**
  * DEPRECATED 6/4
  * pin page functionality moved to entirely happen on the app
@@ -96,7 +95,6 @@ exports.postPinAndVerifyEmail = async (req, res) => {
   }
   // TODO verify email address concurrently
 };
-
 
 /**
  * sets a user's auth emailVerified field to true
