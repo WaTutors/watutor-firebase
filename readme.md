@@ -1,4 +1,4 @@
-# Repo for WaTutors Firebase Cloud Functions
+# Repo for WaTutor Firebase Cloud Functions
 
 ## Git Commit Guide
 
@@ -34,7 +34,7 @@ All functions are imported into a monolithic functions/index.js. They are define
   - *index.js* imports functions and sets triggers
   - *package.json*
 - public
-  - *Handling for Universal Links into WaTutors app.*
+  - *Handling for Universal Links into WaTutor app.*
 
 ## To Deploy
 Values for `${project}`. For more information, see [this document](https://docs.google.com/document/d/1gZGQlRQQR2Tgdk1-uPGFcvGxJotpyK8v8yv8z2cyMPQ/): 

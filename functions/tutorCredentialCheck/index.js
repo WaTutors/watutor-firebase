@@ -9,6 +9,8 @@ function searchText(text, pattern, start) {
 
 // SECTION
 exports.verifyCredential = async (data) => {
+  const { db } = require('../_helpers/initialize_admin');
+
   const { cert, legalName, state } = data.cred;
   const { uid } = data;
   const legalNameParts = legalName.split(' ');
@@ -19,7 +21,7 @@ exports.verifyCredential = async (data) => {
   const { annotate } = require('../_helpers/googleCloudVision');
   const gcsSourceUri = `gs://${bucketName}/${uid}/cert/${cert}`;
   const gcvResult = await annotate(gcsSourceUri);
-  const text = gcvResult.fullTextAnnotation.text.toLowerCase(); // NOTE
+  const text = gcvResult.fullTextAnnotation.text.toLowerCase(); // FIXME crashes if empty
 
   const messages = [];
   // Verify first name occurs in document
@@ -44,11 +46,23 @@ exports.verifyCredential = async (data) => {
     body.valid = 'yes';
   } else {
     body.valid = 'pending';
+    console.log('user invalid');
     body.messages = messages;
     const { manualVerificationEmail } = require('../sendEmail');
     const res = await manualVerificationEmail(uid, messages);
     console.assert(res.accepted.length === 1);
   }
+
+  // set up doc to update the document if approved
+  if (body.valid) {
+    console.log('updating doc');
+    const tutorRef = db.collection('tutors').doc(uid);
+    const updateBody = {
+      'cred.valid': body.valid,
+    };
+    await tutorRef.update(updateBody);
+  }
+
   return body;
 };
 

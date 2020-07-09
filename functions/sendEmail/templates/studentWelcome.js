@@ -323,8 +323,8 @@ exports.studentWelcomeTemplate = `
                               <tr>
                                 <td align="center" valign="top" style="padding: 10px;">
                                   <a href="https://watutors.com" style="text-decoration: none;"><img
-                                      src="https://firebasestorage.googleapis.com/v0/b/wa-tutors.appspot.com/o/public%2FIMG_3357.PNG?alt=media"
-                                      width="" height="" alt="WaTutors Logo"
+                                      src="https://firebasestorage.googleapis.com/v0/b/wa-tutors.appspot.com/o/public%2Fwatutor_banner_1.png?alt=media"
+                                      width="" height="" alt="WaTutor Banner Logo"
                                       style="height: auto; max-width: 100%; border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; color: #ffffff; font-size: 14px;"></a>
                                 </td>
                               </tr>
@@ -372,7 +372,7 @@ exports.studentWelcomeTemplate = `
                             <tbody>
                               <tr>
                                 <td class="pc-sm-fs-18 pc-xs-fs-16 pc-fb-font" style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 20px; line-height: 30px; letter-spacing: -0.2px; color: #9B9B9B; padding: 0 10px" valign="top">
-                                  Thank you for joining the WaTutors community. 
+                                  Thank you for joining the WaTutor community. 
                                     <br> Verify your email to get started.
                                 </td>
                               </tr>
@@ -461,7 +461,7 @@ exports.studentWelcomeTemplate = `
                                         <td class="pc-sm-fs-18 pc-xs-fs-16 pc-fb-font"
                                           style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 20px; line-height: 30px; letter-spacing: -0.2px; color: #ffffff; padding: 0 10px"
                                           valign="top">
-                                          Thank you for joining the WaTutors community.
+                                          Thank you for joining the WaTutor community.
                                           <br> Activate your account to get started.
                                         </td>
                                       </tr>
@@ -576,7 +576,7 @@ exports.studentWelcomeTemplate = `
                         <td class="pc-fb-font"
                           style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 300; line-height: 28px; letter-spacing: -0.2px; color: #9B9B9B; padding: 0 20px;"
                           valign="top">
-                          As a part of the WaTutors community, you'll enjoy access to:
+                          As a part of the WaTutor community, you'll enjoy access to:
                         </td>
                       </tr>
                       <tr>
@@ -865,7 +865,7 @@ exports.studentWelcomeTemplate = `
                         style="font-family: 'Fira Sans', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 20px; letter-spacing: -0.2px; color: #9B9B9B; padding: 0 20px"
                         valign="top">
                         <b>Students or Parents/Guardians </b>are not allowed to ask the Tutor directly or indirectly to
-                        have contact outside the scheduled sessions on the WaTutors platform. Any attempt at or actual
+                        have contact outside the scheduled sessions on the WaTutor platform. Any attempt at or actual
                         contact with a Tutor would be considered a violation of our code or conduct.
                       </td>
                     </tr>
@@ -942,7 +942,7 @@ exports.studentWelcomeTemplate = `
                         the Student, and the Parent/Guardian. If anyone else is present during the session you should
                         consider it a violation of the code of conduct and request that the additional person/s leave
                         the session. If the additional person/s do not leave the session then you should terminate the
-                        call immediately and report it to WaTutors.
+                        call immediately and report it to WaTutor.
                       </td>
                     </tr>
                     <tr>

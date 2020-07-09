@@ -43,7 +43,7 @@ exports.htmlTemplate = `
             class="img-fluid" alt="Responsive Image" width="100" height="100" />
         </div>
 
-        <h1 class="h4 mb-4">Confirm Your WaTutors Account</h1>
+        <h1 class="h4 mb-4">Confirm Your WaTutor Account</h1>
 
         <p class='mb-4'>
           Please confirm your email address and set a 4 digit pin.

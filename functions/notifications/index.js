@@ -176,7 +176,7 @@ exports.triggerIncomingCall = ({ slotId }) => {
         isCall: true,
         consumerNotifId,
         notif: {
-          handle: 'WaTutors',
+          handle: 'WaTutors', // change to Watutor ??
           callerName,
         },
       };

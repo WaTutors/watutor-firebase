@@ -35,9 +35,8 @@ exports.reserveSlots = async (change) => {
   // The function above is called via an HTTP request, so we need to set the payload to the current
   // document we are working with
   const payload = { docId: change.before.ref.path };
-  // Time before function is executed (5 minutes, 300 seconds)
-  const time = (Date.now() / 1000) + 300;
-
+  // Time before function is executed (30 s)
+  const time = (Date.now() / 1000) + 30;
   // The HTTP(S) request given to Google Cloud Tasks
   const task = {
     httpRequest: {

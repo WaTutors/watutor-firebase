@@ -136,7 +136,7 @@ exports.verifyEmail = async (req, res) => {
     return res.status(200).send(
       parseSimplePageHtml({ // generate beautiful html
         title: 'Email Verified!',
-        mainText: 'You\'re now set up to use WaTutors',
+        mainText: 'You\'re now set up to use WaTutor',
         linkText: `Open ${isTutor ? 'dashboard' : 'app'}`,
         link: isTutor ? 'https://watutors-tutor1.uc.r.appspot.com/' // if tutor, send dashboard link (V1)
           : 'https://watutors.page.link/signUp', // firebase dynamic link by default, linked to "watutors" (V0) project

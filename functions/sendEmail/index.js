@@ -50,7 +50,7 @@ function sendEmail({
   }
 
   const mailOptions = {
-    from: '"WaTutors" <noreply@firebase.com>', // sender address TODO beautify
+    from: '"WaTutor" <noreply@firebase.com>', // sender address TODO beautify
     to: toAddress, // list of receivers
     subject, // Subject line
     html, // html body
@@ -176,7 +176,7 @@ function generateAuthLink(uid, user) {
 
   // default, error case
   console.error('generateAuthLink default case hit. user:', user);
-  return 'watutors.com';
+  return 'watutor.com';
 }
 
 // !SECTION
@@ -207,7 +207,7 @@ exports.welcomeEmailStudent = (data) => { // for testing use https
   // console.log(gmailEmail, gmailPassword, functions.config())
 
   const { toAddress, displayName, uid } = data;
-  const subject = 'Welcome to WaTutors!';
+  const subject = 'Welcome to WaTutor!';
 
   // ensure data is passed properly
   if (!(typeof displayName === 'string'
@@ -228,32 +228,44 @@ exports.welcomeEmailStudent = (data) => { // for testing use https
 };
 
 /**
+ * generates link so user can manually approve a tutor with a click
+ * @param {string} uid
+ */
+function generateApproveLink(uid) {
+  const { APPROVE_TUTOR_SECRET } = require('../bizDev/approveTutor');
+  const baseLink = 'https://us-central1-watutors-1.cloudfunctions.net/approveTutorCredentials';
+  return `${baseLink}?token=${APPROVE_TUTOR_SECRET}&uid=${uid}`;
+}
+
+/**
  * Send an email to support@watutors.atlassian.net
- * notifying them that the automated credential 
- * verification process was inconclusive, and the 
+ * notifying them that the automated credential
+ * verification process was inconclusive, and the
  * credential document requires human review.
- * 
+ *
  * NOTE Refactoring anticipated.
- * 
+ *
  * @since 0.0.x
  *
  * @see tutorCredentialCheck
- * 
+ *
  * @param {string} uid      tutor's unique identifier in Firebase Storage
  * @param {Array} messages  message(s) hinting at the cause of failure in automated task
  */
 exports.manualVerificationEmail = (uid, messages) => {
-  const { simplePage } = require('../sendEmail/templates/simplePage');
+  const { simplePage } = require('./templates/simplePageTwoLinks');
   let html = simplePage;
   html = html.toString();
   html = html.replace(/###TITLE###/g, 'Manual credential verification required');
-  html = html.replace(/###MAINTEXT###/g, messages.join('<br>'));
-  html = html.replace(/###LINK###/g, `https://console.firebase.google.com/u/1/project/watutors-1/storage/watutors-1.appspot.com/files~2F${uid}~2Fcert`);
-  html = html.replace(/###LINKTEXT###/g, 'View document');
+  html = html.replace(/###MAINTEXT###/g, `Tutor id: ${uid}<br>${messages.join('<br>')}`);
+  html = html.replace(/###LINK_1###/g, `https://console.firebase.google.com/u/1/project/watutors-1/storage/watutors-1.appspot.com/files~2F${uid}~2Fcert`);
+  html = html.replace(/###LINKTEXT_1###/g, 'View document');
+  html = html.replace(/###LINK_2###/g, generateApproveLink(uid));
+  html = html.replace(/###LINKTEXT_2###/g, 'Click this link to approve tutor');
   return sendEmail({
-      toAddress: 'support@watutors.atlassian.net',
-      html: html,
-      subject: 'Manual credential verification required'
+    toAddress: 'support@watutors.atlassian.net', // legacy 'support@watutor-dev.atlassian.net',
+    html,
+    subject: 'Manual credential verification required',
   });
 };
 
@@ -279,7 +291,7 @@ exports.manualVerificationEmail = (uid, messages) => {
 exports.welcomeEmailTutor = (_, context) => { // for testing use https
   // console.log(gmailEmail, gmailPassword, functions.config());
 
-  const subject = 'Welcome to WaTutors!';
+  const subject = 'Welcome to WaTutor!';
 
   // extract data from context (token passed from caller)
   const { uid } = context.auth;

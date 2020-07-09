@@ -17,8 +17,7 @@ const { createCharge, captureCharge } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall } = require('./notifications');
 const { reserveSlots, reservationCallback } = require('./callSessionEvents');
-const { getSessionsFromEmail, ambassadorDataScrape } = require('./bizDev');
-const { reserveSlots, reservationCallback } = require('./scheduleReservations');
+const { getSessionsFromEmail, ambassadorDataScrape, approveTutorCredentials } = require('./bizDev');
 const { verifyCredential } = require('./tutorCredentialCheck');
 
 // SECTION --------------------------------------------------------------------
@@ -68,34 +67,8 @@ exports.getSessionsFromEmail = functions.https.onRequest(getSessionsFromEmail);
 // TODO copy comment
 exports.ambassadorDataScrape = functions.https.onRequest(ambassadorDataScrape);
 
-/**
- * Auto-approves tutor
- *
- * Temporary measure, since the QA dashboard is still in development
- *
- * @since 0.0.6
- *
- * @link https://cloud.google.com/firestore/docs/extend-with-functions
- * @link https://www.sitepoint.com/delay-sleep-pause-wait/
- */
-exports.autoApproveTutors = functions.firestore
-  .document('tutors/{uid}')
-  .onUpdate(async (change) => {
-    // extract updated document's new data
-    const changes = change.after.data();
-
-    // if submitted
-    if ('cred' in changes && 'valid' in changes.cred && changes.cred.valid === 'submit') {
-      // after 2 seconds, update document
-      return new Promise((resolve) => setTimeout(resolve, 2000))
-        .then(() => change.after.ref // return promise to be evaluated
-          .update({
-            'cred.valid': 'yes', // NOTE may need to be changed to 'accepted'
-          }));
-    }
-    return null;
-  });
-
+// TODO copy comment
+exports.approveTutorCredentials = functions.https.onRequest(approveTutorCredentials);
 
 // SECTION - Stripe
 
