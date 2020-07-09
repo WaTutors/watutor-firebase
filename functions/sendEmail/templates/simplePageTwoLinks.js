@@ -3,8 +3,10 @@
  * variables:
  * ###TITLE###
  * ###MAINTEXT###
- * ###LINK###
- * ###LINKTEXT###
+ * ###LINK_1###
+ * ###LINKTEXT_1###
+ * ###LINK_2###
+ * ###LINKTEXT_2###
  *
  * extracted from:
  * @link www.example.com
@@ -56,7 +58,8 @@ exports.simplePage = `
   <div>
     <h1>###TITLE###</h1>
     <p>###MAINTEXT###</p>
-    <p><a href="###LINK###">###LINKTEXT###</a></p>
+    <p><a href="###LINK_1###">###LINKTEXT_1###</a></p>
+    <p><a href="###LINK_2###">###LINKTEXT_2###</a></p>
   </div>
 </body>
 

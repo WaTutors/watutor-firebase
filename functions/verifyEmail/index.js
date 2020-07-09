@@ -66,10 +66,7 @@ exports.setPinPage = (req, res) => {
     token: Joi.string().required(),
 */
 exports.postPinAndVerifyEmail = async (req, res) => {
-  const admin = require('firebase-admin');
-  admin.initializeApp();
-
-  const db = admin.firestore();
+  const { db, auth } = require('../_helpers/initialize_admin');
 
   const { token } = req.body;
   const uid = decrypt(token); // use crypto library with custom key
@@ -85,7 +82,7 @@ exports.postPinAndVerifyEmail = async (req, res) => {
 
   // set up promises
   const docPromise = studentRef.set(updateBody, { merge: true });
-  const authPromise = admin.auth().updateUser(uid, {
+  const authPromise = auth.updateUser(uid, {
     emailVerified: true,
   });
 
@@ -111,8 +108,8 @@ exports.postPinAndVerifyEmail = async (req, res) => {
  * @throws  {functions.https.HttpsError} Any error that occurs during capturing.
  */
 exports.verifyEmail = async (req, res) => {
-  const admin = require('firebase-admin');
-  admin.initializeApp();
+  const { auth } = require('../_helpers/initialize_admin');
+
 
   const { token, type } = req.query;
   const isTutor = (type === 'tutor');
@@ -131,13 +128,13 @@ exports.verifyEmail = async (req, res) => {
 
   // verify email
   try {
-    await admin.auth().updateUser(uid, {
+    await auth.updateUser(uid, {
       emailVerified: true,
     });
     return res.status(200).send(
       parseSimplePageHtml({ // generate beautiful html
         title: 'Email Verified!',
-        mainText: 'You\'re now set up to use WaTutors',
+        mainText: 'You\'re now set up to use WaTutor',
         linkText: `Open ${isTutor ? 'dashboard' : 'app'}`,
         link: isTutor ? 'https://watutors-tutor1.uc.r.appspot.com/' // if tutor, send dashboard link (V1)
           : 'https://watutors.page.link/signUp', // firebase dynamic link by default, linked to "watutors" (V0) project

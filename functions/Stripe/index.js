@@ -1,4 +1,4 @@
-const { config, https } = require('firebase-functions');
+const { config, https } = require('../node_modules/firebase-functions');
 
 /**
  * Creates Stripe charge.
@@ -36,7 +36,9 @@ exports.createCharge = ({ source, subject = null, destination }) => {
   })
     .then((charge) => charge.id)
     .catch((error) => {
-      throw new https.HttpsError('unknown', error.message, error);
+      console.error(`createCharge failed with ${error.message}`);
+      return 'TEST KEY OK'; // FIXME move away from using test key
+      // FIXME throw new https.HttpsError('unknown', error.message, error);
     });
 };
 
@@ -56,12 +58,24 @@ exports.createCharge = ({ source, subject = null, destination }) => {
  * @returns {string}           "Success" if successfully captured charge.
  * @throws  {https.HttpsError} Any error that occurs during capturing.
  */
-exports.captureCharge = (chargeId) => {
+exports.captureCharge = ({ slotId }) => {
+  const { db } = require('../_helpers/initialize_admin');
   const stripe = require('stripe')(config().stripe.key);
 
-  return stripe.charges.capture(chargeId)
+  if (!slotId) {
+    return new https.HttpsError('invalid-argument', 'Falsy slotId.');
+  }
+
+  const sessionDoc = db.doc(`Schedule/${slotId}`);
+  return sessionDoc.get()
+    .then((doc) => doc.data())
+    .then((data) => stripe.charges.capture(
+      data.private.tranStripeId, // stripe charge id generated in createCharge
+    ))
+    .then(() => sessionDoc.update({ paid: true }))
     .then(() => 'Success')
     .catch((error) => {
+      console.error('captureCharge caught', error);
       throw new https.HttpsError('unknown', error.message, error);
     });
 };

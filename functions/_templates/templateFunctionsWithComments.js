@@ -76,11 +76,13 @@ exports.triggerOnCall = (data, context) => {
  * @link https://principlesofchaos.org/?lang=ENcontent
  */
 // from index.js
-// exports.setPin = functions.https.onCall(exampleRequest);
-exports.exampleRequest = (data, context) => {
-  const { example } = require('example'); // lazy import to reduce cold start time
-
-  const { code, email } = data;
+// exports.setPin = functions.https.onRequest(exampleRequest);
+exports.exampleRequest = async (req, res) => {
+    const { db, auth } = require('../_helpers/initialize_admin');
+  
+    const { token } = req.body;
+    const uid = decrypt(token); // use crypto library with custom key
+    const { pin } = req.body;
 
   /**
    * stuff

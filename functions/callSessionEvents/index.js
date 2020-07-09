@@ -35,9 +35,8 @@ exports.reserveSlots = async (change) => {
   // The function above is called via an HTTP request, so we need to set the payload to the current
   // document we are working with
   const payload = { docId: change.before.ref.path };
-  // Time before function is executed (5 minutes, 300 seconds)
-  const time = (Date.now() / 1000) + 300;
-
+  // Time before function is executed (30 s)
+  const time = (Date.now() / 1000) + 30;
   // The HTTP(S) request given to Google Cloud Tasks
   const task = {
     httpRequest: {
@@ -70,13 +69,13 @@ exports.reserveSlots = async (change) => {
  * @param {Object} req Object containing the document ID to be used.
  */
 exports.reservationCallback = async (req, res) => {
-  const admin = require('firebase-admin');
-  admin.initializeApp();
+  const { db } = require('../_helpers/initialize_admin');
+
 
   try {
     // The reserved field is only used when checking if someone has looked at the document
     // recently, so we always set it to false.
-    await admin.firestore().doc(req.body.docId).update({ reserved: false });
+    await db.doc(req.body.docId).update({ reserved: false });
     res.send(200);
   } catch (error) {
     console.error(error);
