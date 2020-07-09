@@ -1,4 +1,3 @@
-
 const NOT_FOUND = 'NOT_FOUND';
 const PRIVATE_TRIGGER_TOKEN = 'sdfofjawoijfoisdjfosidjfoisjdfoigerig46898s89guwm98eutojtsertns9t898';
 
@@ -246,7 +245,6 @@ exports.ambassadorDataScrape = async (req, res) => {
       // console.log('got session data', docsData);
       return docRows;
     });
-
 
   // execute queries/parsers
   const queryPromiseArray = [

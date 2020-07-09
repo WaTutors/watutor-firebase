@@ -40,7 +40,6 @@ exports.verifyCredential = functions.https.onCall(verifyCredential);
 
 // SECTION - Temporary or tester functions (shouldn't be used during deployment)
 
-
 /**
  * Allows a team member to search for a user's sessions by email address
  *
