@@ -1,3 +1,42 @@
+/**
+ * Performs tutor background check.
+ *
+ * @param {Object} data     Object passed to Firebase function 'verifyCredential'.
+ *
+ * @return {Array<String>}  Array of messages indicating any failures in the
+ * processs. If the returned array is empty, then there was no concerning REVIEW
+ * information found via Background Check API.
+ */
+async function checkBackground(data) {
+  // Construct request
+  const {
+    REQUIRE_EXACT_MATCH,
+    getBackgroundCheckUrl,
+  } = require('../_helpers/backgroundCheckApi');
+  const { legalName, dob, state } = data.cred;
+  const legalNameParts = legalName.split(' ');
+  const tutorData = {
+    firstName: legalNameParts[0],
+    lastName: legalNameParts[legalNameParts.length - 1],
+    state,
+    birthYear: dob.split('-')[0], // dob in yyyy-mm-dd format
+    exactMatch: REQUIRE_EXACT_MATCH,
+  };
+  // Send request to Background Check API
+  const fetch = require('node-fetch');
+  const backgroundCheckUrl = getBackgroundCheckUrl(tutorData);
+  const backgroundCheckResponse = await fetch(backgroundCheckUrl);
+  const body = JSON.parse(await backgroundCheckResponse.text());
+  let messages = null;
+  if (body.status.code === '200 OK') {
+    messages = body.response.length === 0 ? [] : [body.requests, ...body.response];
+  } else {
+    messages = [body.status.error];
+  }
+
+  return messages;
+}
+
 // Simple pattern search through all text in document
 // TODO revise search algorithm
 // TODO find a good spot for this...
@@ -6,6 +45,15 @@ function searchText(text, pattern, start) {
   return minIndex;
 }
 
+/**
+ * Performs tutor credential check.
+ *
+ * @param {Object} data     Object passed to Firebase function 'verifyCredential'.
+ *
+ * @return {Array<String>}  Returns an array of messages indicating any failures
+ * in the processs. If the returned array is empty, then the tutur's credential was
+ * successfully verified.
+ */
 async function checkCredential(data) {
   const { cert, legalName, state } = data.cred;
   const { uid } = data;
@@ -53,37 +101,21 @@ async function checkCredential(data) {
   return messages;
 }
 
-async function checkBackground(data) {
-  // Construct request
-  const {
-    REQUIRE_EXACT_MATCH,
-    getBackgroundCheckUrl,
-  } = require('../_helpers/backgroundCheckApi');
-  const { legalName, dob, state } = data.cred;
-  const legalNameParts = legalName.split(' ');
-  const tutorData = {
-    firstName: legalNameParts[0],
-    lastName: legalNameParts[legalNameParts.length - 1],
-    state,
-    birthYear: dob.split('-')[0], // dob in yyyy-mm-dd format
-    exactMatch: REQUIRE_EXACT_MATCH,
-  };
-  // Send request to Background Check API
-  const fetch = require('node-fetch');
-  const backgroundCheckUrl = getBackgroundCheckUrl(tutorData);
-  const backgroundCheckResponse = await fetch(backgroundCheckUrl);
-  const body = JSON.parse(await backgroundCheckResponse.text());
-  let messages = null;
-  if (body.status.code === '200 OK') {
-    messages = body.response.length === 0 ? [] : [body.requests, ...body.response];
-  } else {
-    messages = [body.status.error];
-  }
-
-  return messages;
-}
-
-// TODO The function name should reflect that this does both credential and background checks.
+/**
+ * Performs tutor credential and background checks.
+ *
+ * A tutor is considered to have been "verified" if they are cleared via background
+ * check and that the personal information they entered matches the information on
+ * the tutor's uploaded credential document.
+ *
+ * TODO The function name should reflect that this does both credential and background checks.
+ *
+ * @param {Object} data Object passed to Firebase function 'verifyCredential'.
+ *
+ * @return {Object}     Object containing a 'valid' field indicating that
+ * verification was successful ('yes') or that manual review is required
+ * ('pending'), plus any relevant failure messages.
+ */
 exports.verifyCredential = async (data) => {
   // Perform credential check
   let credentialCheckMessages = null;
