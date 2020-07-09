@@ -29,6 +29,9 @@ All functions are imported into a monolithic functions/index.js. They are define
     - functions that format and send different types of emails
   - **stripe** - @lucapaler
     - createCharge *and* captureCharge *Stripe functions.*
+  - **tutorCredentialCheck** - @j-chick
+    - function to perform background and credential checks on applicant tutors
+    - TODO rethink function naming to refelect added background check functionality
   - **verifyEmail** @stoddabr
     - functions and one-off-pages that handle email verification
   - *index.js* imports functions and sets triggers
@@ -71,7 +74,7 @@ Helpful links
 THIS SECTION UNDER CONSTRUCTION. HARDHATS REQUIRED
 
 
-### JESSE README
+### High-level / Quick start
 
 Dev steps:
 
