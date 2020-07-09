@@ -110,7 +110,6 @@ exports.postPinAndVerifyEmail = async (req, res) => {
 exports.verifyEmail = async (req, res) => {
   const { auth } = require('../_helpers/initialize_admin');
 
-
   const { token, type } = req.query;
   const isTutor = (type === 'tutor');
   let uid = '';
