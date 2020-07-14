@@ -40,6 +40,7 @@ All functions are imported into a monolithic functions/index.js. They are define
   - *Handling for Universal Links into WaTutor app.*
 
 ## To Deploy
+
 Values for `${project}`. For more information, see [this document](https://docs.google.com/document/d/1gZGQlRQQR2Tgdk1-uPGFcvGxJotpyK8v8yv8z2cyMPQ/): 
 
  - `wa-tutors` V0 (Deployed)
@@ -47,17 +48,7 @@ Values for `${project}`. For more information, see [this document](https://docs.
 
 Select the project (setup): `firebase use ${project}`
 
-
-Windows: `firebase use ${project}`
-
-Unix: `firebase use ${project}`
-
-Deploy your desired functions:
-
-Windows: `firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
-
-Unix: `firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
-
+Deploy your desired functions: `firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
 
 ## Cloud Tasks Queue
 

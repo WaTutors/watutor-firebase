@@ -13,13 +13,14 @@ async function checkBackground(data) {
     REQUIRE_EXACT_MATCH,
     getBackgroundCheckUrl,
   } = require('../_helpers/backgroundCheckApi');
-  const { legalName, dob, state } = data.cred;
-  const legalNameParts = legalName.split(' ');
+  const {
+    firstName, lastName, birthYear, state,
+  } = data.cred;
   const tutorData = {
-    firstName: legalNameParts[0],
-    lastName: legalNameParts[legalNameParts.length - 1],
+    firstName,
+    lastName,
     state,
-    birthYear: dob.split('-')[0], // dob in yyyy-mm-dd format
+    birthYear,
     exactMatch: REQUIRE_EXACT_MATCH,
   };
   // Send request to Background Check API
@@ -145,6 +146,29 @@ exports.verifyCredential = async (data) => {
     // REVIEW potential security risks of returning 'messages' property before doing so
     messages: {
       credential: credentialCheckMessages,
+      background: backgroundCheckMessages,
+    },
+  };
+  return body;
+};
+
+exports.checkBackground = async (data) => {
+  // Perform background check
+  let backgroundCheckMessages = null;
+  try {
+    backgroundCheckMessages = await checkBackground(data);
+  } catch (err) {
+    backgroundCheckMessages = [err];
+  }
+  if (backgroundCheckMessages.length > 0) {
+    const { manualBackgroundVerificationEmail } = require('../sendEmail');
+    manualBackgroundVerificationEmail(data.uid, backgroundCheckMessages);
+  }
+  // Construct response body
+  const body = {
+    valid: backgroundCheckMessages.length === 0 ? 'yes' : 'pending',
+    // REVIEW potential security risks of returning 'messages' property before doing so
+    messages: {
       background: backgroundCheckMessages,
     },
   };
