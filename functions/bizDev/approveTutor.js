@@ -9,7 +9,7 @@ exports.APPROVE_TUTOR_SECRET = APPROVE_TUTOR_SECRET;
  * check failed. The link activates this function to make manually approving
  * tutors easier.
  * @link https://us-central1-watutors-1.cloudfunctions.net/approveTutorCredentials
- * @see tutorCredentialCheck.verifyCredential
+ * @see tutorVerification.verifyCredential
  *
  * @param   {string}  req.query.token  secure key
  * @param   {string}  req.query.uid    tutor user id
