@@ -1,47 +1,9 @@
-/**
- * Performs tutor background check.
- *
- * @param {Object} data     Object passed to Firebase function 'verifyCredential'.
- *
- * @return {Array<String>}  Array of messages indicating any failures in the
- * processs. If the returned array is empty, then there was no concerning REVIEW
- * information found via Background Check API.
- */
-async function checkBackground(data) {
-  // Construct request
-  const {
-    REQUIRE_EXACT_MATCH,
-    getBackgroundCheckUrl,
-  } = require('../_helpers/backgroundCheckApi');
-  const { legalName, dob, state } = data.cred;
-  const legalNameParts = legalName.split(' ');
-  const tutorData = {
-    firstName: legalNameParts[0],
-    lastName: legalNameParts[legalNameParts.length - 1],
-    state,
-    birthYear: dob.split('-')[0], // dob in yyyy-mm-dd format
-    exactMatch: REQUIRE_EXACT_MATCH,
-  };
-  // Send request to Background Check API
-  const fetch = require('node-fetch');
-  const backgroundCheckUrl = getBackgroundCheckUrl(tutorData);
-  const backgroundCheckResponse = await fetch(backgroundCheckUrl);
-  const body = JSON.parse(await backgroundCheckResponse.text());
-  let messages = null;
-  if (body.status.code === '200 OK') {
-    messages = body.response.length === 0 ? [] : [body.requests, ...body.response];
-  } else {
-    messages = [body.status.error];
-  }
-
-  return messages;
-}
-
 // Simple pattern search through all text in document
 // TODO revise search algorithm
 // TODO find a good spot for this...
 function searchText(text, pattern, start) {
-  const minIndex = text.indexOf(pattern, start || 0);
+  const textLowerCase = text.toLowerCase(); // NOTE case-insensitive
+  const minIndex = textLowerCase.indexOf(pattern, start || 0);
   return minIndex;
 }
 
@@ -73,13 +35,14 @@ async function checkCredential(data) {
     if (gcvResult.error) {
       messages.push(`Unnable to annotate image: [${gcvResult.error}]`);
     } else {
-      text = gcvResult.fullTextAnnotation.text.toLowerCase(); // NOTE case-insensitive
+      text = gcvResult.fullTextAnnotation.text;
     }
   } catch (err) {
     messages.push(err);
   }
 
   // Look for tutor-supplied information in uploaded credential, if credential was annotated
+  // TODO refactor to take up less space...
   if (messages.length === 0) {
     // Verify first name occurs in document
     const firstNameIndex = searchText(text, firstName.toLowerCase());
@@ -131,6 +94,7 @@ exports.verifyCredential = async (data) => {
   // Perform background check
   let backgroundCheckMessages = null;
   try {
+    const { checkBackground } = require('./backgroundCheck');
     backgroundCheckMessages = await checkBackground(data);
   } catch (err) {
     backgroundCheckMessages = [err];
