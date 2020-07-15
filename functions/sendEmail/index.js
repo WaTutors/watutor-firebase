@@ -247,7 +247,7 @@ function generateApproveLink(uid) {
  *
  * @since 0.0.x
  *
- * @see tutorCredentialCheck
+ * @see tutorVerification
  *
  * @param {string} uid      tutor's unique identifier in Firebase Storage
  * @param {Array} messages  message(s) hinting at the cause of failure in automated task
@@ -279,7 +279,7 @@ exports.manualCredentialVerificationEmail = (uid, messages) => {
  *
  * @since 0.0.x
  *
- * @see tutorCredentialCheck
+ * @see tutorVerification
  *
  * @param {string} uid      tutor's unique identifier in Firebase Storage
  * @param {Array} messages  message(s) hinting at the cause of failure in automated task

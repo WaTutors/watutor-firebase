@@ -18,7 +18,7 @@ const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmai
 const { triggerIncomingCall } = require('./notifications');
 const { reserveSlots, reservationCallback } = require('./callSessionEvents');
 const { getSessionsFromEmail, ambassadorDataScrape, approveTutorCredentials } = require('./bizDev');
-const { verifyCredential } = require('./tutorCredentialCheck');
+const { verifyCredential } = require('./tutorVerification');
 
 // SECTION --------------------------------------------------------------------
 
