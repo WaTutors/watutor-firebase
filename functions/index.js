@@ -15,7 +15,7 @@ const {
 } = require('./sendEmail');
 const { createCharge, captureCharge } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
-const { triggerIncomingCall } = require('./notifications');
+const { triggerIncomingCall, triggerCustomNotifications } = require('./notifications');
 const { reserveSlots, reservationCallback } = require('./callSessionEvents');
 const { getSessionsFromEmail, ambassadorDataScrape, approveTutorCredentials } = require('./bizDev');
 const { verifyCredential } = require('./tutorVerification');
@@ -189,6 +189,29 @@ exports.postPinAndVerifyEmail = functions.https.onRequest(postPinAndVerifyEmail)
  *                            function call body is invalid.
  */
 exports.triggerIncomingCall = functions.https.onCall(triggerIncomingCall);
+
+/**
+ * Sends incoming call notification.
+ *
+ * Checks for required slot ID in function call body. Finds target slot from provided ID, creates
+ * notification payload and dispatches iOS or Android notification depending on the notification
+ * ID content.
+ *
+ * @since 0.0.5
+ *
+ * @see  dispatchIOS
+ * @see  dispatchAndroid
+ *
+ * @param {Object} param0        Object containing target slot ID.
+ * @param {Object} param0.pids   Profile ids to send to
+ * @param {Object} param0.title  notification primary text
+ * @param {Object} param0.subtitle  notification secondary text
+ *
+ * @returns {Promise}          All notification promises via Promise.all
+ * @throws  {https.HttpsError} Any error that occurs during sending of notifications or if the
+ *                             function call body is invalid.
+ */
+exports.triggerCustomNotifications = functions.https.onCall(triggerCustomNotifications);
 
 // !SECTION
 
