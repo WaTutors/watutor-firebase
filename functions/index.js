@@ -18,7 +18,7 @@ const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmai
 const { triggerIncomingCall, triggerCustomNotifications } = require('./notifications');
 const { reserveSlots, reservationCallback } = require('./callSessionEvents');
 const { getSessionsFromEmail, ambassadorDataScrape, approveTutorCredentials } = require('./bizDev');
-const { verifyCredential } = require('./tutorVerification');
+const { verifyCredential, checkBackground } = require('./tutorVerification');
 
 // SECTION --------------------------------------------------------------------
 
@@ -35,6 +35,16 @@ const { verifyCredential } = require('./tutorVerification');
  * @link https://cloud.google.com/vision/docs/ocr
  */
 exports.verifyCredential = functions.https.onCall(verifyCredential);
+
+/**
+ * Performs background check.
+ *
+ * Exact same function as above except without the tutor credentials check. Will be used in place
+ * of credential checking for v2.
+ *
+ * @since 2.0.0
+ */
+exports.checkBackground = functions.https.onCall(checkBackground);
 
 // !SECTION -------------------------------------------------------------------
 
