@@ -29,9 +29,8 @@ All functions are imported into a monolithic functions/index.js. They are define
     - functions that format and send different types of emails
   - **stripe** - @lucapaler
     - createCharge *and* captureCharge *Stripe functions.*
-  - **tutorCredentialCheck** - @j-chick
+  - **tutorVerification** - @j-chick
     - function to perform background and credential checks on applicant tutors
-    - TODO rethink function naming to refelect added background check functionality
   - **verifyEmail** @stoddabr
     - functions and one-off-pages that handle email verification
   - *index.js* imports functions and sets triggers
@@ -70,7 +69,7 @@ THIS SECTION UNDER CONSTRUCTION. HARDHATS REQUIRED
 Dev steps:
 
 0. [Initialize Firebase Cloud Functions CLI](https://firebase.google.com/docs/functions/get-started#set-up-node.js-and-the-firebase-cli).
-1. Add a file `functions/tutorCredentialCheck/index.js`.
+1. Add a file `functions/*/index.js`.
 2. Write a call to Google's [Cloud Vision API](https://cloud.google.com/vision/docs/request).
 3. Experiment around with the JSON that gets returned
     - Use [this website](https://cloud.google.com/vision/docs/drag-and-drop) to get JSON without needing to make an API call.

@@ -116,8 +116,9 @@ const dispatchIOS = async ({ isCall, consumerNotifId, notif }) => {
  *
  * @link https://firebase.google.com/docs/reference/admin/node/admin.messaging.Messaging
  *
- * @param {string} token FCM token to send background notification to.
- * @param {Object} data  Notification payload.
+ * @param {string} param0.messaging FCM token to send background notification to.
+ * @param {string} param0.consumerNotifId FCM token to send background notification to.
+ * @param {Object} param0.notif  Notification payload.
  *
  * @returns {string} "Success" if notification was properly dispatched.
  */
@@ -244,4 +245,57 @@ exports.triggerSessionCanceled = async ({ slotId }) => {
   }
 
   throw new https.HttpsError('invalid-argument', 'Missing slotId.');
+};
+
+/**
+ * Sends incoming call notification.
+ *
+ * Checks for required slot ID in function call body. Finds target slot from provided ID, creates
+ * notification payload and dispatches iOS or Android notification depending on the notification
+ * ID content.
+ *
+ * @since 0.0.5
+ *
+ * @see  dispatchIOS
+ * @see  dispatchAndroid
+ *
+ * @param {Object} param0        Object containing target slot ID.
+ * @param {Object} param0.pids   Profile ids to send to
+ * @param {Object} param0.title  notification primary text
+ * @param {Object} param0.subtitle  notification secondary text
+ *
+ * @returns {Promise}          All notification promises via Promise.all
+ * @throws  {https.HttpsError} Any error that occurs during sending of notifications or if the
+ *                             function call body is invalid.
+ */
+exports.triggerCustomNotifications = async ({ pids, title, subtitle }) => {
+  const { db, messaging } = require('../_helpers/initialize_admin');
+
+  if (!pids || !title || !subtitle || pids.length > 0) {
+    console.error(`triggerCustomNotifications invalid body:${pids} "${title}" "${subtitle}"`);
+    return new https.HttpsError('invalid-argument', 'Invalid body for api call');
+  }
+
+  const promiseArrayNested = pids.map(async (pid) => {
+    const docSnap = await db.doc(`Profiles/${pid}`).get();
+    const { notifIds } = docSnap.data();
+
+    return notifIds.map((notifId) => {
+      const data = {
+        isCall: true,
+        consumerNotifId: notifId,
+        notif: {
+          title,
+          subtitle,
+        },
+      };
+
+
+      if (notifId.includes('/3/device')) return dispatchIOS(data);
+      // else
+      return dispatchAndroid({ messaging, ...data });
+    });
+  });
+
+  return Promise.all(promiseArrayNested.flat());
 };
