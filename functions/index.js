@@ -16,7 +16,9 @@ const {
 const { createCharge, captureCharge } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall, triggerCustomNotifications } = require('./notifications');
-const { reserveSlots, reservationCallback } = require('./callSessionEvents');
+const {
+  reservationCallbackV2, reserveSlotsV2, reserveSlots, reservationCallback,
+} = require('./callSessionEvents');
 const { getSessionsFromEmail, ambassadorDataScrape, approveTutorCredentials } = require('./bizDev');
 const { verifyCredential, checkBackground } = require('./tutorVerification');
 
@@ -226,6 +228,39 @@ exports.triggerCustomNotifications = functions.https.onCall(triggerCustomNotific
 // !SECTION
 
 // SECTION - Reservations Scheduler
+
+/**
+ * Queues reservationCallback function (for V2 structure)
+ *
+ * Queues the reservationCallback function to run 5 minutes later via Google Cloud Tasks. Triggered
+ * whenever a document in the Schedule collection is updated.
+ *
+ * @since 2.0.8
+ *
+ * @see watutors-clear-reservation-queue queue that schedule GCP Tasks flow through
+ * @link State Machine Hierarchy, Slide 6/Session SM, Event H https://docs.google.com/presentation/d/1SgZ4KAak3ldCzZqMRm5Y-iLCt0jFQkri_OBnBxkPqPs
+ *
+ * @param {Object}                     change        Object containing before and after snapshots.
+ * @param {firestore.DocumentSnapshot} change.before Snapshot before the document update.
+ *
+ * @return {Promise} Null if nothing to do, or a Promise to create a task on the Cloud queue
+ */
+exports.reserveSlotsV2 = functions.firestore.document('Sessions/{slotId}').onUpdate(reserveSlotsV2);
+
+/**
+ * Releases reserved slots.
+ *
+ * Sets the reserved field to false in a document with the Schedule collection. The function is
+ * triggered by HTTP requests made to:
+ * "https://us-central1-watutors-1.cloudfunctions.net/reservation_Callback."
+ *
+ * @since 2.0.8
+ *
+ * @param {Object} req Object containing the document ID to be used.
+ */
+exports.reservationCallbackV2 = functions.https.onRequest((req, res) => {
+  reservationCallbackV2(req, res);
+});
 
 /**
  * Queues reservationCallback function.
