@@ -7,15 +7,31 @@ function searchText(text, pattern, start) {
   return minIndex;
 }
 
-// SECTION
-exports.verifyCredential = async (data) => {
+/**
+ * Credential check for teaching certificate
+ *
+ * examines file to determine if it is a valid teaching certificate
+ * for the given user. If so, it will update the credential object in
+ * their profile
+ *
+ * @param {string} data.cert filename for teaching certificate
+ * @param {string} data.legalFirst legal first name
+ * @param {string} data.legalLast filename for teaching certificate
+ * @param {string} data.state state the tutor is active in
+ * @param {string} data.pid profile id of the user
+ */
+exports.verifyCredentialTeachingCert = async (data) => {
   const { db } = require('../_helpers/initialize_admin');
 
-  const { cert, legalName, state } = data.cred;
-  const { uid } = data;
-  const legalNameParts = legalName.split(' ');
-  const firstName = legalNameParts[0];
-  const lastName = legalNameParts[legalNameParts.length - 1];
+  const {
+    cert, legalFirst, legalLast, state, uid,
+  } = data;
+
+  const firstName = legalFirst;
+  const lastName = legalLast;
+
+  // TODO past this point
+  // NOTE may not be up to date
 
   // Get text annotation from Google Cloud Vision API
   const { annotate } = require('../_helpers/googleCloudVision');
@@ -65,5 +81,3 @@ exports.verifyCredential = async (data) => {
 
   return body;
 };
-
-// !SECTION
