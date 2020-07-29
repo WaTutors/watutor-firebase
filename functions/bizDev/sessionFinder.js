@@ -1,6 +1,5 @@
 const SECRET_TOKEN = 'PkJUa5RLU0MPOJ1dMv57KfQiG5gKcpPm9v61bu3X8vHtFHPwUPGCZePOCNX0bDPwlPiI';
 
-
 // helper functions
 const TABLE_PREFIX = '<div><table class="tg">';
 const TABLE_SUFFIX = '</table></div>';
@@ -42,7 +41,6 @@ function generateTable(data, defaultCols = false) {
     ${generateTableBody(cols, data)}
     ${TABLE_SUFFIX}`;
 }
-
 
 /**
  * Allows a team member to search for a user's sessions by email address

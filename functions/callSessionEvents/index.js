@@ -162,7 +162,6 @@ exports.reserveSlots = async (change) => {
 exports.reservationCallback = async (req, res) => {
   const { db } = require('../_helpers/initialize_admin');
 
-
   try {
     // The reserved field is only used when checking if someone has looked at the document
     // recently, so we always set it to false.

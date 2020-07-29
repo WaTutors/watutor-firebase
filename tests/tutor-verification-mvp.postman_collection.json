@@ -1,12 +1,72 @@
 {
 	"info": {
-		"_postman_id": "7ead9737-c457-4546-8560-d8c3fab3c314",
+		"_postman_id": "84cd7889-ddae-4fc2-8c38-567a54300827",
 		"name": "tutor-verification-mvp",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Local",
+			"name": "Background Check - Local -- MANUAL",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"data\": {\n        \"cred\": {\n            \"legalName\": \"Neal Anderson Stanford\",\n            \"state\": \"Washington\"\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5001/watutors-1/us-central1/verifyCredential",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"watutors-1",
+						"us-central1",
+						"verifyCredential"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Background Check - Local -- CLEARED",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"data\": {\n        \"cred\": {\n            \"dob\": \"1997-10-25\",\n            \"legalName\": \"Jesse Stewart Chick\",\n            \"state\": \"Oregon\"\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5001/watutors-1/us-central1/verifyCredential",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"watutors-1",
+						"us-central1",
+						"verifyCredential"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Integrationn - Local -- CLEARED",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -36,7 +96,37 @@
 			"response": []
 		},
 		{
-			"name": "Production",
+			"name": "Integration - Local -- MANUAL",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"data\": {\n        \"cred\": {\n            \"cert\": \"33452327-7655-457d-9623-691bf1542141.png\",\n            \"dob\": \"0000-00-00\",\n            \"legalName\": \"Jesse Chick\",\n            \"state\": \"Oregon\",\n            \"valid\": \"submit\"\n        },\n        \"uid\": \"8IK1Rrrwk0Mx9CFc7mjk0qnVwGA2\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5001/watutors-1/us-central1/verifyCredential",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"watutors-1",
+						"us-central1",
+						"verifyCredential"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Credential verification - Prod -- CLEARED",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -65,7 +155,65 @@
 			"response": []
 		},
 		{
-			"name": "Production -- FAIL",
+			"name": "Credential verification - Prod -- MANUAL",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"data\": {\n        \"cred\": {\n            \"cert\": \"33452327-7655-457d-9623-691bf1542141.png\",\n            \"dob\": \"0000-00-00\",\n            \"legalName\": \"Jesse Chick\",\n            \"state\": \"Oregon\",\n            \"valid\": \"submit\"\n        },\n        \"uid\": \"8IK1Rrrwk0Mx9CFc7mjk0qnVwGA2\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://us-central1-watutors-1.cloudfunctions.net/verifyCredential",
+					"protocol": "https",
+					"host": [
+						"us-central1-watutors-1",
+						"cloudfunctions",
+						"net"
+					],
+					"path": [
+						"verifyCredential"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Integration - Prod -- CLEARED",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"data\": {\n        \"cred\": {\n            \"cert\": \"e7019023-aa09-4855-b1d1-b5a85b84ca05.png\",\n            \"dob\": \"1990-10-21\",\n            \"legalName\": \"Nathan Bryant\",\n            \"state\": \"Washington\",\n            \"valid\": \"submit\"\n        },\n        \"uid\": \"fO8AB0jxBWU0s9CsR4GXLW0y8yn2\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://us-central1-watutors-1.cloudfunctions.net/verifyCredential",
+					"protocol": "https",
+					"host": [
+						"us-central1-watutors-1",
+						"cloudfunctions",
+						"net"
+					],
+					"path": [
+						"verifyCredential"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Integration - Prod -- MANUAL CREDENTIAL CHECK",
 			"request": {
 				"method": "POST",
 				"header": [],

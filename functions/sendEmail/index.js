@@ -247,13 +247,13 @@ function generateApproveLink(uid) {
  *
  * @since 0.0.x
  *
- * @see tutorCredentialCheck
+ * @see tutorVerification
  *
  * @param {string} uid      tutor's unique identifier in Firebase Storage
  * @param {Array} messages  message(s) hinting at the cause of failure in automated task
  */
-exports.manualVerificationEmail = (uid, messages) => {
-  const { simplePage } = require('./templates/simplePageTwoLinks');
+exports.manualCredentialVerificationEmail = (uid, messages) => {
+  const { simplePage } = require('./templates/simplePage');
   let html = simplePage;
   html = html.toString();
   html = html.replace(/###TITLE###/g, 'Manual credential verification required');
@@ -266,6 +266,36 @@ exports.manualVerificationEmail = (uid, messages) => {
     toAddress: 'support@watutors.atlassian.net', // legacy 'support@watutor-dev.atlassian.net',
     html,
     subject: 'Manual credential verification required',
+  });
+};
+
+/**
+ * Send an email to support@watutors.atlassian.net
+ * notifying them that the automated background
+ * check process was inconclusive, and the
+ * background check results require human review.
+ *
+ * NOTE Refactoring anticipated.
+ *
+ * @since 0.0.x
+ *
+ * @see tutorVerification
+ *
+ * @param {string} uid      tutor's unique identifier in Firebase Storage
+ * @param {Array} messages  message(s) hinting at the cause of failure in automated task
+ */
+exports.manualBackgroundVerificationEmail = (uid, messages) => {
+  const { simplePage } = require('./templates/simplePage');
+  let html = simplePage;
+  html = html.toString();
+  html = html.replace(/###TITLE###/g, 'Manual background verification required');
+  html = html.replace(/###MAINTEXT###/g, messages.join('<br>'));
+  html = html.replace(/###LINK###/g, `https://console.firebase.google.com/u/1/project/watutors-1/storage/watutors-1.appspot.com/files~2F${uid}~2Fcert`);
+  html = html.replace(/###LINKTEXT###/g, 'View document');
+  return sendEmail({
+    toAddress: 'support@watutors.atlassian.net',
+    html,
+    subject: 'Manual background verification required',
   });
 };
 

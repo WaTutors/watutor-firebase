@@ -29,6 +29,8 @@ All functions are imported into a monolithic functions/index.js. They are define
     - functions that format and send different types of emails
   - **stripe** - @lucapaler
     - createCharge *and* captureCharge *Stripe functions.*
+  - **tutorVerification** - @j-chick
+    - function to perform background and credential checks on applicant tutors
   - **verifyEmail** @stoddabr
     - functions and one-off-pages that handle email verification
   - *index.js* imports functions and sets triggers
@@ -37,6 +39,7 @@ All functions are imported into a monolithic functions/index.js. They are define
   - *Handling for Universal Links into WaTutor app.*
 
 ## To Deploy
+
 Values for `${project}`. For more information, see [this document](https://docs.google.com/document/d/1gZGQlRQQR2Tgdk1-uPGFcvGxJotpyK8v8yv8z2cyMPQ/): 
 
  - `wa-tutors` V0 (Deployed)
@@ -44,17 +47,7 @@ Values for `${project}`. For more information, see [this document](https://docs.
 
 Select the project (setup): `firebase use ${project}`
 
-
-Windows: `firebase use ${project}`
-
-Unix: `firebase use ${project}`
-
-Deploy your desired functions:
-
-Windows: `firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
-
-Unix: `firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
-
+Deploy your desired functions: `firebase deploy --only functions[:triggerIncomingCall,createCharge,etc.]`
 
 ## Cloud Tasks Queue
 
@@ -71,12 +64,12 @@ Helpful links
 THIS SECTION UNDER CONSTRUCTION. HARDHATS REQUIRED
 
 
-### JESSE README
+### High-level / Quick start
 
 Dev steps:
 
 0. [Initialize Firebase Cloud Functions CLI](https://firebase.google.com/docs/functions/get-started#set-up-node.js-and-the-firebase-cli).
-1. Add a file `functions/tutorCredentialCheck/index.js`.
+1. Add a file `functions/*/index.js`.
 2. Write a call to Google's [Cloud Vision API](https://cloud.google.com/vision/docs/request).
 3. Experiment around with the JSON that gets returned
     - Use [this website](https://cloud.google.com/vision/docs/drag-and-drop) to get JSON without needing to make an API call.
