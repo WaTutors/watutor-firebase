@@ -33,15 +33,15 @@ function generateReDocHtml(url) {
 }
 
 exports.getDocs = (req, res) => {
-  const isWin = process.platform === 'win32';
-  const protocol = isWin ? 'http' : 'https'; // windows is local environment
-  const yamlEndpoint = '/watutors-1/us-central1/getYaml';
+  const isWin = process.platform === 'win32'; // if running deployed
+  const protocol = isWin ? 'http' : 'https';
+  const yamlEndpoint = isWin ? '/watutors-1/us-central1/getYaml' : '/getYaml';
   const url = `${protocol}://${req.get('host')}${yamlEndpoint}`;
   return res.send(generateReDocHtml(url));
 };
 
 exports.getYaml = (req, res) => {
-  const isWin = process.platform === 'win32';
+  const isWin = process.platform === 'win32'; // if running deployed
   const path = `${__dirname}${isWin ? '\\' : '/'}current.yaml`;
   console.log(path);
   return res.sendFile(path);
