@@ -1,0 +1,302 @@
+openapi: 3.0.0
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/WaTutorDev1/WaTutorGroups/1.0.0
+info:
+  description: |
+    This is the backend API which is useful for one-off tasks.
+    This is deployed as GCP Cloud Tasks.
+    
+    Note: this version is version prefixed `{base url}/watutors-1/us-central1/{route}`
+    
+  version: "2.0.9"
+  title: WaTutor API
+  contact:
+    email: watutor@stoddardbrett.com
+tags:
+  - name: contacts
+    description: Relating to managing external user contacts
+  - name: notifications
+    description: For sending push notifications
+  
+paths:
+
+  /getProfileFromPhoneNumber:
+    post:
+      tags:
+        - contacts
+      summary: gets profiles related to phone numbers
+      description: |
+        Disables profile.
+        Ends all current and future calls (via call state).
+        [Callable function](https://firebase.google.com/docs/functions/callable-reference)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [data]
+              properties:
+                data:
+                  type: object
+                  required: [numbers]
+                  properties:
+                    numbers: 
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/phoneNumber'
+        description: Profile to create
+      responses:
+        '200':
+          description: Returned profiles, in same order as request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/UserRecord'
+                        - type: boolean
+                          description: Not found
+                          example: false
+
+  /triggerCustomNotifications:
+    post:
+      tags:
+        - notifications
+      summary: Send custom notifications to multiple users using expo
+      description: |
+        Disables profile.
+        Ends all current and future calls (via call state).
+        [Callable function](https://firebase.google.com/docs/functions/callable-reference)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [data]
+              properties:
+                data:
+                  type: object
+                  required: [ pids, title, subtitle]
+                  properties:
+                    pids: 
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/pid'
+                    title:
+                      type: string
+                      description: main notification text
+                      example: Incoming call!!!
+                    subtitle:
+                      type: string
+                      description: notification subtext
+                      example: Don't miss your call!
+        description: Profile to create
+      responses:
+        '200':
+          description: Success
+
+#######################################################################    
+#   schemas (primitives)
+#######################################################################  
+components:
+  schemas:
+
+    phoneNumber:
+      type: string
+      description: |
+        Phone number from user's contact.
+        Must conform to the E.164 specification
+      example: +1 5033102400
+      pattern: '^\+\d{1,3}\s\d{1,14}(\s\d{1,13})?'
+
+    firestoreDocId:
+      description: Auto-Generated Firebase ID 
+      type: string
+      pattern: '^[a-zA-Z0-9]{20}$'
+      example: '1vhg7oj9Q2jPMAvMOpTY'
+      
+    gid:
+      allOf:
+        - $ref: '#/components/schemas/firestoreDocId'
+        - description: group identifier (gid)
+    
+    sid:
+      allOf:
+        - $ref: '#/components/schemas/firestoreDocId'
+        - description: video session identifier (sid)
+    
+    pid:
+      allOf:
+        - $ref: '#/components/schemas/firestoreDocId'
+        - description: profile identifier (pid)
+
+    iid:
+      allOf:
+        - $ref: '#/components/schemas/firestoreDocId'
+        - description: invitation identifier (iid)
+    
+    iidCsv:
+      type: string
+      description: csv of invitiation identifiers (iids)
+      example: vhg7oj9Q2jPMAvMOpTY,Abhg4ojaa2jqqAvMOp43
+    
+    uuid:
+      description: Auto-Generated authentication unique user identifier
+      type: string
+      pattern: '^[a-zA-Z0-9]{28}$'
+      example: '1vhg7oj9Q2jPMAvMOpTY'
+        
+    notifTokens:
+      type: array
+      items:
+        type: string
+        description: notification device id information
+      example: ['sdfajodifjlkw', 'asdfoiajfoij']
+  
+    typeSessions:
+      type: string
+      description: type of group 
+      enum: ['private', 'paid']
+    
+    typeGroups:
+      type: string
+      description: type of session 
+      enum: ['private']
+
+    typeProfiles:
+      type: string
+      description: type of session 
+      enum: ['youth','consumer','admin','provider']
+    
+    firestoreTimestamp:
+      type: object
+      description: "READONLY! Timestamp object created by the api. Will be ignored if added or changed by a client to prevent this issue: https://github.com/firebase/firebase-js-sdk/issues/2507#issue-546829317"
+      readOnly: true
+      properties:
+        _seconds:
+          type: number
+        _miliseconds:
+          type: number
+      example: <Firestore.ServerTimestamp>
+
+    momentTimestring:
+      type: string
+      description: |
+        String containing time information. 
+        Based on the parsed moment format 'HH:mm-MM-DD-YY ZZ'
+      example: 19:00-06-30-20 -0700
+      pattern: '^[012]\d:[03]0-[01]\d-[0123]\d-2\d [+-]\d\d\d\d$'
+
+    urlCloudStorage:
+      type: string
+      format: uri
+      example: '/example/image/path/in/bucket.png'
+  
+    urlCloudFunction:
+      type: string
+      format: uri
+      example: 'wwww.cloudfunctions.appspot.com/exampleFunction'
+      
+    profileName:
+      type: string
+      maxLength: 50
+      example: Frank Wheee
+  
+    profileCerts:
+      type: array
+      items:
+        type: string
+      example: ['Teaching Certificate', 'Background Check']
+  
+    profileFavObject:
+      type: object
+      required: [pid, name]
+      properties:
+        pid: 
+          $ref: '#/components/schemas/pid'
+        name:
+          $ref: '#/components/schemas/profileName'
+  
+    profileBlockObject:
+      $ref: '#/components/schemas/pid'
+  
+    groupName:
+      type: string
+      maxLength: 50
+      description: |
+        DEPRECATED to avoid racism. Objective name of a group
+      example: Fans of Trump
+  
+    groupLabels:
+      type: array
+      items:
+        type: string
+    
+    groupInfo:
+      type: string
+      maxLength: 250
+      example: A group for friends of trump. We call every tuesday.
+  
+    inviteMsg:
+      type: string
+      description: |
+        optional message for joining a group. 
+        if not set, a default will be generated
+      example: 'Join my group!'
+      
+    profileAbout:
+      type: string
+      example: |
+        I am a teacher who is driven to spread knowledge and help others.
+        One thing you should know about me is that I voted for Ralph Nader
+      maxLength: 250
+
+    sessionName:
+      type: string
+      maxLength: 50
+      example: TRUMP-ets Weekly Meeting
+  
+    sessionAbout:
+      type: string
+      example: |
+        This group is for hardcore Trump lovers. 
+        Trump 2020, Melina 2024, Tiffany 2030, Barron 2040!!!  
+      maxLength: 250
+
+    sessionLength:
+      type: number
+      example: 60
+      description: length of session in minutes
+
+    callState:
+      type: string
+      description: call state string, see state machine document
+      enum: ["ended",'started', 'delayed', 'ready', 'booked']
+
+    sessionEvents:
+      type: array
+      description: previous call states
+      items:
+        $ref: '#/components/schemas/callState'
+
+    sessionProperty:
+      type: string
+      description: a user property string. These used to query sessions
+      maxLength: 50
+      example: 'Spanish_10'
+      
+#######################################################################    
+#   schema (complex objects)
+#######################################################################  
+
+    UserRecord:
+      type: object
+      description: |
+        Firebase [UserRecord](https://firebase.google.com/docs/reference/admin/node/admin.auth.UserRecord#customclaims) Object.
+        Pid is contained in a custom claim.

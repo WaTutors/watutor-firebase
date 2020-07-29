@@ -11,6 +11,10 @@
 const functions = require('firebase-functions');
 
 const {
+  getDocs, getYaml,
+} = require('./docs');
+const { getProfileFromPhoneNumber } = require('./search');
+const {
   welcomeEmailStudent, welcomeEmailTutor, sendSlotBookConfirmEmails,
 } = require('./sendEmail');
 const { createCharge, captureCharge } = require('./stripe');
@@ -21,6 +25,20 @@ const {
 } = require('./callSessionEvents');
 const { getSessionsFromEmail, ambassadorDataScrape, approveTutorCredentials } = require('./bizDev');
 const { verifyCredential } = require('./tutorCredentialCheck');
+
+
+// SECTION Documentation
+
+/**
+ * Viewable documentation
+ *
+ * powered by redoc
+ * @link https://github.com/Redocly/redoc
+ * @since 2.0.9
+ */
+exports.docs = functions.https.onRequest(getDocs);
+exports.getYaml = functions.https.onRequest(getYaml);
+// !SECTION -------------------------------------------------------------------
 
 // SECTION --------------------------------------------------------------------
 
@@ -166,6 +184,16 @@ exports.verifyEmail = functions.https.onRequest(verifyEmail);
     token: Joi.string().required(),
 */
 exports.postPinAndVerifyEmail = functions.https.onRequest(postPinAndVerifyEmail);
+
+/**
+ * Finds users based on their phone number
+ *
+ * @since 2.0.9
+ *
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.auth.Auth#getuserbyphonenumber
+ */
+exports.getProfileFromPhoneNumber = functions.https.onCall(getProfileFromPhoneNumber);
+
 
 // !SECTION
 

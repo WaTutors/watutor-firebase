@@ -5,8 +5,8 @@ const {
 } = require('./templates');
 
 // init email global variables
-const gmailEmail = functions.config().gmail.email;
-const gmailPassword = functions.config().gmail.password;
+const gmailEmail = functions.config().gmail ? functions.config().gmail.email : 'f';
+const gmailPassword = functions.config().gmail ? functions.config().gmail.password : 'f';
 
 // SECTION - Helpers
 
