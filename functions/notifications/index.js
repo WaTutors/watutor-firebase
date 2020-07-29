@@ -114,10 +114,10 @@ const dispatchIOS = async ({ isCall, consumerNotifId, notif }) => {
  *
  * @since 2.0.0
  *
- * @param {Object} param0          Object containing target profile IDs and notification data.
- * @param {Object} param0.pids     Profile IDs to send to.
- * @param {Object} param0.title    Notification title text.
- * @param {Object} param0.body     Notification body text.
+ * @param {Object} param0       Object containing target profile IDs and notification data.
+ * @param {Object} param0.pids  Profile IDs to send to.
+ * @param {Object} param0.title Notification title text.
+ * @param {Object} param0.body  Notification body text.
  *
  * @returns {Promise}          All notification promises via Promise.all.
  * @throws  {https.HttpsError} Any error that occurs during sending of notifications or if the
@@ -128,7 +128,7 @@ exports.triggerCustomNotifications = async ({
 }) => {
   const { db, messaging } = require('../_helpers/initialize_admin');
 
-  if (!pids || !title || !body || pids.length > 0) {
+  if (!pids || !title || !body || pids.length === 0) {
     console.error(`triggerCustomNotifications invalid body: ${pids} "${title}" "${body}"`);
 
     return new https.HttpsError('invalid-argument', 'Invalid body for function call.');
@@ -136,18 +136,32 @@ exports.triggerCustomNotifications = async ({
 
   const promiseArrayNested = pids.map(async (pid) => {
     const docSnap = await db.doc(`Profiles/${pid}`).get();
-    const { notifIds } = docSnap.data();
+    const { notifications } = docSnap.data();
 
-    return notifIds.map(
-      (token) => messaging().send({
+    return notifications.map(
+      (token) => messaging.send({
         data,
         notification: {
           title,
           body,
         },
         token,
-      })
-        .then(() => 'Success'),
+        apns: {
+          headers: {
+            'apns-push-type': 'background',
+            'apns-priority': '5',
+            'apns-topic': 'com.wavisits.watutors',
+          },
+          payload: {
+            aps: {
+              contentAvailable: data ? true : undefined,
+            },
+          },
+        },
+        android: {
+          priority: data ? 'high' : 'normal',
+        },
+      }),
     );
   });
 
