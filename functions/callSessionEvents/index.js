@@ -78,7 +78,6 @@ exports.reservationCallbackV2 = async (req, res) => {
     // The reserved field is only used when checking if someone has looked at the document
     // recently, so we always set it to false.
     await db.doc(req.body.docId).update({
-      'reserve.booker': false,
       'reserve.onHold': false,
     });
     res.send(200);

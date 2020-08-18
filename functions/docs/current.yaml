@@ -28,8 +28,46 @@ paths:
         - contacts
       summary: gets profiles related to phone numbers
       description: |
-        Disables profile.
-        Ends all current and future calls (via call state).
+        [Callable function](https://firebase.google.com/docs/functions/callable-reference)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [data]
+              properties:
+                data:
+                  type: object
+                  required: [uuids]
+                  properties:
+                    uuids: 
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/uuid'
+        description: Profile to create
+      responses:
+        '200':
+          description: Returned profiles, in same order as request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/phoneNumber'
+                        - type: boolean
+                          description: Not found
+                          example: false
+
+  /getPhoneNumberFromProfile:
+    post:
+      tags:
+        - contacts
+      summary: gets phone numbers related to profiles
+      description: |
         [Callable function](https://firebase.google.com/docs/functions/callable-reference)
       requestBody:
         content:
@@ -59,11 +97,10 @@ paths:
                     type: array
                     items:
                       oneOf:
-                        - $ref: '#/components/schemas/UserRecord'
+                        - $ref: '#/components/schemas/phoneNumber'
                         - type: boolean
                           description: Not found
                           example: false
-
   /triggerCustomNotifications:
     post:
       tags:

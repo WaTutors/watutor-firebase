@@ -13,7 +13,7 @@ const functions = require('firebase-functions');
 const {
   getDocs, getYaml,
 } = require('./docs');
-const { getProfileFromPhoneNumber } = require('./search');
+const { getProfileFromPhoneNumber, getPhoneNumberFromProfile } = require('./search');
 const {
   welcomeEmailStudent, welcomeEmailTutor, sendSlotBookConfirmEmails,
 } = require('./sendEmail');
@@ -25,8 +25,20 @@ const {
 } = require('./callSessionEvents');
 const { getSessionsFromEmail, ambassadorDataScrape, approveTutorCredentials } = require('./bizDev');
 const { verifyCredential, checkBackground } = require('./tutorVerification');
+const { testSendTextToBrett } = require('./sendText');
 
+// SECTION Demo Mockup Pages
 
+const { stripeExpressMockUpTemp } = './bizDev/demoMocks';
+exports.stripeExpressMockUpTemp = functions.https.onRequest(stripeExpressMockUpTemp);
+
+/**
+ * temporary
+ * TODO remove
+ */
+exports.testSendTextToBrett = functions.https.onRequest(testSendTextToBrett);
+
+// !SECTION
 // SECTION Documentation
 
 /**
@@ -203,6 +215,12 @@ exports.postPinAndVerifyEmail = functions.https.onRequest(postPinAndVerifyEmail)
  */
 exports.getProfileFromPhoneNumber = functions.https.onCall(getProfileFromPhoneNumber);
 
+/**
+ * Gets phone numbers from user profile
+ *
+ * @since 2.0.14
+ */
+exports.getPhoneNumberFromProfile = functions.https.onCall(getPhoneNumberFromProfile);
 
 // !SECTION
 
@@ -280,7 +298,7 @@ exports.reserveSlotsV2 = functions.firestore.document('Sessions/{slotId}').onUpd
  *
  * Sets the reserved field to false in a document with the Schedule collection. The function is
  * triggered by HTTP requests made to:
- * "https://us-central1-watutors-1.cloudfunctions.net/reservation_Callback."
+ * "https://us-central1-watutors-1.cloudfunctions.net/reservationCallbackV2"
  *
  * @since 2.0.8
  *
