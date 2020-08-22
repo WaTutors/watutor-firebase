@@ -17,9 +17,11 @@ const { createCharge, captureCharge, verifyToken } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall, triggerCustomNotifications } = require('./notifications');
 const {
-  reservationCallbackV2, reserveSlotsV2, reserveSlots, reservationCallback,
+  reservationCallbackV2, reserveSlotsV2, reserveSlots, reservationCallback, updateForwardLink,
 } = require('./callSessionEvents');
-const { getSessionsFromEmail, ambassadorDataScrape, approveTutorCredentials } = require('./bizDev');
+const {
+  getSessionsFromEmail, ambassadorDataScrape, approveTutorCredentials,
+} = require('./bizDev');
 const { verifyCredential, checkBackground } = require('./tutorVerification');
 
 // SECTION --------------------------------------------------------------------
@@ -308,6 +310,21 @@ exports.reserveSlots = functions.firestore.document('Schedule/{slotId}').onUpdat
 exports.reservationCallback = functions.https.onRequest((req, res) => {
   reservationCallback(req, res);
 });
+
+/**
+ * Updates Forwards document with video call link.
+ *
+ * Intakes Forwards document ID and video call link and updates the document with the specified
+ * link in order to redirect the user to the video call when joining from the web app.
+ *
+ * @param {Object} param0      Object containing Forwards document ID and video call link.
+ * @param {string} param0.fid  Forwards target document ID.
+ * @param {string} param0.link Video call link to redirect to.
+ *
+ * @returns {string}           "Success" if successfully updated document.
+ * @throws  {https.HttpsError} Any error that occurs during body validation or document updating.
+ */
+exports.updateForwardLink = functions.https.onCall(updateForwardLink);
 
 // SECTION - Emails
 
