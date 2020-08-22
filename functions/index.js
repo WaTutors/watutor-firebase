@@ -13,7 +13,7 @@ const functions = require('firebase-functions');
 const {
   welcomeEmailStudent, welcomeEmailTutor, sendSlotBookConfirmEmails,
 } = require('./sendEmail');
-const { createCharge, captureCharge } = require('./stripe');
+const { createCharge, captureCharge, verifyToken } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall, triggerCustomNotifications } = require('./notifications');
 const {
@@ -122,6 +122,20 @@ exports.createCharge = functions.https.onCall(createCharge);
  * @throws  {https.HttpsError} Any error that occurs during capturing.
  */
 exports.captureCharge = functions.https.onCall(captureCharge);
+
+/**
+ * Verifies Stripe Express Account token.
+ *
+ * Intakes a Stripe Express Account token returned to the app during Stripe account creation and
+ * verifies it as a security measure.
+ *
+ * @param {Object} param0      Object containing Stripe Express Account token.
+ * @param {string} param0.code Stripe Express Account token.
+ *
+ * @returns {string}           "Success" if successfully verified token.
+ * @throws  {https.HttpsError} Any error that occurs during verification.
+ */
+exports.verifyToken = functions.https.onCall(verifyToken);
 
 // !SECTION
 
