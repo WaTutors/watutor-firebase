@@ -20,18 +20,18 @@ const { config, https } = require('../node_modules/firebase-functions');
  * @returns {string}           "Success" if successfully created charge.
  * @throws  {https.HttpsError} Any error that occurred in Stripe charge creation.
  */
-exports.createCharge = ({ source, subject = null, destination }) => {
+exports.createCharge = ({ source, subject, destination }) => {
   const stripe = require('stripe')(config().stripe.key);
 
   return stripe.charges.create({
-    amount: 1500,
+    amount: 3000,
     currency: 'usd',
-    description: `${subject ? `${subject} ` : ''}Tutoring Session`,
+    description: `${subject} Tutoring Session`,
     source,
     capture: false,
     transfer_data: {
       destination,
-      amount: 1000,
+      amount: 2500,
     },
   })
     .then((charge) => charge.id)
@@ -58,24 +58,57 @@ exports.createCharge = ({ source, subject = null, destination }) => {
  * @returns {string}           "Success" if successfully captured charge.
  * @throws  {https.HttpsError} Any error that occurs during capturing.
  */
-exports.captureCharge = ({ slotId }) => {
+exports.captureCharge = ({ sid }) => {
   const { db } = require('../_helpers/initialize_admin');
   const stripe = require('stripe')(config().stripe.key);
 
-  if (!slotId) {
-    return new https.HttpsError('invalid-argument', 'Falsy slotId.');
+  if (!sid) {
+    return new https.HttpsError('invalid-argument', 'sid is required.');
   }
 
-  const sessionDoc = db.doc(`Schedule/${slotId}`);
+  const sessionDoc = db.doc(`Sessions/${sid}`);
+
   return sessionDoc.get()
     .then((doc) => doc.data())
     .then((data) => stripe.charges.capture(
-      data.private.tranStripeId, // stripe charge id generated in createCharge
+      data.private.tranStripeId, // Stripe Charge ID generated in createCharge
     ))
     .then(() => sessionDoc.update({ paid: true }))
     .then(() => 'Success')
     .catch((error) => {
       console.error('captureCharge caught', error);
+
+      throw new https.HttpsError('unknown', error.message, error);
+    });
+};
+
+/**
+ * Verifies Stripe Express Account token.
+ *
+ * Intakes a Stripe Express Account token returned to the app during Stripe account creation and
+ * verifies it as a security measure.
+ *
+ * @param {Object} param0      Object containing Stripe Express Account token.
+ * @param {string} param0.code Stripe Express Account token.
+ *
+ * @returns {string}           "Success" if successfully verified token.
+ * @throws  {https.HttpsError} Any error that occurs during verification.
+ */
+exports.verifyToken = ({ code }) => {
+  const stripe = require('stripe')(config().stripe.key);
+
+  if (!code) {
+    return new https.HttpsError('invalid-argument', 'code is required.');
+  }
+
+  return stripe.oauth.token({
+    grant_type: 'authorization_code',
+    code,
+  })
+    .then(() => 'Success')
+    .catch((error) => {
+      console.error('checkToken caught', error);
+
       throw new https.HttpsError('unknown', error.message, error);
     });
 };
