@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const { config, https } = require('../node_modules/firebase-functions');
 
 /**
@@ -108,6 +109,38 @@ exports.verifyToken = ({ code }) => {
     .then(() => 'Success')
     .catch((error) => {
       console.error('checkToken caught', error);
+
+      throw new https.HttpsError('unknown', error.message, error);
+    });
+};
+
+/**
+ * Creates Stripe Express Account login link.
+ *
+ * Intakes a Stripe Express Account ID from a provider account from the app and returns a temporary
+ * granted URL to use to login to the Express Dashboard.
+ *
+ * @since 2.0.0
+ *
+ * @link https://stripe.com/docs/connect/express-dashboard
+ *
+ * @param {Object} param0         Object containing pay_key.
+ * @param {string} param0.pay_key Stripe Express Account ID trying to login.
+ *
+ * @returns {string}           Temporary granted URL to use to login.
+ * @throws  {https.HttpsError} Any error that occurs during URL creation.
+ */
+exports.createLoginLink = ({ pay_key }) => {
+  const stripe = require('stripe')(config().stripe.key);
+
+  if (!pay_key) {
+    return new https.HttpsError('invalid-argument', 'pay_key is required.');
+  }
+
+  return stripe.accounts.createLoginLink(pay_key)
+    .then(({ url }) => url)
+    .catch((error) => {
+      console.error('createLoginLink caught', error);
 
       throw new https.HttpsError('unknown', error.message, error);
     });

@@ -13,7 +13,9 @@ const functions = require('firebase-functions');
 const {
   welcomeEmailStudent, welcomeEmailTutor, sendSlotBookConfirmEmails,
 } = require('./sendEmail');
-const { createCharge, captureCharge, verifyToken } = require('./stripe');
+const {
+  createCharge, captureCharge, verifyToken, createLoginLink,
+} = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall, triggerCustomNotifications } = require('./notifications');
 const {
@@ -138,6 +140,24 @@ exports.captureCharge = functions.https.onCall(captureCharge);
  * @throws  {https.HttpsError} Any error that occurs during verification.
  */
 exports.verifyToken = functions.https.onCall(verifyToken);
+
+/**
+ * Creates Stripe Express Account login link.
+ *
+ * Intakes a Stripe Express Account ID from a provider account from the app and returns a temporary
+ * granted URL to use to login to the Express Dashboard.
+ *
+ * @since 2.0.0
+ *
+ * @link https://stripe.com/docs/connect/express-dashboard
+ *
+ * @param {Object} param0         Object containing pay_key.
+ * @param {string} param0.pay_key Stripe Express Account ID trying to login.
+ *
+ * @returns {string}           Temporary granted URL to use to login.
+ * @throws  {https.HttpsError} Any error that occurs during URL creation.
+ */
+exports.createLoginLink = functions.https.onCall(createLoginLink);
 
 // !SECTION
 
