@@ -14,7 +14,7 @@ const {
   welcomeEmailStudent, welcomeEmailTutor, sendSlotBookConfirmEmails,
 } = require('./sendEmail');
 const {
-  createCharge, captureCharge, verifyToken, createLoginLink,
+  createCharge, captureCharge, getAccessToken, createLoginLink,
 } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall, triggerCustomNotifications } = require('./notifications');
@@ -128,18 +128,22 @@ exports.createCharge = functions.https.onCall(createCharge);
 exports.captureCharge = functions.https.onCall(captureCharge);
 
 /**
- * Verifies Stripe Express Account token.
+ * Retrieves a Stripe access token.
  *
- * Intakes a Stripe Express Account token returned to the app during Stripe account creation and
- * verifies it as a security measure.
+ * Intakes a Stripe Express Account authorization code returned to the app during Stripe account
+ * creation and returns a Stripe access token, completing account creation.
  *
- * @param {Object} param0      Object containing Stripe Express Account token.
- * @param {string} param0.code Stripe Express Account token.
+ * @since 2.0.0
  *
- * @returns {string}           "Success" if successfully verified token.
+ * @link https://stripe.com/docs/connect/oauth-reference
+ *
+ * @param {Object} param0      Object containing Stripe Express Account authorization code.
+ * @param {string} param0.code Stripe Express Account authorization code.
+ *
+ * @returns {string}           Access token of new Express account.
  * @throws  {https.HttpsError} Any error that occurs during verification.
  */
-exports.verifyToken = functions.https.onCall(verifyToken);
+exports.getAccessToken = functions.https.onCall(getAccessToken);
 
 /**
  * Creates Stripe Express Account login link.

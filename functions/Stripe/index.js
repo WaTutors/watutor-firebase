@@ -84,18 +84,22 @@ exports.captureCharge = ({ sid }) => {
 };
 
 /**
- * Verifies Stripe Express Account token.
+ * Retrieves a Stripe access token.
  *
- * Intakes a Stripe Express Account token returned to the app during Stripe account creation and
- * verifies it as a security measure.
+ * Intakes a Stripe Express Account authorization code returned to the app during Stripe account
+ * creation and returns a Stripe access token, completing account creation.
  *
- * @param {Object} param0      Object containing Stripe Express Account token.
- * @param {string} param0.code Stripe Express Account token.
+ * @since 2.0.0
  *
- * @returns {string}           "Success" if successfully verified token.
+ * @link https://stripe.com/docs/connect/oauth-reference
+ *
+ * @param {Object} param0      Object containing Stripe Express Account authorization code.
+ * @param {string} param0.code Stripe Express Account authorization code.
+ *
+ * @returns {string}           Access token of new Express account.
  * @throws  {https.HttpsError} Any error that occurs during verification.
  */
-exports.verifyToken = ({ code }) => {
+exports.getAccessToken = ({ code }) => {
   const stripe = require('stripe')(config().stripe.key);
 
   if (!code) {
@@ -106,9 +110,9 @@ exports.verifyToken = ({ code }) => {
     grant_type: 'authorization_code',
     code,
   })
-    .then(() => 'Success')
+    .then(({ stripe_user_id }) => stripe_user_id)
     .catch((error) => {
-      console.error('checkToken caught', error);
+      console.error('getAccessToken caught', error);
 
       throw new https.HttpsError('unknown', error.message, error);
     });
