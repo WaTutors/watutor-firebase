@@ -25,18 +25,33 @@ const {
 } = require('./callSessionEvents');
 const { getSessionsFromEmail, ambassadorDataScrape, approveTutorCredentials } = require('./bizDev');
 const { verifyCredential, checkBackground } = require('./tutorVerification');
-const { testSendTextToBrett } = require('./sendText');
+const { testSendTextToBrett, triggerTextMessages } = require('./sendText');
 
 // SECTION Demo Mockup Pages
 
 const { stripeExpressMockUpTemp } = './bizDev/demoMocks';
 exports.stripeExpressMockUpTemp = functions.https.onRequest(stripeExpressMockUpTemp);
 
+// !SECTION
+// SECTION Text Messages
+
 /**
- * temporary
+ * for testing
  * TODO remove
  */
 exports.testSendTextToBrett = functions.https.onRequest(testSendTextToBrett);
+
+/**
+ * Sends a text message to multiple users
+ *
+ * @param {string} param0.recipientPhoneNumbers   address of recipient
+ * @param {UserIdentifier[]} param0.recipientUsers  array of firebase UserIdentifier
+ *    https://firebase.google.com/docs/reference/admin/node/admin.auth#useridentifier
+ * @param {string} param0.message          message to be sent
+ * @returns {string}                     "Success" if successfully captured charge.
+ * @throws  {functions.https.HttpsError} Any error that occurs
+ */
+exports.triggerTextMessages = functions.https.onCall(triggerTextMessages);
 
 // !SECTION
 // SECTION Documentation

@@ -1,7 +1,7 @@
 const functions = require('firebase-functions');
 
 const {
-  studentWelcomeTemplate, studentConfirmTemplate, tutorConfirmTemplate,
+  studentWelcomeTemplate, studentConfirmTemplate, tutorConfirmTemplate, tutorDailySummary,
 } = require('./templates');
 
 // init email global variables
@@ -131,6 +131,35 @@ function generateStudentConfirm({
 }) {
   // parse email from template
   let html = studentConfirmTemplate; // init template
+  html = html.toString();
+
+  html = html.replace(/###TUTORNAME###/g, providerName);
+  html = html.replace(/###ABOUT###/g, providerAbout);
+  html = html.replace(/###SUBJECT###/g, subject);
+  html = html.replace(/###GRADE###/g, grade);
+  html = html.replace(/###TIMESTRING###/g, timestring);
+  // constants
+  html = html.replace(/###CONTACT_US_PHONE###/g, '');
+  html = html.replace(/###CONTACT_US_EMAIL###/g, 'support@watutors.com');
+  html = html.replace(/###FAQLINK###/g, 'https://watutors.com/faqs/');
+  html = html.replace(/###LOGOLINK###/g, 'watutors.com');
+
+  return html;
+}
+
+/**
+ * generate email html from tutor daily summary template
+ * for confirming booking of a call
+ *
+ * @param {object} param0 object containing personalized variables for use in email
+ *
+ * @returns {string} formatted html email
+ */
+function generateTutorDailySummary({
+  subject, grade, providerAbout, providerName, timestring,
+}) {
+  // parse email from template
+  let html = tutorDailySummary; // init template
   html = html.toString();
 
   html = html.replace(/###TUTORNAME###/g, providerName);

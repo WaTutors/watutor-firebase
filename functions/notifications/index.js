@@ -82,7 +82,7 @@ const dispatchIOS = async ({ isCall, consumerNotifId, notif }) => {
   const { fetch } = require('fetch-h2');
 
   const headers = {
-    authorization: `bearer ${await getToken()}`,
+    authorization: `Bearer ${await getToken()}`,
     'apns-push-type': isCall ? 'voip' : 'background',
     'apns-topic': `com.wavisits.watutors${isCall ? '.voip' : ''}`,
     'apns-expiration': 0,
