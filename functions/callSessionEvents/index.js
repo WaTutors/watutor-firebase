@@ -196,7 +196,7 @@ exports.updateForwardLink = async ({ fid, link }) => {
   if (!link) throw new https.HttpsError('invalid-argument', 'link is required.');
 
   try {
-    await db.doc(fid).update({ link });
+    await db.collection('Forwards').doc(fid).update({ link });
     return 'Success';
   } catch (error) {
     console.error('updateForwardLink caught', error);
