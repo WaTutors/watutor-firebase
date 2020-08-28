@@ -28,5 +28,8 @@ exports.checkBackground = async (data) => {
     messages = [body.status.error];
   }
 
-  return messages;
+  return {
+    valid: messages.length === 0 ? 'yes' : 'pending',
+    messages,
+  };
 };
