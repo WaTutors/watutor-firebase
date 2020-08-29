@@ -49,3 +49,5 @@ exports.verifyCredential = async (data) => {
   };
   return body;
 };
+
+exports.checkBackground = checkBackground;

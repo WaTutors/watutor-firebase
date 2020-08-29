@@ -1,3 +1,5 @@
+const { https } = require('../node_modules/firebase-functions');
+
 /**
  * Queues reservationCallback function (for V2 structure)
  *
@@ -170,5 +172,35 @@ exports.reservationCallback = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send(error);
+  }
+};
+
+/**
+ * Updates Forwards document with video call link.
+ *
+ * Intakes Forwards document ID and video call link and updates the document with the specified
+ * link in order to redirect the user to the video call when joining from the web app.
+ *
+ * @param {Object} param0      Object containing Forwards document ID and video call link.
+ * @param {string} param0.fid  Forwards target document ID.
+ * @param {string} param0.link Video call link to redirect to.
+ *
+ * @returns {string}           "Success" if successfully updated document.
+ * @throws  {https.HttpsError} Any error that occurs during body validation or document updating.
+ */
+exports.updateForwardLink = async ({ fid, link }) => {
+  const { db } = require('../_helpers/initialize_admin');
+
+  if (!fid) throw new https.HttpsError('invalid-argument', 'fid is required.');
+
+  if (!link) throw new https.HttpsError('invalid-argument', 'link is required.');
+
+  try {
+    await db.collection('Forwards').doc(fid).update({ link });
+    return 'Success';
+  } catch (error) {
+    console.error('updateForwardLink caught', error);
+
+    throw new https.HttpsError('unknown', error.message, error);
   }
 };

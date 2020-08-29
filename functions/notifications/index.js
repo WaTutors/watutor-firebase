@@ -107,194 +107,62 @@ const dispatchIOS = async ({ isCall, consumerNotifId, notif }) => {
 };
 
 /**
- * Dispatches background push notification for Android.
+ * Sends notifications to specified profiles.
  *
- * Sends FCM background push notification to specificed Android device token using Firebase Admin
- * Messaging with passed payload.
+ * Checks for required fields and asynchronous-ly dispatches notifications with custom title, body,
+ * and payload data to the specified profile IDs through Firebase Messaging.
  *
- * @since 0.0.5
+ * @since 2.0.0
  *
- * @link https://firebase.google.com/docs/reference/admin/node/admin.messaging.Messaging
+ * @param {Object} param0       Object containing target profile IDs and notification data.
+ * @param {Object} param0.pids  Profile IDs to send to.
+ * @param {Object} param0.title Notification title text.
+ * @param {Object} param0.body  Notification body text.
  *
- * @param {string} param0.messaging FCM token to send background notification to.
- * @param {string} param0.consumerNotifId FCM token to send background notification to.
- * @param {Object} param0.notif  Notification payload.
- *
- * @returns {string} "Success" if notification was properly dispatched.
- */
-const dispatchAndroid = async ({ messaging, consumerNotifId, notif }) => messaging().send({
-  data: notif,
-  android: {
-    priority: 'high',
-    restrictedPackageName: 'com.wavisits.watutors',
-  },
-  token: consumerNotifId,
-})
-  .then(() => 'Success');
-
-/**
- * Sends incoming call notification.
- *
- * Checks for required slot ID in function call body. Finds target slot from provided ID, creates
- * notification payload and dispatches iOS or Android notification depending on the notification
- * ID content.
- *
- * @since 0.0.5
- *
- * @see  dispatchIOS
- * @see  dispatchAndroid
- * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Database#ref
- * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Reference#once
- * @link https://firebase.google.com/docs/reference/admin/node/admin.database.DataSnapshot#val
- *
- * @param {Object} param0        Object containing target slot ID.
- * @param {Object} param0.slotId ID of slot to send incoming call notification for.
- *
- * @returns {string}           "Success" if notification was properly dispatched.
+ * @returns {Promise}          All notification promises via Promise.all.
  * @throws  {https.HttpsError} Any error that occurs during sending of notifications or if the
  *                             function call body is invalid.
  */
-exports.triggerIncomingCall = ({ slotId }) => {
+exports.triggerCustomNotifications = async ({
+  pids, title, body, data,
+}) => {
   const { db, messaging } = require('../_helpers/initialize_admin');
 
-  if (!slotId) {
-    return new https.HttpsError('invalid-argument', 'Falsy slotId.');
-  }
+  if (!pids || !title || !body || pids.length === 0) {
+    console.error(`triggerCustomNotifications invalid body: ${pids} "${title}" "${body}"`);
 
-  return db.doc(`Schedule/${slotId}`).get()
-    .then((doc) => doc.data())
-    .then(({ property, consumerNotifId }) => {
-      let callerName = '';
-
-      const parts = property.split('_');
-      if (parts.length > 1) {
-        callerName = `${parts[0].slice(0, 1).toUpperCase()}${parts[0].slice(1)} Tutor`;
-      } else {
-        callerName = 'Tutor';
-      }
-
-      const data = {
-        isCall: true,
-        consumerNotifId,
-        notif: {
-          handle: 'WaTutors', // change to Watutor ??
-          callerName,
-        },
-      };
-
-      if (consumerNotifId.includes('/3/device')) return dispatchIOS(data);
-
-      return dispatchAndroid({ messaging, ...data });
-    })
-    .catch((error) => {
-      throw new https.HttpsError('unknown', error.message, error);
-    });
-};
-
-/**
- * Sends session canceled notification.
- *
- * Checks for required slot ID in function call body. Finds target slot from provided ID, creates
- * notification payload from the slot ID's subject and dispatches iOS or Android notification
- * depending on the notification ID content.
- *
- * @since 0.1.0
- *
- * @see  dispatchIOS
- * @see  dispatchAndroid
- * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Database#ref
- * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Reference#once
- * @link https://firebase.google.com/docs/reference/admin/node/admin.database.DataSnapshot#val
- *
- * @param {Object} param0        Object containing target slot ID.
- * @param {Object} param0.slotId ID of slot to send notification for.
- *
- * @returns {string}           "Success" if notification was properly dispatched.
- * @throws  {https.HttpsError} Any error that occurs during sending of notifications or if the
- *                             function call body is invalid.
- */
-exports.triggerSessionCanceled = async ({ slotId }) => {
-  const { db } = require('../_helpers/initialize_admin');
-
-  if (slotId) {
-    try {
-      const doc = await db.doc(`Schedule/${slotId}`).get();
-      const { property, consumerNotifId } = doc.data();
-
-      let subject = '';
-
-      const parts = property.split('_');
-      if (parts.length > 1) {
-        subject = `${parts[0]} `;
-      }
-
-      const data = {
-        isCall: false,
-        consumerNotifId,
-        notif: {
-          subject: subject || 'none',
-        },
-      };
-
-      if (consumerNotifId.includes('/3/device')) return dispatchIOS(data);
-
-      return dispatchAndroid(data);
-    } catch (error) {
-      throw new https.HttpsError('unknown', error.message, error);
-    }
-  }
-
-  throw new https.HttpsError('invalid-argument', 'Missing slotId.');
-};
-
-/**
- * Sends incoming call notification.
- *
- * Checks for required slot ID in function call body. Finds target slot from provided ID, creates
- * notification payload and dispatches iOS or Android notification depending on the notification
- * ID content.
- *
- * @since 0.0.5
- *
- * @see  dispatchIOS
- * @see  dispatchAndroid
- *
- * @param {Object} param0        Object containing target slot ID.
- * @param {Object} param0.pids   Profile ids to send to
- * @param {Object} param0.title  notification primary text
- * @param {Object} param0.subtitle  notification secondary text
- *
- * @returns {Promise}          All notification promises via Promise.all
- * @throws  {https.HttpsError} Any error that occurs during sending of notifications or if the
- *                             function call body is invalid.
- */
-exports.triggerCustomNotifications = async ({ pids, title, subtitle }) => {
-  const { db, messaging } = require('../_helpers/initialize_admin');
-
-  if (!pids || !title || !subtitle || pids.length > 0) {
-    console.error(`triggerCustomNotifications invalid body:${pids} "${title}" "${subtitle}"`);
-    return new https.HttpsError('invalid-argument', 'Invalid body for api call');
+    return new https.HttpsError('invalid-argument', 'Invalid body for function call.');
   }
 
   const promiseArrayNested = pids.map(async (pid) => {
     const docSnap = await db.doc(`Profiles/${pid}`).get();
-    const { notifIds } = docSnap.data();
+    const { notifications } = docSnap.data();
 
-    return notifIds.map((notifId) => {
-      const data = {
-        isCall: true,
-        consumerNotifId: notifId,
-        notif: {
+    return notifications.map(
+      (token) => messaging.send({
+        data,
+        notification: {
           title,
-          subtitle,
+          body,
         },
-      };
-
-
-      if (notifId.includes('/3/device')) return dispatchIOS(data);
-      // else
-      return dispatchAndroid({ messaging, ...data });
-    });
+        token,
+        apns: {
+          headers: {
+            'apns-push-type': 'background',
+            'apns-priority': '5',
+            'apns-topic': 'com.wavisits.watutors',
+          },
+          payload: {
+            aps: {
+              contentAvailable: data ? true : undefined,
+            },
+          },
+        },
+        android: {
+          priority: data ? 'high' : 'normal',
+        },
+      }),
+    );
   });
 
   return Promise.all(promiseArrayNested.flat());
