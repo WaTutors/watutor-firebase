@@ -2,12 +2,12 @@
 // NOTE Property names in this file reflect the Background Check API naming convention.
 // TODO Link to official documentation
 const backgroundCheckApiConfig = Object.freeze({
-  baseUrl: 'http://apijson.backgroundcheckapi.com/', // REVIEW '/' at end?
+  baseUrl: 'http://apijson.backgroundcheckapi.com/',
   credentials: {
     App_Id: 'pra-8ed7978f',
     App_Key: 'e81cd27a1192e8bc8cb402f047740f7c',
   },
-  exactMatchRequired: false, // REVIEW This is a business decision.
+  exactMatchRequired: true,
 });
 // !SECTION Background Check API Config
 
