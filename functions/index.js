@@ -243,27 +243,22 @@ exports.postPinAndVerifyEmail = functions.https.onRequest(postPinAndVerifyEmail)
 exports.triggerIncomingCall = functions.https.onCall(triggerIncomingCall);
 
 /**
- * Sends incoming call notification.
+ * Sends notifications to specified profiles.
  *
- * Checks for required slot ID in function call body. Finds target slot from provided ID, creates
- * notification payload and dispatches iOS or Android notification depending on the notification
- * ID content.
+ * Checks for required fields and asynchronous-ly dispatches notifications with custom title, body,
+ * and payload data to the specified profile IDs through Firebase Messaging.
  *
- * @since 0.0.5
+ * @since 2.0.0
  *
- * @see  dispatchIOS
- * @see  dispatchAndroid
- *
- * @param {Object} param0        Object containing target slot ID.
- * @param {Object} param0.pids   Profile ids to send to
- * @param {Object} param0.title  notification primary text
- * @param {Object} param0.subtitle  notification secondary text
- *
- * @returns {Promise}          All notification promises via Promise.all
- * @throws  {https.HttpsError} Any error that occurs during sending of notifications or if the
- *                             function call body is invalid.
+ * @param {Object} req            HTTP request object.
+ * @param {Object} req.body       Request POST body.
+ * @param {array}  req.body.pids  Profile IDs to send to.
+ * @param {string} req.body.title Notification title text.
+ * @param {string} req.body.body  Notification body text.
+ * @param {Object} req.body.data  Notification data payload for background processing.
+ * @param {Object} res            HTTP response object.
  */
-exports.triggerCustomNotifications = functions.https.onCall(triggerCustomNotifications);
+exports.triggerCustomNotifications = functions.https.onRequest(triggerCustomNotifications);
 
 // !SECTION
 
