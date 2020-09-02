@@ -22,13 +22,12 @@ exports.triggerCustomNotifications = async (req, res) => {
     pids, title, body, data,
   } = req.body.data;
 
-  if (!pids || !title || !body || pids.length === 0) {
-    console.error(`triggerCustomNotifications invalid body: ${pids} "${title}" "${body}"`);
+  if (!pids || pids.length === 0) {
+    console.error(`triggerCustomNotifications invalid body: ${pids}`);
 
     res.status(500).send('Invalid function body.');
   } else {
     const dbPromises = pids.map(async (pid) => {
-
       const docSnap = await db.doc(`Profiles/${pid}`).get();
       const { notifications } = docSnap.data();
 
@@ -67,7 +66,7 @@ exports.triggerCustomNotifications = async (req, res) => {
 
     Promise.all(dbPromises)
       .then((messagingPromises) => {
-        Promise.all(messagingPromises.flat())
+        Promise.all([].concat(...messagingPromises))
           .then(() => res.status(200).send('Success'));
       })
       .catch((error) => res.status(500).send(error));
