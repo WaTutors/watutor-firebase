@@ -33,27 +33,26 @@ exports.triggerCustomNotifications = async (req, res) => {
 
       return notifications.map(
         (token) => messaging.send({
-          data,
-          notification: {
+          data: {
             title,
             body,
+            payload: JSON.stringify(data),
           },
           token,
           apns: {
             headers: {
-              'apns-push-type': data ? 'background' : 'alert',
-              'apns-priority': data ? '5' : '10',
+              'apns-push-type': 'background',
+              'apns-priority': '5',
               'apns-topic': 'com.wavisits.watutors',
             },
             payload: {
               aps: {
-                contentAvailable: data ? true : undefined,
-                sound: 'default',
+                contentAvailable: true,
               },
             },
           },
           android: {
-            priority: data ? 'high' : 'normal',
+            priority: 'high',
           },
         })
           .catch((error) => {

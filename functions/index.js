@@ -25,6 +25,7 @@ const {
   getSessionsFromEmail, ambassadorDataScrape, approveTutorCredentials,
 } = require('./bizDev');
 const { verifyCredential, checkBackground } = require('./tutorVerification');
+const { getMinimumOnDemandSessionLength } = require('./onDemand');
 
 // SECTION --------------------------------------------------------------------
 
@@ -396,5 +397,18 @@ exports.welcomeEmailStudent = functions.https.onCall(welcomeEmailStudent);
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
 exports.welcomeEmailTutor = functions.https.onCall(welcomeEmailTutor);
+
+// !SECTION
+
+// SECTION - On Demand
+
+/**
+ * Returns minimum on demand session length.
+ *
+ * @since 2.1.0
+ *
+ * @returns {number} Minimum on demand session length.
+ */
+exports.getMinimumOnDemandSessionLength = functions.https.onCall(getMinimumOnDemandSessionLength);
 
 // !SECTION
