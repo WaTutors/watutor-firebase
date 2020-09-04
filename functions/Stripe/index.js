@@ -38,8 +38,8 @@ exports.createCharge = ({ source, subject, destination }) => {
     .then((charge) => charge.id)
     .catch((error) => {
       console.error(`createCharge failed with ${error.message}`);
-      return 'TEST KEY OK'; // FIXME move away from using test key
-      // FIXME throw new https.HttpsError('unknown', error.message, error);
+
+      throw new https.HttpsError('unknown', error.message, error);
     });
 };
 
@@ -64,16 +64,28 @@ exports.captureCharge = ({ sid }) => {
   const stripe = require('stripe')(config().stripe.key);
 
   if (!sid) {
-    return new https.HttpsError('invalid-argument', 'sid is required.');
+    throw new https.HttpsError('invalid-argument', 'sid is required.');
   }
 
   const sessionDoc = db.doc(`Sessions/${sid}`);
 
   return sessionDoc.get()
     .then((doc) => doc.data())
-    .then((data) => stripe.charges.capture(
-      data.private.tranStripeId, // Stripe Charge ID generated in createCharge
-    ))
+    .then((data) => {
+      const { charges } = data.payments;
+
+      const amount = 30 / Object.keys(charges).length; // TODO - subtract discount
+
+      return Promise.all(Object.values(charges).map(({ chargeId }) => stripe.charges.capture(
+        chargeId, // Stripe Charge ID generated in createCharge
+        {
+          amount,
+          transfer_data: {
+            amount: amount * (5 / 6),
+          },
+        },
+      )));
+    })
     .then(() => sessionDoc.update({ paid: true }))
     .then(() => 'Success')
     .catch((error) => {
