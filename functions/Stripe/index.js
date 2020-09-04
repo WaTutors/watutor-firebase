@@ -5,34 +5,35 @@ const { config, https } = require('../node_modules/firebase-functions');
  * Creates Stripe charge.
  *
  * Intakes a Stripe payment source (token generated through credit card or native pay) and charges
- * the payment information that generated the token $15.00 for a tutoring session, which is labeled
- * with an optional subject field.
+ * the payment information that generated the token the specified price, with 5/6 of that amount
+ * being marked for transfer to the target provider Stripe Connect ID. Does not capture charge.
  *
  * @since 0.0.1
  *
- * @link https://firebase.google.com/docs/functions/callable
- * @link https://stripe.com/docs/payments/accept-a-payment-charges#web-create-charge
- * @link https://stripe.com/docs/charges/placing-a-hold#authorize-a-payment
+ * @link https://stripe.com/docs/api/charges/create?lang=node
  *
- * @param {Object} param0         Object containing source and subject.
- * @param {string} param0.source  Token generated through credit card or native pay.
- * @param {string} [subject=null] Optional subject to display in charge description.
+ * @param {string} param0.source      Token generated through credit card or native pay.
+ * @param {string} param0.subject     Session property to display in charge description.
+ * @param {string} param0.destination Stripe Connect ID of provider to transfer part of charge to.
+ * @param {number} param0.price       Price of charge to create.
  *
- * @returns {string}           "Success" if successfully created charge.
- * @throws  {https.HttpsError} Any error that occurred in Stripe charge creation.
+ * @returns {string}           Charge ID of successfully created charge.
+ * @throws  {https.HttpsError} Any error that occurred in charge creation.
  */
-exports.createCharge = ({ source, subject, destination }) => {
+exports.createCharge = ({
+  source, subject, destination, price,
+}) => {
   const stripe = require('stripe')(config().stripe.key);
 
   return stripe.charges.create({
-    amount: 3000,
+    amount: price,
     currency: 'usd',
     description: `${subject} Tutoring Session`,
     source,
     capture: false,
     transfer_data: {
       destination,
-      amount: 2500,
+      amount: price * (5 / 6),
     },
   })
     .then((charge) => charge.id)
@@ -69,10 +70,8 @@ exports.captureChargesMulti = ({ sid }) => {
 
   return sessionDoc.get()
     .then((doc) => doc.data())
-    .then((data) => {
-      const { charges } = data.payments;
-
-      const amount = 30 / Object.keys(charges).length; // TODO - subtract discount
+    .then(({ payments: { charges }, info: { price } }) => {
+      const amount = price / Object.keys(charges).length; // TODO - subtract discount
 
       return Promise.all(Object.values(charges).map(({ chargeId }) => stripe.charges.capture(
         chargeId, // Stripe Charge ID generated in createCharge

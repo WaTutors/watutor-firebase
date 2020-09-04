@@ -92,21 +92,20 @@ exports.approveTutorCredentials = functions.https.onRequest(approveTutorCredenti
  * Creates Stripe charge.
  *
  * Intakes a Stripe payment source (token generated through credit card or native pay) and charges
- * the payment information that generated the token $15.00 for a tutoring session, which is labeled
- * with an optional subject field.
+ * the payment information that generated the token the specified price, with 5/6 of that amount
+ * being marked for transfer to the target provider Stripe Connect ID. Does not capture charge.
  *
  * @since 0.0.1
  *
- * @link https://firebase.google.com/docs/functions/callable
- * @link https://stripe.com/docs/payments/accept-a-payment-charges#web-create-charge
- * @link https://stripe.com/docs/charges/placing-a-hold#authorize-a-payment
+ * @link https://stripe.com/docs/api/charges/create?lang=node
  *
- * @param {Object} param0         Object containing source and subject.
- * @param {string} param0.source  Token generated through credit card or native pay.
- * @param {string} [subject=null] Optional subject to display in charge description.
+ * @param {string} param0.source      Token generated through credit card or native pay.
+ * @param {string} param0.subject     Session property to display in charge description.
+ * @param {string} param0.destination Stripe Connect ID of provider to transfer part of charge to.
+ * @param {number} param0.price       Price of charge to create.
  *
- * @returns {string}           "Success" if successfully created charge.
- * @throws  {https.HttpsError} Any error that occurred in Stripe charge creation.
+ * @returns {string}           Charge ID of successfully created charge.
+ * @throws  {https.HttpsError} Any error that occurred in charge creation.
  */
 exports.createCharge = functions.https.onCall(createCharge);
 
