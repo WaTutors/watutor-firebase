@@ -11,6 +11,10 @@
 const functions = require('firebase-functions');
 
 const {
+  getDocs, getYaml,
+} = require('./docs');
+const { getProfileFromPhoneNumber, getPhoneNumberFromProfile } = require('./search');
+const {
   welcomeEmailStudent, welcomeEmailTutor, sendSlotBookConfirmEmails,
 } = require('./sendEmail');
 const {
@@ -26,9 +30,48 @@ const {
 } = require('./bizDev');
 const { verifyCredential, checkBackground } = require('./tutorVerification');
 const { getMinimumOnDemandSessionLength } = require('./onDemand');
+const { stripeExpressMockUpTemp } = require('./bizDev/demoMocks');
+
+// SECTION Demo Mockup Pages
+
+exports.stripeExpressMockUpTemp = functions.https.onRequest(stripeExpressMockUpTemp);
+
+// !SECTION
+// SECTION Text Messages
+
+/**
+ * for testing
+ * TODO remove
+ */
+exports.testSendTextToBrett = functions.https.onRequest(testSendTextToBrett);
+
+/**
+ * Sends a text message to multiple users
+ *
+ * @param {string} param0.recipientPhoneNumbers   address of recipient
+ * @param {UserIdentifier[]} param0.recipientUsers  array of firebase UserIdentifier
+ *    https://firebase.google.com/docs/reference/admin/node/admin.auth#useridentifier
+ * @param {string} param0.message          message to be sent
+ * @returns {string}                     "Success" if successfully captured charge.
+ * @throws  {functions.https.HttpsError} Any error that occurs
+ */
+exports.triggerTextMessages = functions.https.onCall(triggerTextMessages);
+
+// !SECTION
+// SECTION Documentation
+
+/**
+ * Viewable documentation
+ *
+ * powered by redoc
+ * @link https://github.com/Redocly/redoc
+ * @since 2.0.9
+ */
+exports.docs = functions.https.onRequest(getDocs);
+exports.getYaml = functions.https.onRequest(getYaml);
+// !SECTION -------------------------------------------------------------------
 
 // SECTION --------------------------------------------------------------------
-
 /**
  * Verifies tutor's credential
  *
@@ -217,6 +260,22 @@ exports.verifyEmail = functions.https.onRequest(verifyEmail);
 */
 exports.postPinAndVerifyEmail = functions.https.onRequest(postPinAndVerifyEmail);
 
+/**
+ * Finds users based on their phone number
+ *
+ * @since 2.0.9
+ *
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.auth.Auth#getuserbyphonenumber
+ */
+exports.getProfileFromPhoneNumber = functions.https.onCall(getProfileFromPhoneNumber);
+
+/**
+ * Gets phone numbers from user profile
+ *
+ * @since 2.0.14
+ */
+exports.getPhoneNumberFromProfile = functions.https.onCall(getPhoneNumberFromProfile);
+
 // !SECTION
 
 // SECTION - Call notifications
@@ -288,7 +347,7 @@ exports.reserveSlotsV2 = functions.firestore.document('Sessions/{slotId}').onUpd
  *
  * Sets the reserved field to false in a document with the Schedule collection. The function is
  * triggered by HTTP requests made to:
- * "https://us-central1-watutors-1.cloudfunctions.net/reservation_Callback."
+ * "https://us-central1-watutors-1.cloudfunctions.net/reservationCallbackV2"
  *
  * @since 2.0.8
  *
