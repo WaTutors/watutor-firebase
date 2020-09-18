@@ -17,19 +17,23 @@ const { getProfileFromPhoneNumber, getPhoneNumberFromProfile } = require('./sear
 const {
   welcomeEmailStudent, welcomeEmailTutor, sendSlotBookConfirmEmails,
 } = require('./sendEmail');
-const { createCharge, captureCharge } = require('./stripe');
+const {
+  createCharge, captureCharge, getAccessToken, createLoginLink,
+} = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall, triggerCustomNotifications } = require('./notifications');
 const {
-  reservationCallbackV2, reserveSlotsV2, reserveSlots, reservationCallback,
+  reservationCallbackV2, reserveSlotsV2, reserveSlots, reservationCallback, updateForwardLink,
 } = require('./callSessionEvents');
-const { getSessionsFromEmail, ambassadorDataScrape, approveTutorCredentials } = require('./bizDev');
+const {
+  getSessionsFromEmail, ambassadorDataScrape, approveTutorCredentials,
+} = require('./bizDev');
 const { verifyCredential, checkBackground } = require('./tutorVerification');
-const { testSendTextToBrett, triggerTextMessages } = require('./sendText');
+const { getMinimumOnDemandSessionLength } = require('./onDemand');
+const { stripeExpressMockUpTemp } = require('./bizDev/demoMocks');
 
 // SECTION Demo Mockup Pages
 
-const { stripeExpressMockUpTemp } = './bizDev/demoMocks';
 exports.stripeExpressMockUpTemp = functions.https.onRequest(stripeExpressMockUpTemp);
 
 // !SECTION
@@ -68,7 +72,6 @@ exports.getYaml = functions.https.onRequest(getYaml);
 // !SECTION -------------------------------------------------------------------
 
 // SECTION --------------------------------------------------------------------
-
 /**
  * Verifies tutor's credential
  *
@@ -168,6 +171,42 @@ exports.createCharge = functions.https.onCall(createCharge);
  */
 exports.captureCharge = functions.https.onCall(captureCharge);
 
+/**
+ * Retrieves a Stripe access token.
+ *
+ * Intakes a Stripe Express Account authorization code returned to the app during Stripe account
+ * creation and returns a Stripe access token, completing account creation.
+ *
+ * @since 2.0.0
+ *
+ * @link https://stripe.com/docs/connect/oauth-reference
+ *
+ * @param {Object} param0      Object containing Stripe Express Account authorization code.
+ * @param {string} param0.code Stripe Express Account authorization code.
+ *
+ * @returns {string}           Access token of new Express account.
+ * @throws  {https.HttpsError} Any error that occurs during verification.
+ */
+exports.getAccessToken = functions.https.onCall(getAccessToken);
+
+/**
+ * Creates Stripe Express Account login link.
+ *
+ * Intakes a Stripe Express Account ID from a provider account from the app and returns a temporary
+ * granted URL to use to login to the Express Dashboard.
+ *
+ * @since 2.0.0
+ *
+ * @link https://stripe.com/docs/connect/express-dashboard
+ *
+ * @param {Object} param0         Object containing pay_key.
+ * @param {string} param0.pay_key Stripe Express Account ID trying to login.
+ *
+ * @returns {string}           Temporary granted URL to use to login.
+ * @throws  {https.HttpsError} Any error that occurs during URL creation.
+ */
+exports.createLoginLink = functions.https.onCall(createLoginLink);
+
 // !SECTION
 
 // SECTION - Authentication
@@ -264,27 +303,22 @@ exports.getPhoneNumberFromProfile = functions.https.onCall(getPhoneNumberFromPro
 exports.triggerIncomingCall = functions.https.onCall(triggerIncomingCall);
 
 /**
- * Sends incoming call notification.
+ * Sends notifications to specified profiles.
  *
- * Checks for required slot ID in function call body. Finds target slot from provided ID, creates
- * notification payload and dispatches iOS or Android notification depending on the notification
- * ID content.
+ * Checks for required fields and asynchronous-ly dispatches notifications with custom title, body,
+ * and payload data to the specified profile IDs through Firebase Messaging.
  *
- * @since 0.0.5
+ * @since 2.0.0
  *
- * @see  dispatchIOS
- * @see  dispatchAndroid
- *
- * @param {Object} param0        Object containing target slot ID.
- * @param {Object} param0.pids   Profile ids to send to
- * @param {Object} param0.title  notification primary text
- * @param {Object} param0.subtitle  notification secondary text
- *
- * @returns {Promise}          All notification promises via Promise.all
- * @throws  {https.HttpsError} Any error that occurs during sending of notifications or if the
- *                             function call body is invalid.
+ * @param {Object} req            HTTP request object.
+ * @param {Object} req.body       Request POST body.
+ * @param {array}  req.body.pids  Profile IDs to send to.
+ * @param {string} req.body.title Notification title text.
+ * @param {string} req.body.body  Notification body text.
+ * @param {Object} req.body.data  Notification data payload for background processing.
+ * @param {Object} res            HTTP response object.
  */
-exports.triggerCustomNotifications = functions.https.onCall(triggerCustomNotifications);
+exports.triggerCustomNotifications = functions.https.onRequest(triggerCustomNotifications);
 
 // !SECTION
 
@@ -356,6 +390,21 @@ exports.reservationCallback = functions.https.onRequest((req, res) => {
   reservationCallback(req, res);
 });
 
+/**
+ * Updates Forwards document with video call link.
+ *
+ * Intakes Forwards document ID and video call link and updates the document with the specified
+ * link in order to redirect the user to the video call when joining from the web app.
+ *
+ * @param {Object} param0      Object containing Forwards document ID and video call link.
+ * @param {string} param0.fid  Forwards target document ID.
+ * @param {string} param0.link Video call link to redirect to.
+ *
+ * @returns {string}           "Success" if successfully updated document.
+ * @throws  {https.HttpsError} Any error that occurs during body validation or document updating.
+ */
+exports.updateForwardLink = functions.https.onCall(updateForwardLink);
+
 // SECTION - Emails
 
 /**
@@ -407,5 +456,18 @@ exports.welcomeEmailStudent = functions.https.onCall(welcomeEmailStudent);
  * @throws  {functions.https.HttpsError} Any error that occurs
  */
 exports.welcomeEmailTutor = functions.https.onCall(welcomeEmailTutor);
+
+// !SECTION
+
+// SECTION - On Demand
+
+/**
+ * Returns minimum on demand session length.
+ *
+ * @since 2.1.0
+ *
+ * @returns {number} Minimum on demand session length.
+ */
+exports.getMinimumOnDemandSessionLength = functions.https.onCall(getMinimumOnDemandSessionLength);
 
 // !SECTION

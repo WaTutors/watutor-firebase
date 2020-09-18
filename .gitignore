@@ -75,7 +75,7 @@ yarn.lock
 package-lock.json
 
 # Key files
-wa-tutors-firebase-adminsdk-is74d-c2724a7480.json
+firebase-key.json
 
 # venv
 venv

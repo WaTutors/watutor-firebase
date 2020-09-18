@@ -7,12 +7,14 @@
  */
 const admin = require('firebase-admin');
 
-console.log('Initializing admin sdk...');
+console.log('Initializing admin SDK...');
+
 admin.initializeApp();
+
 const db = admin.firestore();
 const storage = admin.firestore();
 const auth = admin.auth();
-const { messaging } = admin;
+const messaging = admin.messaging();
 
 module.exports = {
   db, storage, auth, messaging,

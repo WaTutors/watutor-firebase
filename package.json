@@ -19,7 +19,7 @@
     "@google-cloud/vision": "^2.1.0",
     "fetch-h2": "^2.4.5",
     "firebase-admin": "^8.9.0",
-    "firebase-functions": "^3.3.0",
+    "firebase-functions": "^3.11.0",
     "googleapis": "^52.1.0",
     "nodemailer": "^6.4.6",
     "stripe": "^8.41.0",
