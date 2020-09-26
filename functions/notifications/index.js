@@ -22,6 +22,8 @@ exports.triggerCustomNotifications = async (req, res) => {
     pids, title, body, data,
   } = req.body.data;
 
+  console.log('triggerCustomNotifications dispatching', req.body.data);
+
   if (!pids || pids.length === 0) {
     console.error(`triggerCustomNotifications invalid body: ${pids}`);
 
@@ -36,7 +38,7 @@ exports.triggerCustomNotifications = async (req, res) => {
           data: {
             title,
             body,
-            payload: JSON.stringify(data),
+            payload: data ? JSON.stringify(data) : '',
           },
           token,
           apns: {

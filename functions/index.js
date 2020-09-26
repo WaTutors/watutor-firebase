@@ -18,7 +18,7 @@ const {
   welcomeEmailStudent, welcomeEmailTutor, sendSlotBookConfirmEmails,
 } = require('./sendEmail');
 const {
-  createCharge, captureCharge, getAccessToken, createLoginLink,
+  createCharge, captureChargesMulti, getAccessToken, createLoginLink,
 } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
 const { triggerIncomingCall, triggerCustomNotifications } = require('./notifications');
@@ -135,41 +135,38 @@ exports.approveTutorCredentials = functions.https.onRequest(approveTutorCredenti
  * Creates Stripe charge.
  *
  * Intakes a Stripe payment source (token generated through credit card or native pay) and charges
- * the payment information that generated the token $15.00 for a tutoring session, which is labeled
- * with an optional subject field.
+ * the payment information that generated the token the specified price, with 5/6 of that amount
+ * being marked for transfer to the target provider Stripe Connect ID. Does not capture charge.
  *
  * @since 0.0.1
  *
- * @link https://firebase.google.com/docs/functions/callable
- * @link https://stripe.com/docs/payments/accept-a-payment-charges#web-create-charge
- * @link https://stripe.com/docs/charges/placing-a-hold#authorize-a-payment
+ * @link https://stripe.com/docs/api/charges/create?lang=node
  *
- * @param {Object} param0         Object containing source and subject.
- * @param {string} param0.source  Token generated through credit card or native pay.
- * @param {string} [subject=null] Optional subject to display in charge description.
+ * @param {string} param0.source      Token generated through credit card or native pay.
+ * @param {string} param0.subject     Session property to display in charge description.
+ * @param {string} param0.destination Stripe Connect ID of provider to transfer part of charge to.
+ * @param {number} param0.price       Price of charge to create.
  *
- * @returns {string}           "Success" if successfully created charge.
- * @throws  {https.HttpsError} Any error that occurred in Stripe charge creation.
+ * @returns {string}           Charge ID of successfully created charge.
+ * @throws  {https.HttpsError} Any error that occurred in charge creation.
  */
 exports.createCharge = functions.https.onCall(createCharge);
 
 /**
- * Captures a charge.
+ * Captures charges.
  *
- * Intakes a charge ID generated from the createCharge function and captures the funds from it.
- * This function should be called programmatically 24 hours after a user's session with a provider
- * given that no disputes took place. Otherwise, the charge will be automatically released after 7
- * days.
+ * Intakes a session ID of a session to take payment from and captures the respective charges from
+ * attending users. Updates the charge amount and transfer amount based on the number of users
+ * paying.
  *
  * @since 0.0.4
  *
- * @link https://firebase.google.com/docs/functions/callable
- * @link https://stripe.com/docs/charges/placing-a-hold#capture-the-funds
+ * @link https://stripe.com/docs/api/charges/capture?lang=node
  *
- * @returns {string}           "Success" if successfully captured charge.
+ * @returns {string}           "Success" if successfully captured charges.
  * @throws  {https.HttpsError} Any error that occurs during capturing.
  */
-exports.captureCharge = functions.https.onCall(captureCharge);
+exports.captureChargesMulti = functions.https.onCall(captureChargesMulti);
 
 /**
  * Retrieves a Stripe access token.

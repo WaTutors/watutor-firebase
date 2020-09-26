@@ -5,79 +5,89 @@ const { config, https } = require('../node_modules/firebase-functions');
  * Creates Stripe charge.
  *
  * Intakes a Stripe payment source (token generated through credit card or native pay) and charges
- * the payment information that generated the token $15.00 for a tutoring session, which is labeled
- * with an optional subject field.
+ * the payment information that generated the token the specified price, with 5/6 of that amount
+ * being marked for transfer to the target provider Stripe Connect ID. Does not capture charge.
  *
  * @since 0.0.1
  *
- * @link https://firebase.google.com/docs/functions/callable
- * @link https://stripe.com/docs/payments/accept-a-payment-charges#web-create-charge
- * @link https://stripe.com/docs/charges/placing-a-hold#authorize-a-payment
+ * @link https://stripe.com/docs/api/charges/create?lang=node
  *
- * @param {Object} param0         Object containing source and subject.
- * @param {string} param0.source  Token generated through credit card or native pay.
- * @param {string} [subject=null] Optional subject to display in charge description.
+ * @param {string} param0.source      Token generated through credit card or native pay.
+ * @param {string} param0.subject     Session property to display in charge description.
+ * @param {string} param0.destination Stripe Connect ID of provider to transfer part of charge to.
+ * @param {number} param0.price       Price of charge to create.
  *
- * @returns {string}           "Success" if successfully created charge.
- * @throws  {https.HttpsError} Any error that occurred in Stripe charge creation.
+ * @returns {string}           Charge ID of successfully created charge.
+ * @throws  {https.HttpsError} Any error that occurred in charge creation.
  */
-exports.createCharge = ({ source, subject, destination }) => {
+exports.createCharge = ({
+  source, subject, destination, price,
+}) => {
   const stripe = require('stripe')(config().stripe.key);
 
   return stripe.charges.create({
-    amount: 3000,
+    amount: price,
     currency: 'usd',
-    description: `${subject} Tutoring Session`,
+    description: `${subject} Session`,
     source,
     capture: false,
     transfer_data: {
       destination,
-      amount: 2500,
+      amount: Math.round(price * (5 / 6)),
     },
   })
     .then((charge) => charge.id)
     .catch((error) => {
       console.error(`createCharge failed with ${error.message}`);
-      return 'TEST KEY OK'; // FIXME move away from using test key
-      // FIXME throw new https.HttpsError('unknown', error.message, error);
+
+      throw new https.HttpsError('unknown', error.message, error);
     });
 };
 
 /**
- * Captures a charge.
+ * Captures charges.
  *
- * Intakes a charge ID generated from the createCharge function and captures the funds from it.
- * This function should be called programmatically 24 hours after a user's session with a provider
- * given that no disputes took place. Otherwise, the charge will be automatically released after 7
- * days.
+ * Intakes a session ID of a session to take payment from and captures the respective charges from
+ * attending users. Updates the charge amount and transfer amount based on the number of users
+ * paying.
  *
  * @since 0.0.4
  *
- * @link https://firebase.google.com/docs/functions/callable
- * @link https://stripe.com/docs/charges/placing-a-hold#capture-the-funds
+ * @link https://stripe.com/docs/api/charges/capture?lang=node
  *
- * @returns {string}           "Success" if successfully captured charge.
+ * @returns {string}           "Success" if successfully captured charges.
  * @throws  {https.HttpsError} Any error that occurs during capturing.
  */
-exports.captureCharge = ({ sid }) => {
+exports.captureChargesMulti = ({ sid }) => {
   const { db } = require('../_helpers/initialize_admin');
   const stripe = require('stripe')(config().stripe.key);
 
   if (!sid) {
-    return new https.HttpsError('invalid-argument', 'sid is required.');
+    throw new https.HttpsError('invalid-argument', 'sid is required.');
   }
 
   const sessionDoc = db.doc(`Sessions/${sid}`);
 
   return sessionDoc.get()
     .then((doc) => doc.data())
-    .then((data) => stripe.charges.capture(
-      data.private.tranStripeId, // Stripe Charge ID generated in createCharge
-    ))
+    .then(({ payments: { charges }, info: { price } }) => {
+      // const amount = price / Object.keys(charges).length; // TODO - subtract discount
+      const amount = price;
+
+      return Promise.all(Object.values(charges).map(({ chargeId }) => stripe.charges.capture(
+        chargeId, // Stripe Charge ID generated in createCharge
+        {
+          amount,
+          transfer_data: {
+            amount: amount * (5 / 6),
+          },
+        },
+      )));
+    })
     .then(() => sessionDoc.update({ paid: true }))
     .then(() => 'Success')
     .catch((error) => {
-      console.error('captureCharge caught', error);
+      console.error('captureCharges caught', error);
 
       throw new https.HttpsError('unknown', error.message, error);
     });
