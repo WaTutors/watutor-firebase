@@ -28,12 +28,12 @@ exports.createCharge = ({
   return stripe.charges.create({
     amount: price,
     currency: 'usd',
-    description: `${subject} Tutoring Session`,
+    description: `${subject} Session`,
     source,
     capture: false,
     transfer_data: {
       destination,
-      amount: price * (5 / 6),
+      amount: Math.round(price * (5 / 6)),
     },
   })
     .then((charge) => charge.id)
@@ -71,7 +71,8 @@ exports.captureChargesMulti = ({ sid }) => {
   return sessionDoc.get()
     .then((doc) => doc.data())
     .then(({ payments: { charges }, info: { price } }) => {
-      const amount = price / Object.keys(charges).length; // TODO - subtract discount
+      // const amount = price / Object.keys(charges).length; // TODO - subtract discount
+      const amount = price;
 
       return Promise.all(Object.values(charges).map(({ chargeId }) => stripe.charges.capture(
         chargeId, // Stripe Charge ID generated in createCharge
