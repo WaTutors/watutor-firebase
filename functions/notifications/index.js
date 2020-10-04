@@ -18,11 +18,11 @@
 exports.triggerCustomNotifications = async (req, res) => {
   const { db, messaging } = require('../_helpers/initialize_admin');
 
+  console.log('triggerCustomNotifications dispatching', req.body.data);
+
   const {
     pids, title, body, data,
   } = req.body.data;
-
-  console.log('triggerCustomNotifications dispatching', req.body.data);
 
   if (!pids || pids.length === 0) {
     console.error(`triggerCustomNotifications invalid body: ${pids}`);
@@ -36,25 +36,23 @@ exports.triggerCustomNotifications = async (req, res) => {
       return notifications.map(
         (token) => messaging.send({
           data: {
-            title,
-            body,
             payload: data ? JSON.stringify(data) : '',
           },
           token,
+          notification: {
+            title,
+            body,
+          },
           apns: {
             headers: {
-              'apns-push-type': 'background',
-              'apns-priority': '5',
+              'apns-push-type': 'alert',
               'apns-topic': 'com.wavisits.watutors',
             },
             payload: {
               aps: {
-                contentAvailable: true,
+                contentAvailable: !!data.session,
               },
             },
-          },
-          android: {
-            priority: 'high',
           },
         })
           .catch((error) => {
