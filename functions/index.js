@@ -21,7 +21,7 @@ const {
   createCharge, captureChargesMulti, getAccessToken, createLoginLink,
 } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
-const { triggerIncomingCall, triggerCustomNotifications } = require('./notifications');
+const { triggerCustomNotifications } = require('./notifications');
 const {
   reservationCallbackV2, reserveSlotsV2, reserveSlots, reservationCallback, updateForwardLink,
 } = require('./callSessionEvents');
@@ -31,6 +31,7 @@ const {
 const { verifyCredential, checkBackground } = require('./tutorVerification');
 const { getMinimumOnDemandSessionLength } = require('./onDemand');
 const { stripeExpressMockUpTemp } = require('./bizDev/demoMocks');
+const { triggerTextMessages } = require('./sendText');
 
 // SECTION Demo Mockup Pages
 
@@ -38,12 +39,6 @@ exports.stripeExpressMockUpTemp = functions.https.onRequest(stripeExpressMockUpT
 
 // !SECTION
 // SECTION Text Messages
-
-/**
- * for testing
- * TODO remove
- */
-exports.testSendTextToBrett = functions.https.onRequest(testSendTextToBrett);
 
 /**
  * Sends a text message to multiple users
@@ -275,29 +270,7 @@ exports.getPhoneNumberFromProfile = functions.https.onCall(getPhoneNumberFromPro
 
 // !SECTION
 
-// SECTION - Call notifications
-
-/**
- * Sends incoming call notification. TODO convert to onRequest so it can be called by Cloud Task
- *
- * Checks for required slot ID in function call body. Finds target slot from provided ID, creates
- * notification payload and dispatches iOS or Android notification depending on the notification
- * ID content.
- *
- * @since 0.0.6
- *
- * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Database#ref
- * @link https://firebase.google.com/docs/reference/admin/node/admin.database.Reference#once
- * @link https://firebase.google.com/docs/reference/admin/node/admin.database.DataSnapshot#val
- *
- * @param {Object} param0        Object containing target slot ID.
- * @param {Object} param0.slotId ID of slot to send incoming call notification for.
- *
- * @returns {string}          "Success" if notification was properly dispatched.
- * @throws {https.HttpsError} Any error that occurs during sending of notifications or if the
- *                            function call body is invalid.
- */
-exports.triggerIncomingCall = functions.https.onCall(triggerIncomingCall);
+// SECTION - Notifications
 
 /**
  * Sends notifications to specified profiles.

@@ -51,6 +51,7 @@ exports.triggerCustomNotifications = async (req, res) => {
             payload: {
               aps: {
                 contentAvailable: !!data.session,
+                badge: 1,
               },
             },
           },
