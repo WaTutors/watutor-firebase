@@ -1,5 +1,3 @@
-const functions = require('firebase-functions');
-
 /**
  * send text message using Twilio service
  * @param {string} param0.to phone number of recepient
