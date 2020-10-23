@@ -3,7 +3,10 @@
   "target": {
     "namespace": "android_app",
     "package_name": "com.wavisits.watutor",
-    "sha256_cert_fingerprints":
-    ["AE:B5:4C:14:85:CB:68:16:BA:2F:64:A7:E7:81:24:F4:99:8D:09:31:9D:D0:7E:95:B6:64:A4:6E:31:02:A5:6B"]
+    "sha256_cert_fingerprints": [
+      "ca:cd:0b:f9:6d:db:42:e9:0c:be:ca:35:66:3d:09:05:b6:88:f2:87:4a:f5:8c:03:51:6a:ce:70:6d:f6:6a:e7",
+      "f6:eb:0c:fc:db:d9:93:74:54:94:b3:4b:15:62:20:60:65:aa:3d:1d:6c:a6:6d:39:d0:84:3b:e4:fd:0c:bc:8b",
+      "d4:82:6e:84:8a:d1:74:73:0d:b6:69:af:40:b2:38:6c:72:1c:46:7e:9b:e2:aa:50:1f:8e:fd:ec:e1:d1:2c:26"
+    ]
   }
 }]
