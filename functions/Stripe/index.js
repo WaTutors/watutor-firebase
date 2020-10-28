@@ -1,6 +1,14 @@
 /* eslint-disable camelcase */
 const { config, https } = require('../node_modules/firebase-functions');
 
+const getStripe = (auth) => {
+  if (auth.token.phone_number.includes('1111111111')) { // test phone number
+    return require('stripe')(config().stripe.test_key);
+  }
+
+  return require('stripe')(config().stripe.live_key);
+};
+
 /**
  * Creates Stripe charge.
  *
@@ -22,8 +30,8 @@ const { config, https } = require('../node_modules/firebase-functions');
  */
 exports.createCharge = ({
   source, subject, destination, price,
-}) => {
-  const stripe = require('stripe')(config().stripe.key);
+}, { auth }) => {
+  const stripe = getStripe(auth);
 
   return stripe.charges.create({
     amount: price,
@@ -58,9 +66,10 @@ exports.createCharge = ({
  * @returns {string}           "Success" if successfully captured charges.
  * @throws  {https.HttpsError} Any error that occurs during capturing.
  */
-exports.captureChargesMulti = ({ sid }) => {
+exports.captureChargesMulti = ({ sid }, { auth }) => {
   const { db } = require('../_helpers/initialize_admin');
-  const stripe = require('stripe')(config().stripe.key);
+
+  const stripe = getStripe(auth);
 
   if (!sid) {
     throw new https.HttpsError('invalid-argument', 'sid is required.');
@@ -109,8 +118,8 @@ exports.captureChargesMulti = ({ sid }) => {
  * @returns {string}           Access token of new Express account.
  * @throws  {https.HttpsError} Any error that occurs during verification.
  */
-exports.getAccessToken = ({ code }) => {
-  const stripe = require('stripe')(config().stripe.key);
+exports.getAccessToken = ({ code }, { auth }) => {
+  const stripe = getStripe(auth);
 
   if (!code) {
     return new https.HttpsError('invalid-argument', 'code is required.');
@@ -144,8 +153,8 @@ exports.getAccessToken = ({ code }) => {
  * @returns {string}           Temporary granted URL to use to login.
  * @throws  {https.HttpsError} Any error that occurs during URL creation.
  */
-exports.createLoginLink = ({ pay_key }) => {
-  const stripe = require('stripe')(config().stripe.key);
+exports.createLoginLink = ({ pay_key }, { auth }) => {
+  const stripe = getStripe(auth);
 
   if (!pay_key) {
     return new https.HttpsError('invalid-argument', 'pay_key is required.');
