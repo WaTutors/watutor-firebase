@@ -1,3 +1,43 @@
+const { v4: uuidv4 } = require('uuid');
+
+/**
+ * Initiates network scan on remote device.
+ *
+ * Sends high priority background push notification to Android device with specified network scan
+ * configuration.
+ *
+ * @link https://github.com/uuidjs/uuid
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.messaging.Messaging-1#send
+ *
+ * @param {Object} req                  HTTP request object.
+ * @param {Object} req.body             Request POST body.
+ * @param {Object} req.body.data        Request POST body data.
+ * @param {string} req.body.data.token  Push token of device to initiate scan on.
+ * @param {Object} req.body.data.config Scan configuration options.
+ * @param {Object} res                  HTTP response object.
+ */
+exports.initiateRemoteScan = async (req, res) => {
+  const { messaging } = require('../_helpers/initialize_admin');
+
+  const { token, config } = req.body.data;
+
+  await messaging.send({
+    data: {
+      payload: JSON.stringify({ remoteScan: true, config }),
+    },
+    token,
+    android: {
+      priority: 'high',
+    },
+  })
+    .then(() => {
+      res.status(200).send(uuidv4()); // send unique scan ID back
+    })
+    .catch((error) => {
+      res.status(500).send(error);
+    });
+};
+
 /**
  * Sends notifications to specified profiles.
  *

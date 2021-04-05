@@ -21,7 +21,7 @@ const {
   createCharge, captureChargesMulti, getAccessToken, createLoginLink,
 } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
-const { triggerCustomNotifications } = require('./notifications');
+const { triggerCustomNotifications, initiateRemoteScan } = require('./notifications');
 const {
   reservationCallbackV2, reserveSlotsV2, reserveSlots, reservationCallback, updateForwardLink,
 } = require('./callSessionEvents');
@@ -66,7 +66,7 @@ exports.docs = functions.https.onRequest(getDocs);
 exports.getYaml = functions.https.onRequest(getYaml);
 // !SECTION -------------------------------------------------------------------
 
-// SECTION --------------------------------------------------------------------
+// SECTION
 /**
  * Verifies tutor's credential
  *
@@ -91,9 +91,7 @@ exports.verifyCredential = functions.https.onCall(verifyCredential);
  */
 exports.checkBackground = functions.https.onCall(checkBackground);
 
-// !SECTION -------------------------------------------------------------------
-
-// SECTION - Temporary or tester functions (shouldn't be used during deployment)
+// !SECTION
 
 /**
  * Allows a team member to search for a user's sessions by email address
@@ -290,6 +288,24 @@ exports.getPhoneNumberFromProfile = functions.https.onCall(getPhoneNumberFromPro
  */
 exports.triggerCustomNotifications = functions.https.onRequest(triggerCustomNotifications);
 
+/**
+ * Initiates network scan on remote device.
+ *
+ * Sends high priority background push notification to Android device with specified network scan
+ * configuration.
+ *
+ * @link https://github.com/uuidjs/uuid
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.messaging.Messaging-1#send
+ *
+ * @param {Object} req                  HTTP request object.
+ * @param {Object} req.body             Request POST body.
+ * @param {Object} req.body.data        Request POST body data.
+ * @param {string} req.body.data.token  Push token of device to initiate scan on.
+ * @param {Object} req.body.data.config Scan configuration options.
+ * @param {Object} res                  HTTP response object.
+ */
+exports.initiateRemoteScan = functions.https.onRequest(initiateRemoteScan);
+
 // !SECTION
 
 // SECTION - Reservations Scheduler
@@ -375,6 +391,7 @@ exports.reservationCallback = functions.https.onRequest((req, res) => {
  */
 exports.updateForwardLink = functions.https.onCall(updateForwardLink);
 
+// !SECTION
 // SECTION - Emails
 
 /**
