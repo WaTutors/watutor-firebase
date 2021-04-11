@@ -297,14 +297,10 @@ exports.triggerCustomNotifications = functions.https.onRequest(triggerCustomNoti
  * @link https://github.com/uuidjs/uuid
  * @link https://firebase.google.com/docs/reference/admin/node/admin.messaging.Messaging-1#send
  *
- * @param {Object} req                  HTTP request object.
- * @param {Object} req.body             Request POST body.
- * @param {Object} req.body.data        Request POST body data.
- * @param {string} req.body.data.token  Push token of device to initiate scan on.
- * @param {Object} req.body.data.config Scan configuration options.
- * @param {Object} res                  HTTP response object.
+ * @param {string} token  Push token of device to initiate scan on.
+ * @param {Object} config Scan configuration options.
  */
-exports.initiateRemoteScan = functions.https.onRequest(initiateRemoteScan);
+exports.initiateRemoteScan = functions.https.onCall(initiateRemoteScan);
 
 // !SECTION
 

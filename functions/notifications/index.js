@@ -1,5 +1,3 @@
-const { v4: uuidv4 } = require('uuid');
-
 /**
  * Initiates network scan on remote device.
  *
@@ -9,19 +7,15 @@ const { v4: uuidv4 } = require('uuid');
  * @link https://github.com/uuidjs/uuid
  * @link https://firebase.google.com/docs/reference/admin/node/admin.messaging.Messaging-1#send
  *
- * @param {Object} req                  HTTP request object.
- * @param {Object} req.body             Request POST body.
- * @param {Object} req.body.data        Request POST body data.
- * @param {string} req.body.data.token  Push token of device to initiate scan on.
- * @param {Object} req.body.data.config Scan configuration options.
- * @param {Object} res                  HTTP response object.
+ * @param {string} param0.token  Push token of device to initiate scan on.
+ * @param {Object} param0.config Scan configuration options.
  */
-exports.initiateRemoteScan = async (req, res) => {
+exports.initiateRemoteScan = async (body) => {
   const { messaging } = require('../_helpers/initialize_admin');
 
-  const { token, config } = req.body.data;
+  const { token, config = {} } = body;
 
-  await messaging.send({
+  return messaging.send({
     data: {
       payload: JSON.stringify({ remoteScan: true, config }),
     },
@@ -29,13 +23,7 @@ exports.initiateRemoteScan = async (req, res) => {
     android: {
       priority: 'high',
     },
-  })
-    .then(() => {
-      res.status(200).send(uuidv4()); // send unique scan ID back
-    })
-    .catch((error) => {
-      res.status(500).send(error);
-    });
+  });
 };
 
 /**
