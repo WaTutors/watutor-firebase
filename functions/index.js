@@ -21,7 +21,7 @@ const {
   createCharge, captureChargesMulti, getAccessToken, createLoginLink,
 } = require('./stripe');
 const { setPinPage, verifyEmail, postPinAndVerifyEmail } = require('./verifyEmail');
-const { triggerCustomNotifications } = require('./notifications');
+const { triggerCustomNotifications, initiateRemoteScan } = require('./notifications');
 const {
   reservationCallbackV2, reserveSlotsV2, reserveSlots, reservationCallback, updateForwardLink,
 } = require('./callSessionEvents');
@@ -32,7 +32,15 @@ const { verifyCredential, checkBackground } = require('./tutorVerification');
 const { getMinimumOnDemandSessionLength } = require('./onDemand');
 const { stripeExpressMockUpTemp } = require('./bizDev/demoMocks');
 const { triggerTextMessages } = require('./sendText');
+const { aggregateDevices } = require('./devices');
 
+// SECTION - Devices
+
+exports.aggregateDevices = functions.firestore
+  .document('Scans/{scanId}')
+  .onCreate(aggregateDevices);
+
+// !SECTION
 // SECTION Demo Mockup Pages
 
 exports.stripeExpressMockUpTemp = functions.https.onRequest(stripeExpressMockUpTemp);
@@ -66,7 +74,7 @@ exports.docs = functions.https.onRequest(getDocs);
 exports.getYaml = functions.https.onRequest(getYaml);
 // !SECTION -------------------------------------------------------------------
 
-// SECTION --------------------------------------------------------------------
+// SECTION
 /**
  * Verifies tutor's credential
  *
@@ -91,9 +99,7 @@ exports.verifyCredential = functions.https.onCall(verifyCredential);
  */
 exports.checkBackground = functions.https.onCall(checkBackground);
 
-// !SECTION -------------------------------------------------------------------
-
-// SECTION - Temporary or tester functions (shouldn't be used during deployment)
+// !SECTION
 
 /**
  * Allows a team member to search for a user's sessions by email address
@@ -290,6 +296,20 @@ exports.getPhoneNumberFromProfile = functions.https.onCall(getPhoneNumberFromPro
  */
 exports.triggerCustomNotifications = functions.https.onRequest(triggerCustomNotifications);
 
+/**
+ * Initiates network scan on remote device.
+ *
+ * Sends high priority background push notification to Android device with specified network scan
+ * configuration.
+ *
+ * @link https://github.com/uuidjs/uuid
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.messaging.Messaging-1#send
+ *
+ * @param {string} token  Push token of device to initiate scan on.
+ * @param {Object} config Scan configuration options.
+ */
+exports.initiateRemoteScan = functions.https.onCall(initiateRemoteScan);
+
 // !SECTION
 
 // SECTION - Reservations Scheduler
@@ -375,6 +395,7 @@ exports.reservationCallback = functions.https.onRequest((req, res) => {
  */
 exports.updateForwardLink = functions.https.onCall(updateForwardLink);
 
+// !SECTION
 // SECTION - Emails
 
 /**

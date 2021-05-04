@@ -1,4 +1,32 @@
 /**
+ * Initiates network scan on remote device.
+ *
+ * Sends high priority background push notification to Android device with specified network scan
+ * configuration.
+ *
+ * @link https://github.com/uuidjs/uuid
+ * @link https://firebase.google.com/docs/reference/admin/node/admin.messaging.Messaging-1#send
+ *
+ * @param {string} param0.token  Push token of device to initiate scan on.
+ * @param {Object} param0.config Scan configuration options.
+ */
+exports.initiateRemoteScan = async (body) => {
+  const { messaging } = require('../_helpers/initialize_admin');
+
+  const { token, config = {} } = body;
+
+  return messaging.send({
+    data: {
+      payload: JSON.stringify({ remoteScan: true, config }),
+    },
+    token,
+    android: {
+      priority: 'high',
+    },
+  });
+};
+
+/**
  * Sends notifications to specified profiles.
  *
  * Checks for required fields and asynchronous-ly dispatches notifications with custom title, body,

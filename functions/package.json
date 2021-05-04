@@ -19,7 +19,7 @@
     "eslint-config-airbnb-base": "^14.1.0",
     "fetch-h2": "^2.4.5",
     "firebase-admin": "^8.9.0",
-    "firebase-functions": "^3.11.0",
+    "firebase-functions": "^3.13.2",
     "googleapis": "^52.1.0",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.25.3",

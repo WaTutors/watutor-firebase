@@ -76,6 +76,7 @@ package-lock.json
 
 # Key files
 firebase-key.json
+apns-key.p8
 
 # venv
 venv
