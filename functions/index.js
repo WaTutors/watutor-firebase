@@ -32,7 +32,15 @@ const { verifyCredential, checkBackground } = require('./tutorVerification');
 const { getMinimumOnDemandSessionLength } = require('./onDemand');
 const { stripeExpressMockUpTemp } = require('./bizDev/demoMocks');
 const { triggerTextMessages } = require('./sendText');
+const { aggregateDevices } = require('./devices');
 
+// SECTION - Devices
+
+exports.aggregateDevices = functions.firestore
+  .document('Scans/{scanId}')
+  .onCreate(aggregateDevices);
+
+// !SECTION
 // SECTION Demo Mockup Pages
 
 exports.stripeExpressMockUpTemp = functions.https.onRequest(stripeExpressMockUpTemp);
