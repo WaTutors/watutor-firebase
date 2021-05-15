@@ -15,19 +15,21 @@ const detectType = (mac, ip, bssids, gateway) => {
 exports.aggregateDevices = async (snap) => {
   const { db } = require('../_helpers/initialize_admin');
 
-  const doc = snap.data();
+  const {
+    pid, discovered, config, nid,
+  } = snap.data();
 
   const newDevices = [];
-  const existingDevices = (await db.collection('Devices').where('pid', '==', doc.pid).get()).docs
+  const existingDevices = (await db.collection('Devices').where('pid', '==', pid).get()).docs
     .map((existingDoc) => ({
       ...existingDoc.data(),
       id: existingDoc.id,
     }));
 
-  await Promise.all(doc.discovered.map(async ({
+  await Promise.all(discovered.map(async ({
     mac, ip, timestamp, name, manufacturer, model,
   }) => {
-    if (mac) {
+    if (mac) { // devices without MAC addresses cannot uniquely be identified
       const index = existingDevices.findIndex((existingDevice) => existingDevice.mac === mac);
 
       let deviceDoc = existingDevices[index];
@@ -35,11 +37,11 @@ exports.aggregateDevices = async (snap) => {
       // remove found device so that at the end, all remaining devices can be marked as inactive
       existingDevices.splice(index, 1);
 
-      let { bssids } = doc.config;
+      let { bssids } = config;
 
-      // backgrounded scan will not have BSSIDs
+      // backgrounded scans may not have BSSIDs
       if (!bssids) {
-        bssids = (await db.collection('Profiles').doc(doc.pid).get()).networks[doc.nid].bssids;
+        bssids = (await db.collection('Profiles').doc(pid).get()).networks[nid].bssids;
       }
 
       const lastOnline = timestamp[timestamp.length - 1];
@@ -69,8 +71,8 @@ exports.aggregateDevices = async (snap) => {
         }
 
         // if device switched networks (brought to second house, etc.)
-        if (updatedDevice.nid !== doc.nid) {
-          updatedDevice.nid = doc.nid;
+        if (updatedDevice.nid !== nid) {
+          updatedDevice.nid = nid;
         }
 
         return db.collection('Devices').doc(deviceDoc.id).set(updatedDevice);
@@ -86,9 +88,9 @@ exports.aggregateDevices = async (snap) => {
         status: 'active',
         name: name || (manufacturer ? `My ${manufacturer} Device` : 'My Device'),
         lastOnline,
-        type: detectType(mac, ip, bssids, doc.config.gateway),
-        pid: doc.pid,
-        nid: doc.nid,
+        type: detectType(mac, ip, bssids, config.gateway),
+        pid,
+        nid,
       };
 
       if (manufacturer) newDevice.manufacturer = manufacturer;
@@ -109,19 +111,5 @@ exports.aggregateDevices = async (snap) => {
     };
 
     return db.collection('Devices').doc(device.id).set(updatedDevice);
-  }));
-
-  // attach doc IDs of other devices to each doc in order to retain relationship
-  await Promise.all(newDevices.map((device, deviceIndex) => {
-    const deviceObj = { ...device };
-
-    delete deviceObj.ref;
-
-    return device.ref.set({
-      ...deviceObj,
-      otherDevices: newDevices
-        .filter((_, otherIndex) => otherIndex !== deviceIndex)
-        .map(({ ref }) => ref.id),
-    });
   }));
 };
