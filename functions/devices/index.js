@@ -32,10 +32,14 @@ exports.aggregateDevices = async (snap) => {
     if (mac) { // devices without MAC addresses cannot uniquely be identified
       const index = existingDevices.findIndex((existingDevice) => existingDevice.mac === mac);
 
-      let deviceDoc = existingDevices[index];
+      let deviceDoc = null;
 
-      // remove found device so that at the end, all remaining devices can be marked as inactive
-      existingDevices.splice(index, 1);
+      if (index > -1) { // existing device found
+        deviceDoc = existingDevices[index];
+
+        // remove found device so that at the end, all remaining devices can be marked as inactive
+        existingDevices.splice(index, 1);
+      }
 
       let { bssids } = config;
 
@@ -103,7 +107,16 @@ exports.aggregateDevices = async (snap) => {
     return null;
   }));
 
-  // array of remaining devices that appeared in last scan but not this one
+  // add docs for new devices
+  await Promise.all(newDevices.map((device) => {
+    const newDevice = { ...device };
+
+    delete newDevice.ref;
+
+    return device.ref.set(newDevice);
+  }));
+
+  // update status of remaining devices that appeared in last scan but not this one
   await Promise.all(existingDevices.map((device) => {
     const updatedDevice = {
       ...device,
